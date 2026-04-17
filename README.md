@@ -1,34 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# metin2-cms
 
-## Getting Started
+Modern CMS and item shop for Metin2 servers, built with Next.js, TypeScript and SSR.
 
-First, run the development server:
+## Goal
+
+This repository is the modern web platform for the Metin2 server environment in this lab.
+
+The first product slice is intentionally small:
+- login
+- register
+- account session handling
+
+Later slices can expand into:
+- account area
+- rankings
+- downloads
+- item shop
+- admin tooling
+
+## Technical direction
+
+Current bootstrap decisions:
+- Next.js App Router
+- TypeScript
+- pnpm
+- Tailwind CSS
+- Drizzle ORM + mysql2
+- server-first architecture
+
+## Auth source of truth
+
+The live game database is the source of truth for identity.
+
+Read-only inspection on `metin2server` confirmed that the active account table is `account.account`, with legacy-compatible fields such as:
+- `login`
+- `password`
+- `social_id`
+- `email`
+- `status`
+- `cash`
+- `mileage`
+
+Important:
+- the live schema does not expose `real_name`
+- the live schema does not expose `coins`
+- current passwords are stored in a legacy 41-character `PASSWORD()`-style hash format
+
+Because of that, the CMS must be designed around the real running DB contract, not around assumptions from old PHP CMS codebases.
+
+## Architecture boundary
+
+The repository will keep two data domains clearly separated:
+
+1. Legacy game-owned data
+- `account.account` remains the identity source of truth
+
+2. CMS-owned data
+- web sessions
+- auth audit logs
+- token/recovery state
+- later, item shop and operational tables
+
+## Local development
+
+Required baseline:
+- Node.js `22.22.2`
+- pnpm `10.33.0`
+
+Main commands:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm test
+pnpm build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Status
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Current phase:
+- repository bootstrap
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next implementation phase after bootstrap:
+- legacy-compatible login/register
