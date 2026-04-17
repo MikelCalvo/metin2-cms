@@ -13,19 +13,32 @@ export async function createAuthAuditLogEntry(
 
 export async function countAuthAuditEntriesSince(options: {
   eventType: string;
-  login: string;
   since: string;
+  login?: string;
+  ip?: string | null;
+  success?: 0 | 1;
 }): Promise<number> {
+  const conditions = [
+    eq(authAuditLog.eventType, options.eventType),
+    gte(authAuditLog.createdAt, options.since),
+  ];
+
+  if (typeof options.login === "string") {
+    conditions.push(eq(authAuditLog.login, options.login));
+  }
+
+  if (typeof options.ip === "string") {
+    conditions.push(eq(authAuditLog.ip, options.ip));
+  }
+
+  if (typeof options.success === "number") {
+    conditions.push(eq(authAuditLog.success, options.success));
+  }
+
   const rows = await getCmsDb()
     .select({ count: sql<number>`count(*)` })
     .from(authAuditLog)
-    .where(
-      and(
-        eq(authAuditLog.eventType, options.eventType),
-        eq(authAuditLog.login, options.login),
-        gte(authAuditLog.createdAt, options.since),
-      ),
-    );
+    .where(and(...conditions));
 
   return Number(rows[0]?.count ?? 0);
 }

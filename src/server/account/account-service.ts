@@ -6,6 +6,10 @@ import {
   findAccountByLogin,
 } from "@/server/account/account-repository";
 import {
+  countAuthAuditEntriesSince,
+  createAuthAuditLogEntry,
+} from "@/server/auth/auth-audit-repository";
+import {
   hashPasswordWithLegacyAlgorithm,
   verifyLegacyPassword,
 } from "@/server/auth/password-compat";
@@ -20,12 +24,62 @@ function toMysqlDateTime(date: Date) {
   return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
+const LOGIN_AUDIT_EVENT_TYPE = "login";
+const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_RATE_LIMIT_MAX_FAILURES = 5;
+
+function buildLoginAuditDetail(outcome: string) {
+  return `outcome=${outcome}`;
+}
+
 export async function authenticateLegacyAccount(
   input: LoginInput,
 ): Promise<AuthenticateLegacyAccountResult> {
+  const attemptedAt = new Date();
+  const createdAt = toMysqlDateTime(attemptedAt);
+  const recentFailureWindowStartedAt = toMysqlDateTime(
+    new Date(attemptedAt.getTime() - LOGIN_RATE_LIMIT_WINDOW_MS),
+  );
+  const recentFailedAttempts = await countAuthAuditEntriesSince({
+    eventType: LOGIN_AUDIT_EVENT_TYPE,
+    login: input.login,
+    since: recentFailureWindowStartedAt,
+    success: 0,
+  });
+
+  if (recentFailedAttempts >= LOGIN_RATE_LIMIT_MAX_FAILURES) {
+    await createAuthAuditLogEntry({
+      eventType: LOGIN_AUDIT_EVENT_TYPE,
+      login: input.login,
+      accountId: null,
+      ip: input.ip ?? null,
+      userAgent: input.userAgent ?? null,
+      success: 0,
+      detail: buildLoginAuditDetail("rate_limited"),
+      createdAt,
+    });
+
+    return {
+      ok: false,
+      code: "rate_limited",
+      message: "Too many sign-in attempts. Please wait a few minutes and try again.",
+    };
+  }
+
   const account = await findAccountByLogin(input.login);
 
   if (!account) {
+    await createAuthAuditLogEntry({
+      eventType: LOGIN_AUDIT_EVENT_TYPE,
+      login: input.login,
+      accountId: null,
+      ip: input.ip ?? null,
+      userAgent: input.userAgent ?? null,
+      success: 0,
+      detail: buildLoginAuditDetail("invalid_credentials"),
+      createdAt,
+    });
+
     return {
       ok: false,
       code: "invalid_credentials",
@@ -36,6 +90,17 @@ export async function authenticateLegacyAccount(
   const passwordMatches = await verifyLegacyPassword(input.password, account.password);
 
   if (!passwordMatches) {
+    await createAuthAuditLogEntry({
+      eventType: LOGIN_AUDIT_EVENT_TYPE,
+      login: input.login,
+      accountId: account.id,
+      ip: input.ip ?? null,
+      userAgent: input.userAgent ?? null,
+      success: 0,
+      detail: buildLoginAuditDetail("invalid_credentials"),
+      createdAt,
+    });
+
     return {
       ok: false,
       code: "invalid_credentials",
@@ -44,12 +109,34 @@ export async function authenticateLegacyAccount(
   }
 
   if (account.status !== "OK") {
+    await createAuthAuditLogEntry({
+      eventType: LOGIN_AUDIT_EVENT_TYPE,
+      login: input.login,
+      accountId: account.id,
+      ip: input.ip ?? null,
+      userAgent: input.userAgent ?? null,
+      success: 0,
+      detail: buildLoginAuditDetail("account_unavailable"),
+      createdAt,
+    });
+
     return {
       ok: false,
       code: "account_unavailable",
       message: "This account is not available for login.",
     };
   }
+
+  await createAuthAuditLogEntry({
+    eventType: LOGIN_AUDIT_EVENT_TYPE,
+    login: input.login,
+    accountId: account.id,
+    ip: input.ip ?? null,
+    userAgent: input.userAgent ?? null,
+    success: 1,
+    detail: buildLoginAuditDetail("authenticated"),
+    createdAt,
+  });
 
   return {
     ok: true,

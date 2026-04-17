@@ -50,7 +50,7 @@ export type AuthenticateLegacyAccountResult =
     }
   | {
       ok: false;
-      code: "invalid_credentials" | "account_unavailable";
+      code: "invalid_credentials" | "account_unavailable" | "rate_limited";
       message: string;
     };
 

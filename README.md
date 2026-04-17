@@ -120,6 +120,7 @@ pnpm build
 
 Current phase:
 - legacy-compatible login/register implemented
+- login attempts now write `auth_audit_log` entries and are rate-limited per login after repeated failures
 - password recovery slice implemented with CMS-owned tokens
 - temporary recovery delivery modes in place (`preview` for dev, `file` for production)
 - recovery requests now write `auth_audit_log` entries and are rate-limited per login

@@ -11,6 +11,8 @@ Current integration coverage proves:
 - a new account can be registered into `account_test.account`
 - duplicate login and blocked-account paths behave correctly against the legacy schema
 - the stored password uses the legacy `PASSWORD()`-compatible hash flow
+- failed and successful login attempts write entries into `metin2_cms_test.auth_audit_log`
+- repeated failed login attempts are rate-limited per login
 - the same credentials can log in through the service layer
 - recovery links are created in `metin2_cms_test.password_recovery_tokens`
 - recovery requests write entries into `metin2_cms_test.auth_audit_log`

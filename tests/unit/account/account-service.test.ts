@@ -5,11 +5,15 @@ const {
   createLegacyAccountMock,
   hashPasswordWithLegacyAlgorithmMock,
   verifyLegacyPasswordMock,
+  createAuthAuditLogEntryMock,
+  countAuthAuditEntriesSinceMock,
 } = vi.hoisted(() => ({
   findAccountByLoginMock: vi.fn(),
   createLegacyAccountMock: vi.fn(),
   hashPasswordWithLegacyAlgorithmMock: vi.fn(),
   verifyLegacyPasswordMock: vi.fn(),
+  createAuthAuditLogEntryMock: vi.fn(),
+  countAuthAuditEntriesSinceMock: vi.fn(),
 }));
 
 vi.mock("@/server/account/account-repository", () => ({
@@ -20,6 +24,11 @@ vi.mock("@/server/account/account-repository", () => ({
 vi.mock("@/server/auth/password-compat", () => ({
   hashPasswordWithLegacyAlgorithm: hashPasswordWithLegacyAlgorithmMock,
   verifyLegacyPassword: verifyLegacyPasswordMock,
+}));
+
+vi.mock("@/server/auth/auth-audit-repository", () => ({
+  createAuthAuditLogEntry: createAuthAuditLogEntryMock,
+  countAuthAuditEntriesSince: countAuthAuditEntriesSinceMock,
 }));
 
 import {
@@ -33,6 +42,9 @@ describe("account service", () => {
     createLegacyAccountMock.mockReset();
     hashPasswordWithLegacyAlgorithmMock.mockReset();
     verifyLegacyPasswordMock.mockReset();
+    createAuthAuditLogEntryMock.mockReset();
+    countAuthAuditEntriesSinceMock.mockReset();
+    countAuthAuditEntriesSinceMock.mockResolvedValue(0);
   });
 
   it("rejects login when the account does not exist", async () => {
@@ -41,6 +53,15 @@ describe("account service", () => {
     await expect(
       authenticateLegacyAccount({ login: "tester01", password: "abc12345" }),
     ).resolves.toMatchObject({ ok: false, code: "invalid_credentials" });
+
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "login",
+        login: "tester01",
+        success: 0,
+        detail: expect.stringContaining("invalid_credentials"),
+      }),
+    );
   });
 
   it("rejects login when the password is invalid", async () => {
@@ -55,6 +76,16 @@ describe("account service", () => {
     await expect(
       authenticateLegacyAccount({ login: "tester01", password: "abc12345" }),
     ).resolves.toMatchObject({ ok: false, code: "invalid_credentials" });
+
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "login",
+        login: "tester01",
+        accountId: 1,
+        success: 0,
+        detail: expect.stringContaining("invalid_credentials"),
+      }),
+    );
   });
 
   it("rejects login when the account status is not usable", async () => {
@@ -69,6 +100,16 @@ describe("account service", () => {
     await expect(
       authenticateLegacyAccount({ login: "tester01", password: "abc12345" }),
     ).resolves.toMatchObject({ ok: false, code: "account_unavailable" });
+
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "login",
+        login: "tester01",
+        accountId: 1,
+        success: 0,
+        detail: expect.stringContaining("account_unavailable"),
+      }),
+    );
   });
 
   it("returns the account when credentials are valid", async () => {
@@ -87,6 +128,40 @@ describe("account service", () => {
     await expect(
       authenticateLegacyAccount({ login: "tester01", password: "abc12345" }),
     ).resolves.toMatchObject({ ok: true, account: { login: "tester01" } });
+
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "login",
+        login: "tester01",
+        accountId: 1,
+        success: 1,
+        detail: expect.stringContaining("authenticated"),
+      }),
+    );
+  });
+
+  it("rate limits login after repeated failed attempts for the same login", async () => {
+    countAuthAuditEntriesSinceMock.mockResolvedValueOnce(5);
+
+    await expect(
+      authenticateLegacyAccount({
+        login: "tester01",
+        password: "abc12345",
+        ip: "127.0.0.1",
+        userAgent: "Vitest",
+      }),
+    ).resolves.toMatchObject({ ok: false, code: "rate_limited" });
+
+    expect(findAccountByLoginMock).not.toHaveBeenCalled();
+    expect(verifyLegacyPasswordMock).not.toHaveBeenCalled();
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "login",
+        login: "tester01",
+        success: 0,
+        detail: expect.stringContaining("rate_limited"),
+      }),
+    );
   });
 
   it("rejects register when the login already exists", async () => {

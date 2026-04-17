@@ -116,6 +116,105 @@ describe("legacy auth flow against test MariaDB", () => {
     });
   });
 
+  it("writes auth audit rows for failed and successful login attempts", async () => {
+    const login = createLogin("logaudit");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    const failedAuth = await authenticateLegacyAccount({
+      login,
+      password: "wrongpass1",
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+    const successAuth = await authenticateLegacyAccount({
+      login,
+      password: "abc12345",
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+
+    expect(failedAuth).toMatchObject({
+      ok: false,
+      code: "invalid_credentials",
+    });
+    expect(successAuth).toMatchObject({ ok: true });
+
+    const auditEntries = await listAuthAuditLogEntries(login);
+
+    expect(auditEntries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          eventType: "login",
+          login,
+          success: 0,
+          detail: expect.stringContaining("invalid_credentials"),
+        }),
+        expect.objectContaining({
+          eventType: "login",
+          login,
+          success: 1,
+          detail: expect.stringContaining("authenticated"),
+        }),
+      ]),
+    );
+  });
+
+  it("rate limits login after repeated failed attempts for the same login", async () => {
+    const login = createLogin("loglimit");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const failedAuth = await authenticateLegacyAccount({
+        login,
+        password: "wrongpass1",
+        ip: "127.0.0.1",
+        userAgent: "vitest-integration",
+      });
+
+      expect(failedAuth).toMatchObject({
+        ok: false,
+        code: "invalid_credentials",
+      });
+    }
+
+    const rateLimitedAuth = await authenticateLegacyAccount({
+      login,
+      password: "abc12345",
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+
+    expect(rateLimitedAuth).toMatchObject({
+      ok: false,
+      code: "rate_limited",
+    });
+
+    const auditEntries = await listAuthAuditLogEntries(login);
+    expect(auditEntries).toHaveLength(6);
+    expect(auditEntries.at(-1)).toEqual(
+      expect.objectContaining({
+        eventType: "login",
+        login,
+        success: 0,
+        detail: expect.stringContaining("rate_limited"),
+      }),
+    );
+  });
+
   it("rejects a blocked account even when the password matches", async () => {
     const login = createLogin("blk");
 
