@@ -67,13 +67,18 @@ Required baseline:
 - Node.js `22.22.2`
 - pnpm `10.33.0`
 
+FreeBSD note:
+- Next.js 16 does not ship a native SWC binary for `freebsd/x64`
+- this repository installs `@next/swc-wasm-nodejs` and links it during `postinstall`
+- local `dev` and `build` scripts use `--webpack` so the project works on FreeBSD
+
 Main commands:
 
 ```bash
 pnpm install
 pnpm dev
 pnpm lint
-pnpm exec tsc --noEmit
+pnpm typecheck
 pnpm test
 pnpm build
 ```

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@next/swc-wasm-nodejs':
+        specifier: 16.2.4
+        version: 16.2.4
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(mysql2@3.22.1(@types/node@20.19.39))
@@ -888,6 +891,9 @@ packages:
     cpu: [x64]
     os: [linux]
     libc: [musl]
+
+  '@next/swc-wasm-nodejs@16.2.4':
+    resolution: {integrity: sha512-AUUfFLja9v63pvixfPGDYtgJSoZ0EdgffQS9hlXMoOwRUXDeZO6UnKWKrOWltMRFX+HdYPdujGhvzER1HgvhqQ==}
 
   '@next/swc-win32-arm64-msvc@16.2.4':
     resolution: {integrity: sha512-3NdJV5OXMSOeJYijX+bjaLge3mJBlh4ybydbT4GFoB/2hAojWHtMhl3CYlYoMrjPuodp0nzFVi4Tj2+WaMg+Ow==}
@@ -3509,6 +3515,8 @@ snapshots:
 
   '@next/swc-linux-x64-musl@16.2.4':
     optional: true
+
+  '@next/swc-wasm-nodejs@16.2.4': {}
 
   '@next/swc-win32-arm64-msvc@16.2.4':
     optional: true

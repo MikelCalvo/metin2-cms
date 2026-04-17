@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "postinstall": "node ./scripts/setup-freebsd-next-wasm.mjs"
   },
   "dependencies": {
+    "@next/swc-wasm-nodejs": "16.2.4",
     "drizzle-orm": "^0.45.2",
     "mysql2": "^3.22.1",
     "next": "16.2.4",
