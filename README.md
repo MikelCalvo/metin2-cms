@@ -72,6 +72,15 @@ FreeBSD note:
 - this repository installs `@next/swc-wasm-nodejs` and links it during `postinstall`
 - local `dev` and `build` scripts use `--webpack` so the project works on FreeBSD
 
+Before using login/register locally, provision the CMS-owned tables in the CMS database.
+A ready-to-apply SQL file lives at:
+- `drizzle/0000_auth_tables.sql`
+
+Main routes after this auth slice:
+- `/login`
+- `/register`
+- `/account`
+
 Main commands:
 
 ```bash
