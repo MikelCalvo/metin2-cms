@@ -5,6 +5,8 @@ const {
   redirectMock,
   authenticateLegacyAccountMock,
   registerLegacyCompatibleAccountMock,
+  requestPasswordRecoveryMock,
+  resetPasswordWithRecoveryTokenMock,
   issueAuthenticatedSessionMock,
   clearAuthenticatedSessionMock,
 } = vi.hoisted(() => ({
@@ -12,6 +14,8 @@ const {
   redirectMock: vi.fn(),
   authenticateLegacyAccountMock: vi.fn(),
   registerLegacyCompatibleAccountMock: vi.fn(),
+  requestPasswordRecoveryMock: vi.fn(),
+  resetPasswordWithRecoveryTokenMock: vi.fn(),
   issueAuthenticatedSessionMock: vi.fn(),
   clearAuthenticatedSessionMock: vi.fn(),
 }));
@@ -29,13 +33,25 @@ vi.mock("@/server/account/account-service", () => ({
   registerLegacyCompatibleAccount: registerLegacyCompatibleAccountMock,
 }));
 
+vi.mock("@/server/recovery/recovery-service", () => ({
+  requestPasswordRecovery: requestPasswordRecoveryMock,
+  resetPasswordWithRecoveryToken: resetPasswordWithRecoveryTokenMock,
+}));
+
 vi.mock("@/server/session/session-service", () => ({
   issueAuthenticatedSession: issueAuthenticatedSessionMock,
   clearAuthenticatedSession: clearAuthenticatedSessionMock,
 }));
 
-import { loginAction, logoutAction, registerAction } from "@/app/auth/actions";
+import {
+  loginAction,
+  logoutAction,
+  registerAction,
+  requestRecoveryAction,
+  resetPasswordAction,
+} from "@/app/auth/actions";
 import { emptyAuthActionState } from "@/server/auth/types";
+import { emptyRecoveryActionState } from "@/server/recovery/types";
 
 function createFormData(entries: Array<[string, string]>) {
   const formData = new FormData();
@@ -53,6 +69,8 @@ describe("auth actions", () => {
     redirectMock.mockReset();
     authenticateLegacyAccountMock.mockReset();
     registerLegacyCompatibleAccountMock.mockReset();
+    requestPasswordRecoveryMock.mockReset();
+    resetPasswordWithRecoveryTokenMock.mockReset();
     issueAuthenticatedSessionMock.mockReset();
     clearAuthenticatedSessionMock.mockReset();
     headersMock.mockResolvedValue({
@@ -140,6 +158,53 @@ describe("auth actions", () => {
 
     expect(result.status).toBe("error");
     expect(result.fieldErrors?.login).toEqual(["That login is already in use."]);
+  });
+
+  it("returns a success state when recovery is requested", async () => {
+    requestPasswordRecoveryMock.mockResolvedValueOnce({
+      ok: true,
+      message: "If the login and email match an account, a reset link has been created.",
+      previewResetUrl: "http://localhost:3000/reset-password?token=abc",
+    });
+
+    const result = await requestRecoveryAction(
+      emptyRecoveryActionState,
+      createFormData([
+        ["login", "tester01"],
+        ["email", "tester@example.com"],
+      ]),
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.previewResetUrl).toContain("/reset-password?token=");
+    expect(requestPasswordRecoveryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        login: "tester01",
+        email: "tester@example.com",
+        ip: "127.0.0.1",
+        userAgent: "Vitest",
+      }),
+    );
+  });
+
+  it("redirects to login after a successful password reset", async () => {
+    resetPasswordWithRecoveryTokenMock.mockResolvedValueOnce({
+      ok: true,
+      message: "Password updated successfully.",
+    });
+
+    await expect(
+      resetPasswordAction(
+        emptyRecoveryActionState,
+        createFormData([
+          ["token", "a".repeat(64)],
+          ["password", "abc12345"],
+          ["passwordConfirmation", "abc12345"],
+        ]),
+      ),
+    ).rejects.toThrow("NEXT_REDIRECT");
+
+    expect(redirectMock).toHaveBeenCalledWith("/login?recovery=success");
   });
 
   it("clears the session and redirects on logout", async () => {

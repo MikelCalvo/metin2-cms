@@ -3,7 +3,11 @@ import "server-only";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createPool, type Pool } from "mysql2/promise";
 
-import { authAuditLog, webSessions } from "@/lib/db/schema/cms";
+import {
+  authAuditLog,
+  passwordRecoveryTokens,
+  webSessions,
+} from "@/lib/db/schema/cms";
 import { legacyAccounts } from "@/lib/db/schema/account";
 import { getEnv } from "@/lib/env";
 
@@ -66,6 +70,6 @@ export function getCmsDb() {
   return drizzle({
     client: getCmsPool(),
     mode: "default",
-    schema: { webSessions, authAuditLog },
+    schema: { webSessions, authAuditLog, passwordRecoveryTokens },
   });
 }

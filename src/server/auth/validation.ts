@@ -9,14 +9,14 @@ export const PASSWORD_MAX_LENGTH = 16;
 export const SOCIAL_ID_MIN_LENGTH = 7;
 export const SOCIAL_ID_MAX_LENGTH = 13;
 
-const loginValueSchema = z
+export const loginValueSchema = z
   .string()
   .trim()
   .min(LOGIN_MIN_LENGTH, `Login must be at least ${LOGIN_MIN_LENGTH} characters.`)
   .max(LOGIN_MAX_LENGTH, `Login must be at most ${LOGIN_MAX_LENGTH} characters.`)
   .regex(/^[A-Za-z0-9]+$/, "Login must use only letters and numbers.");
 
-const passwordValueSchema = z
+export const passwordValueSchema = z
   .string()
   .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`)
   .max(PASSWORD_MAX_LENGTH, `Password must be at most ${PASSWORD_MAX_LENGTH} characters.`)
@@ -35,7 +35,7 @@ const socialIdValueSchema = z
   )
   .regex(/^[A-Za-z0-9]+$/, "Delete code must use only letters and numbers.");
 
-const emailValueSchema = z
+export const emailValueSchema = z
   .string()
   .trim()
   .email("Email must be a valid email address.")

@@ -76,9 +76,10 @@ Environment note:
 - unit tests and `pnpm build` do not require a live MariaDB connection anymore
 - the DB env is resolved lazily when auth/account code actually touches the database
 - CI injects placeholder URLs so GitHub Actions does not fail on missing env config
-- real login/register runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
+- real login/register/recovery runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
 - an integration job now boots a temporary MariaDB service in GitHub Actions and resets `account_test` + `metin2_cms_test`
 - a local reset helper exists at `scripts/reset-test-databases-local.sh`
+- integration helpers and reset scripts refuse to touch non-`*_test` schemas
 
 Before using login/register locally, provision the CMS-owned tables in the CMS database.
 A ready-to-apply SQL file lives at:
@@ -93,6 +94,8 @@ Integration test assets:
 Main routes after this auth slice:
 - `/login`
 - `/register`
+- `/recover`
+- `/reset-password`
 - `/account`
 
 Main commands:
@@ -112,10 +115,10 @@ pnpm build
 
 Current phase:
 - legacy-compatible login/register implemented
+- password recovery slice implemented with CMS-owned tokens
 - unit verification in place
-- MariaDB-backed integration verification in place for register/login + CMS session persistence
+- MariaDB-backed integration verification in place for register/login/recovery + CMS session persistence
 
 Next implementation phase after this slice:
-- password recovery
 - richer account area
 - rankings and itemshop slices

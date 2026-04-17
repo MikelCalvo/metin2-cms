@@ -37,3 +37,18 @@ export async function revokeWebSession(
     .set({ revokedAt })
     .where(eq(webSessions.id, sessionId));
 }
+
+export async function revokeActiveSessionsForAccount(
+  accountId: number,
+  revokedAt: string,
+): Promise<void> {
+  await getCmsDb()
+    .update(webSessions)
+    .set({ revokedAt })
+    .where(
+      and(
+        eq(webSessions.accountId, accountId),
+        isNull(webSessions.revokedAt),
+      ),
+    );
+}

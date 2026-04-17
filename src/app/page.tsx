@@ -29,8 +29,9 @@ export default function Home() {
         <article className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
           <h2 className="text-lg font-medium text-neutral-950">Current auth slice</h2>
           <p className="mt-2 text-sm leading-6 text-neutral-700">
-            Sign in, register a legacy-compatible account, and reach the first
-            protected account page backed by CMS-owned sessions.
+            Sign in, register a legacy-compatible account, recover a password,
+            and reach the first protected account page backed by CMS-owned
+            sessions.
           </p>
         </article>
       </section>
@@ -47,6 +48,12 @@ export default function Home() {
           className="inline-flex items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-950"
         >
           Create account
+        </Link>
+        <Link
+          href="/recover"
+          className="inline-flex items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-950"
+        >
+          Recover password
         </Link>
       </section>
     </main>

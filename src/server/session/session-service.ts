@@ -6,6 +6,7 @@ import type { IssueSessionInput, SessionContext } from "@/server/auth/types";
 import {
   createWebSession,
   findActiveSessionById,
+  revokeActiveSessionsForAccount,
   revokeWebSession,
 } from "@/server/session/session-repository";
 
@@ -62,6 +63,10 @@ export async function getCurrentAuthenticatedSession() {
 
 export async function revokeSessionById(sessionId: string): Promise<void> {
   await revokeWebSession(sessionId, toMysqlDateTime(new Date()));
+}
+
+export async function revokeSessionsForAccount(accountId: number): Promise<void> {
+  await revokeActiveSessionsForAccount(accountId, toMysqlDateTime(new Date()));
 }
 
 export async function clearAuthenticatedSession(): Promise<void> {

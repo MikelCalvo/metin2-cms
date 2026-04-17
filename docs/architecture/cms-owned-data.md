@@ -24,9 +24,9 @@ The CMS should own web-specific state that the legacy server never needed to mod
 Initial tables reserved in this repository:
 - `web_sessions`
 - `auth_audit_log`
+- `password_recovery_tokens`
 
 Likely future CMS-owned tables:
-- password recovery tokens
 - email verification tokens
 - item shop catalog overlays
 - order/payment/audit tables
