@@ -77,10 +77,18 @@ Environment note:
 - the DB env is resolved lazily when auth/account code actually touches the database
 - CI injects placeholder URLs so GitHub Actions does not fail on missing env config
 - real login/register runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
+- an integration job now boots a temporary MariaDB service in GitHub Actions and resets `account_test` + `metin2_cms_test`
+- a local reset helper exists at `scripts/reset-test-databases-local.sh`
 
 Before using login/register locally, provision the CMS-owned tables in the CMS database.
 A ready-to-apply SQL file lives at:
 - `drizzle/0000_auth_tables.sql`
+
+Integration test assets:
+- account test schema: `sql/test/account-test-schema.sql`
+- CI/local admin reset script: `scripts/reset-test-databases.mjs`
+- local FreeBSD reset script: `scripts/reset-test-databases-local.sh`
+- integration tests: `tests/integration/auth/auth-flow.integration.test.ts`
 
 Main routes after this auth slice:
 - `/login`
@@ -95,13 +103,19 @@ pnpm dev
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm db:test:reset:local
+pnpm test:integration:local
 pnpm build
 ```
 
 ## Status
 
 Current phase:
-- repository bootstrap
+- legacy-compatible login/register implemented
+- unit verification in place
+- MariaDB-backed integration verification in place for register/login + CMS session persistence
 
-Next implementation phase after bootstrap:
-- legacy-compatible login/register
+Next implementation phase after this slice:
+- password recovery
+- richer account area
+- rankings and itemshop slices

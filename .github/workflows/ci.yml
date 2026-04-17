@@ -43,3 +43,50 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  integration-mariadb:
+    needs: verify
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      TEST_DATABASE_ADMIN_URL: mysql://root:root@127.0.0.1:3306/mysql
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/account_test
+      CMS_DATABASE_URL: mysql://root:root@127.0.0.1:3306/metin2_cms_test
+      SESSION_COOKIE_NAME: mt2cms_test_session
+      SESSION_COOKIE_SECURE: "false"
+      APP_BASE_URL: http://127.0.0.1:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Reset test databases
+        run: pnpm db:test:reset
+
+      - name: Run integration tests
+        run: pnpm test:integration
