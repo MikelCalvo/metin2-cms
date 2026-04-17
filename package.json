@@ -10,6 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:local": "node --env-file=.env.test.local ./node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts",
+    "db:test:reset": "node ./scripts/reset-test-databases.mjs",
+    "db:test:reset:local": "sh ./scripts/reset-test-databases-local.sh",
     "postinstall": "node ./scripts/setup-freebsd-next-wasm.mjs"
   },
   "dependencies": {
@@ -34,5 +38,10 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "@esbuild-kit/core-utils>esbuild": "^0.25.12"
+    }
   }
 }

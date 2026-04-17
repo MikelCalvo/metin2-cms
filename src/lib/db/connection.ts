@@ -42,6 +42,18 @@ export function getCmsPool(): Pool {
   return pool;
 }
 
+export async function closeDbPools(): Promise<void> {
+  const pools = [
+    globalForDb.__mt2CmsLegacyAccountPool,
+    globalForDb.__mt2CmsWebPool,
+  ].filter((pool): pool is Pool => Boolean(pool));
+
+  globalForDb.__mt2CmsLegacyAccountPool = undefined;
+  globalForDb.__mt2CmsWebPool = undefined;
+
+  await Promise.all(pools.map(async (pool) => pool.end()));
+}
+
 export function getLegacyAccountDb() {
   return drizzle({
     client: getLegacyAccountPool(),

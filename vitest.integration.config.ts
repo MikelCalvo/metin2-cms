@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/unit/**/*.test.ts"],
+    include: ["tests/integration/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
