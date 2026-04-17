@@ -14,11 +14,12 @@ Current integration coverage proves:
 - failed and successful login attempts write entries into `metin2_cms_test.auth_audit_log`
 - repeated failed login attempts are rate-limited per login
 - the same credentials can log in through the service layer
+- a CMS web session can be persisted into `metin2_cms_test.web_sessions`
+- active CMS sessions can be listed per account and other sessions can be revoked while keeping the current one
 - recovery links are created in `metin2_cms_test.password_recovery_tokens`
 - recovery requests write entries into `metin2_cms_test.auth_audit_log`
 - repeated recovery requests are rate-limited per login
 - a recovery token can rotate the legacy password in `account_test.account`
-- a web session can be persisted into `metin2_cms_test.web_sessions`
 
 Current test file:
 - `tests/integration/auth/auth-flow.integration.test.ts`

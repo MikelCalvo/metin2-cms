@@ -4,11 +4,15 @@ const {
   createWebSessionMock,
   findActiveSessionByIdMock,
   revokeWebSessionMock,
+  listActiveSessionsForAccountMock,
+  revokeOtherActiveSessionsForAccountMock,
   cookiesMock,
 } = vi.hoisted(() => ({
   createWebSessionMock: vi.fn(),
   findActiveSessionByIdMock: vi.fn(),
   revokeWebSessionMock: vi.fn(),
+  listActiveSessionsForAccountMock: vi.fn(),
+  revokeOtherActiveSessionsForAccountMock: vi.fn(),
   cookiesMock: vi.fn(),
 }));
 
@@ -20,12 +24,16 @@ vi.mock("@/server/session/session-repository", () => ({
   createWebSession: createWebSessionMock,
   findActiveSessionById: findActiveSessionByIdMock,
   revokeWebSession: revokeWebSessionMock,
+  listActiveSessionsForAccount: listActiveSessionsForAccountMock,
+  revokeOtherActiveSessionsForAccount: revokeOtherActiveSessionsForAccountMock,
 }));
 
 import {
   clearAuthenticatedSession,
   getCurrentAuthenticatedSession,
   issueAuthenticatedSession,
+  listAuthenticatedSessionsForAccount,
+  revokeOtherSessionsForAccount,
 } from "@/server/session/session-service";
 
 describe("session service", () => {
@@ -33,6 +41,8 @@ describe("session service", () => {
     createWebSessionMock.mockReset();
     findActiveSessionByIdMock.mockReset();
     revokeWebSessionMock.mockReset();
+    listActiveSessionsForAccountMock.mockReset();
+    revokeOtherActiveSessionsForAccountMock.mockReset();
     cookiesMock.mockReset();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-17T14:00:00Z"));
@@ -90,6 +100,33 @@ describe("session service", () => {
       id: "session-test-id",
       accountId: 7,
     });
+  });
+
+  it("lists active sessions for an account", async () => {
+    listActiveSessionsForAccountMock.mockResolvedValueOnce([
+      { id: "session-a", accountId: 7, login: "tester01" },
+      { id: "session-b", accountId: 7, login: "tester01" },
+    ]);
+
+    await expect(listAuthenticatedSessionsForAccount(7)).resolves.toEqual([
+      expect.objectContaining({ id: "session-a" }),
+      expect.objectContaining({ id: "session-b" }),
+    ]);
+
+    expect(listActiveSessionsForAccountMock).toHaveBeenCalledWith(
+      7,
+      expect.any(String),
+    );
+  });
+
+  it("revokes other sessions for an account while keeping the current one", async () => {
+    await revokeOtherSessionsForAccount(7, "session-test-id");
+
+    expect(revokeOtherActiveSessionsForAccountMock).toHaveBeenCalledWith(
+      7,
+      "session-test-id",
+      expect.any(String),
+    );
   });
 
   it("revokes and clears the current session", async () => {

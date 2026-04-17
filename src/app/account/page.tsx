@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 
+import { closeOtherSessionsAction } from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
+import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
 
 export default async function AccountPage() {
   const authenticated = await getCurrentAuthenticatedAccount();
@@ -10,7 +12,11 @@ export default async function AccountPage() {
     redirect("/login");
   }
 
-  const { account } = authenticated;
+  const { account, session } = authenticated;
+  const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
+  const otherActiveSessions = activeSessions.filter(
+    (activeSession) => activeSession.id !== session.id,
+  );
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-6 py-16">
@@ -64,6 +70,77 @@ export default async function AccountPage() {
             </div>
           </dl>
         </article>
+      </section>
+
+      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-lg font-medium text-neutral-950">Web sessions</h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Active CMS sessions tied to this account. Use this to spot stale
+              browser sessions and close the ones you are not using anymore.
+            </p>
+          </div>
+
+          {otherActiveSessions.length > 0 ? (
+            <form action={closeOtherSessionsAction}>
+              <button
+                type="submit"
+                className="inline-flex w-fit items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-950"
+              >
+                Close other sessions
+              </button>
+            </form>
+          ) : null}
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {activeSessions.map((activeSession) => {
+            const isCurrentSession = activeSession.id === session.id;
+
+            return (
+              <article
+                key={activeSession.id}
+                className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
+              >
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-neutral-950">
+                        {isCurrentSession ? "Current session" : "Active session"}
+                      </p>
+                      {isCurrentSession ? (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                          Current
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-xs text-neutral-500">ID: {activeSession.id}</p>
+                  </div>
+                </div>
+
+                <dl className="mt-4 grid gap-3 text-sm text-neutral-700 md:grid-cols-2">
+                  <div>
+                    <dt className="text-neutral-500">Last seen</dt>
+                    <dd>{activeSession.lastSeenAt}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-neutral-500">Created</dt>
+                    <dd>{activeSession.createdAt}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-neutral-500">IP</dt>
+                    <dd>{activeSession.ip || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-neutral-500">User agent</dt>
+                    <dd className="break-all">{activeSession.userAgent || "—"}</dd>
+                  </div>
+                </dl>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <form action={logoutAction}>

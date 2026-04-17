@@ -14,7 +14,9 @@ import {
 import {
   createWebSession,
   findActiveSessionById,
+  listActiveSessionsForAccount,
 } from "@/server/session/session-repository";
+import { revokeOtherSessionsForAccount } from "@/server/session/session-service";
 
 import {
   assertIntegrationEnv,
@@ -288,6 +290,67 @@ describe("legacy auth flow against test MariaDB", () => {
     expect(storedSession).not.toBeNull();
     expect(storedSession?.accountId).toBe(auth.account.id);
     expect(storedSession?.login).toBe(login);
+  });
+
+  it("lists active sessions and revokes the other sessions for an account", async () => {
+    const login = createLogin("sess");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "7654321",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 60_000);
+
+    await createWebSession({
+      id: `${login}-session-a`,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.1",
+      userAgent: "vitest-a",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+    await createWebSession({
+      id: `${login}-session-b`,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.2",
+      userAgent: "vitest-b",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+
+    const sessionsBefore = await listActiveSessionsForAccount(
+      registration.account.id,
+      toMysqlDateTime(now),
+    );
+    expect(sessionsBefore).toHaveLength(2);
+
+    await revokeOtherSessionsForAccount(
+      registration.account.id,
+      `${login}-session-a`,
+    );
+
+    const sessionsAfter = await listActiveSessionsForAccount(
+      registration.account.id,
+      toMysqlDateTime(now),
+    );
+    expect(sessionsAfter).toHaveLength(1);
+    expect(sessionsAfter[0]?.id).toBe(`${login}-session-a`);
   });
 
   it("creates and consumes a password recovery token against the test databases", async () => {
