@@ -27,19 +27,38 @@ CMS DB writes:
 - reset tokens are one-time use through `consumed_at`
 - reset tokens are time-limited
 - request flow returns a generic success message even when login/email do not match, reducing account enumeration
+- recovery requests are rate-limited per login through CMS-side audit data
+- request/reset outcomes are recorded in `metin2_cms.auth_audit_log`
 - integration tooling refuses to point at non-`*_test` schemas
 
 ## Current limitation
 
-There is no outbound email delivery yet.
+There is no outbound email provider yet.
 
-For now, when not running in production mode, the request flow exposes a development preview reset URL so the feature can be tested end-to-end before mail delivery is wired.
+For now the recovery slice supports two temporary delivery modes:
+
+1. `preview`
+   - default outside production
+   - returns the reset URL directly in the UI so the flow can be tested end-to-end
+
+2. `file`
+   - default in production
+   - writes a JSON payload with the reset URL into a local outbox directory
+   - the operator must manually deliver the link out-of-band after verifying the player identity
+
+Configuration:
+- `RECOVERY_DELIVERY_MODE=preview|file`
+- `RECOVERY_FILE_OUTBOX_DIR=/path/to/outbox` (optional)
+
+Default file outbox path:
+- `.runtime/recovery-outbox`
+
+Safety rule:
+- `RECOVERY_DELIVERY_MODE=preview` is rejected in production so the reset link is never shown directly to public users
 
 ## Next upgrade paths
 
 Likely follow-ups:
 - email delivery integration
-- request throttling / abuse controls
-- auth audit log entries for recovery request/reset events
 - cleanup job for expired tokens
 - optional forced invalidation of game-side sessions if the legacy stack exposes them

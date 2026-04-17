@@ -8,6 +8,10 @@ const {
   consumePasswordRecoveryTokenMock,
   revokeSessionsForAccountMock,
   hashPasswordWithLegacyAlgorithmMock,
+  deliverPasswordRecoveryLinkMock,
+  getRecoveryDeliveryConfigMock,
+  createAuthAuditLogEntryMock,
+  countAuthAuditEntriesSinceMock,
 } = vi.hoisted(() => ({
   findAccountByLoginMock: vi.fn(),
   updateLegacyAccountPasswordMock: vi.fn(),
@@ -16,6 +20,10 @@ const {
   consumePasswordRecoveryTokenMock: vi.fn(),
   revokeSessionsForAccountMock: vi.fn(),
   hashPasswordWithLegacyAlgorithmMock: vi.fn(),
+  deliverPasswordRecoveryLinkMock: vi.fn(),
+  getRecoveryDeliveryConfigMock: vi.fn(),
+  createAuthAuditLogEntryMock: vi.fn(),
+  countAuthAuditEntriesSinceMock: vi.fn(),
 }));
 
 vi.mock("@/server/account/account-repository", () => ({
@@ -37,6 +45,16 @@ vi.mock("@/server/auth/password-compat", () => ({
   hashPasswordWithLegacyAlgorithm: hashPasswordWithLegacyAlgorithmMock,
 }));
 
+vi.mock("@/server/auth/auth-audit-repository", () => ({
+  createAuthAuditLogEntry: createAuthAuditLogEntryMock,
+  countAuthAuditEntriesSince: countAuthAuditEntriesSinceMock,
+}));
+
+vi.mock("@/server/recovery/recovery-delivery", () => ({
+  deliverPasswordRecoveryLink: deliverPasswordRecoveryLinkMock,
+  getRecoveryDeliveryConfig: getRecoveryDeliveryConfigMock,
+}));
+
 import {
   hashPasswordRecoveryToken,
   requestPasswordRecovery,
@@ -50,6 +68,8 @@ describe("recovery service", () => {
 
   beforeEach(() => {
     vi.stubEnv("APP_BASE_URL", "http://localhost:3000");
+    vi.stubEnv("DATABASE_URL", "mysql://test:test@127.0.0.1:3306/account_test");
+    vi.stubEnv("CMS_DATABASE_URL", "mysql://test:test@127.0.0.1:3306/metin2_cms_test");
     vi.stubEnv("NODE_ENV", "test");
     findAccountByLoginMock.mockReset();
     updateLegacyAccountPasswordMock.mockReset();
@@ -58,6 +78,15 @@ describe("recovery service", () => {
     consumePasswordRecoveryTokenMock.mockReset();
     revokeSessionsForAccountMock.mockReset();
     hashPasswordWithLegacyAlgorithmMock.mockReset();
+    deliverPasswordRecoveryLinkMock.mockReset();
+    getRecoveryDeliveryConfigMock.mockReset();
+    createAuthAuditLogEntryMock.mockReset();
+    countAuthAuditEntriesSinceMock.mockReset();
+    getRecoveryDeliveryConfigMock.mockReturnValue({
+      mode: "preview",
+      outboxDir: "/tmp/metin2-cms-recovery-outbox",
+    });
+    countAuthAuditEntriesSinceMock.mockResolvedValue(0);
   });
 
   it("returns a generic success result when the account does not exist", async () => {
@@ -71,6 +100,15 @@ describe("recovery service", () => {
     expect(result.ok).toBe(true);
     expect(result.previewResetUrl).toBeUndefined();
     expect(createPasswordRecoveryTokenMock).not.toHaveBeenCalled();
+    expect(deliverPasswordRecoveryLinkMock).not.toHaveBeenCalled();
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "password_recovery.request",
+        login: "tester01",
+        success: 0,
+        detail: expect.stringContaining("login_email_mismatch_or_unavailable"),
+      }),
+    );
   });
 
   it("creates a reset token when login and email match", async () => {
@@ -79,6 +117,9 @@ describe("recovery service", () => {
       login: "tester01",
       email: "tester@example.com",
       status: "OK",
+    });
+    deliverPasswordRecoveryLinkMock.mockResolvedValueOnce({
+      previewResetUrl: "http://localhost:3000/reset-password?token=preview-token",
     });
 
     const result = await requestPasswordRecovery({
@@ -89,8 +130,8 @@ describe("recovery service", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.previewResetUrl).toMatch(
-      /^http:\/\/localhost:3000\/reset-password\?token=[a-f0-9]{64}$/,
+    expect(result.previewResetUrl).toBe(
+      "http://localhost:3000/reset-password?token=preview-token",
     );
     expect(createPasswordRecoveryTokenMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -98,6 +139,79 @@ describe("recovery service", () => {
         login: "tester01",
         email: "tester@example.com",
         tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+      }),
+    );
+    expect(deliverPasswordRecoveryLinkMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        login: "tester01",
+        email: "tester@example.com",
+        resetUrl: expect.stringMatching(
+          /^http:\/\/localhost:3000\/reset-password\?token=[a-f0-9]{64}$/,
+        ),
+        requestedIp: "127.0.0.1",
+        requestedUserAgent: "Vitest",
+      }),
+      expect.objectContaining({
+        mode: "preview",
+        outboxDir: "/tmp/metin2-cms-recovery-outbox",
+      }),
+    );
+    expect(countAuthAuditEntriesSinceMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "password_recovery.request",
+        login: "tester01",
+      }),
+    );
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "password_recovery.request",
+        login: "tester01",
+        accountId: 7,
+        success: 1,
+        detail: expect.stringContaining("token_created"),
+      }),
+    );
+  });
+
+  it("uses a manual-delivery message in file mode", async () => {
+    getRecoveryDeliveryConfigMock.mockReturnValueOnce({
+      mode: "file",
+      outboxDir: "/tmp/metin2-cms-recovery-outbox",
+    });
+    findAccountByLoginMock.mockResolvedValueOnce(null);
+
+    const result = await requestPasswordRecovery({
+      login: "tester01",
+      email: "tester@example.com",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.message).toBe(
+      "If the login and email match an account, the recovery request has been queued for manual delivery.",
+    );
+  });
+
+  it("rate limits repeated recovery requests before creating a token", async () => {
+    countAuthAuditEntriesSinceMock.mockResolvedValueOnce(3);
+
+    const result = await requestPasswordRecovery({
+      login: "tester01",
+      email: "tester@example.com",
+      ip: "127.0.0.1",
+      userAgent: "Vitest",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.previewResetUrl).toBeUndefined();
+    expect(findAccountByLoginMock).not.toHaveBeenCalled();
+    expect(createPasswordRecoveryTokenMock).not.toHaveBeenCalled();
+    expect(deliverPasswordRecoveryLinkMock).not.toHaveBeenCalled();
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "password_recovery.request",
+        login: "tester01",
+        success: 0,
+        detail: expect.stringContaining("rate_limited"),
       }),
     );
   });
@@ -112,6 +226,15 @@ describe("recovery service", () => {
         passwordConfirmation: "abc12345",
       }),
     ).resolves.toMatchObject({ ok: false, code: "invalid_or_expired_token" });
+
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "password_recovery.reset",
+        login: "",
+        success: 0,
+        detail: expect.stringContaining("invalid_or_expired_token"),
+      }),
+    );
   });
 
   it("updates the password, consumes the token, and revokes sessions", async () => {
@@ -149,5 +272,14 @@ describe("recovery service", () => {
       expect.any(String),
     );
     expect(revokeSessionsForAccountMock).toHaveBeenCalledWith(7);
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "password_recovery.reset",
+        login: "tester01",
+        accountId: 7,
+        success: 1,
+        detail: expect.stringContaining("password_updated"),
+      }),
+    );
   });
 });

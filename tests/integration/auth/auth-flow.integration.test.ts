@@ -20,6 +20,7 @@ import {
   assertIntegrationEnv,
   countPasswordRecoveryTokens,
   createLogin,
+  listAuthAuditLogEntries,
   resetIntegrationTables,
   setLegacyAccountStatus,
   toMysqlDateTime,
@@ -237,5 +238,109 @@ describe("legacy auth flow against test MariaDB", () => {
       code: "invalid_credentials",
     });
     expect(newPasswordAuth).toMatchObject({ ok: true });
+  });
+
+  it("writes auth audit rows for recovery request and reset flows", async () => {
+    const login = createLogin("audit");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    const request = await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+
+    expect(request.ok).toBe(true);
+    expect(request.previewResetUrl).toBeTruthy();
+
+    const token = extractTokenFromResetUrl(request.previewResetUrl ?? "");
+    expect(token).toHaveLength(64);
+
+    const reset = await resetPasswordWithRecoveryToken({
+      token,
+      password: "newpass12",
+      passwordConfirmation: "newpass12",
+    });
+
+    expect(reset).toMatchObject({ ok: true });
+
+    const auditEntries = await listAuthAuditLogEntries(login);
+
+    expect(auditEntries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          eventType: "password_recovery.request",
+          login,
+          success: 1,
+        }),
+        expect.objectContaining({
+          eventType: "password_recovery.reset",
+          login,
+          success: 1,
+        }),
+      ]),
+    );
+  });
+
+  it("rate limits repeated recovery requests for the same login", async () => {
+    const login = createLogin("limit");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    const first = await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+    const second = await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+    const third = await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+    const fourth = await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+
+    expect(first.previewResetUrl).toBeTruthy();
+    expect(second.previewResetUrl).toBeTruthy();
+    expect(third.previewResetUrl).toBeTruthy();
+    expect(fourth.previewResetUrl).toBeUndefined();
+    expect(await countPasswordRecoveryTokens(login)).toBe(3);
+
+    const auditEntries = await listAuthAuditLogEntries(login);
+    expect(auditEntries).toHaveLength(4);
+    expect(auditEntries.at(-1)).toEqual(
+      expect.objectContaining({
+        eventType: "password_recovery.request",
+        login,
+        success: 0,
+        detail: expect.stringContaining("rate_limited"),
+      }),
+    );
   });
 });

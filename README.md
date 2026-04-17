@@ -77,6 +77,11 @@ Environment note:
 - the DB env is resolved lazily when auth/account code actually touches the database
 - CI injects placeholder URLs so GitHub Actions does not fail on missing env config
 - real login/register/recovery runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
+- recovery delivery is temporary for now:
+  - non-production defaults to `RECOVERY_DELIVERY_MODE=preview`
+  - production defaults to `RECOVERY_DELIVERY_MODE=file`
+  - file mode writes manual-delivery JSON payloads under `.runtime/recovery-outbox` unless `RECOVERY_FILE_OUTBOX_DIR` overrides it
+  - `RECOVERY_DELIVERY_MODE=preview` is blocked in production on purpose
 - an integration job now boots a temporary MariaDB service in GitHub Actions and resets `account_test` + `metin2_cms_test`
 - a local reset helper exists at `scripts/reset-test-databases-local.sh`
 - integration helpers and reset scripts refuse to touch non-`*_test` schemas
@@ -116,6 +121,8 @@ pnpm build
 Current phase:
 - legacy-compatible login/register implemented
 - password recovery slice implemented with CMS-owned tokens
+- temporary recovery delivery modes in place (`preview` for dev, `file` for production)
+- recovery requests now write `auth_audit_log` entries and are rate-limited per login
 - unit verification in place
 - MariaDB-backed integration verification in place for register/login/recovery + CMS session persistence
 

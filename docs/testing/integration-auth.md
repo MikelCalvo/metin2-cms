@@ -13,6 +13,8 @@ Current integration coverage proves:
 - the stored password uses the legacy `PASSWORD()`-compatible hash flow
 - the same credentials can log in through the service layer
 - recovery links are created in `metin2_cms_test.password_recovery_tokens`
+- recovery requests write entries into `metin2_cms_test.auth_audit_log`
+- repeated recovery requests are rate-limited per login
 - a recovery token can rotate the legacy password in `account_test.account`
 - a web session can be persisted into `metin2_cms_test.web_sessions`
 

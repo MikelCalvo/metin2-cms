@@ -88,3 +88,34 @@ export async function countPasswordRecoveryTokens(login: string) {
     await cmsPool.end();
   }
 }
+
+export type AuthAuditLogRow = {
+  id: number;
+  eventType: string;
+  login: string;
+  accountId: number | null;
+  success: number;
+  detail: string | null;
+};
+
+export async function listAuthAuditLogEntries(login: string) {
+  const cmsDatabaseUrl = requireEnv("CMS_DATABASE_URL");
+
+  assertSafeTestDatabaseUrl(cmsDatabaseUrl);
+
+  const cmsPool = createPool(cmsDatabaseUrl);
+
+  try {
+    const [rows] = await cmsPool.query(
+      `SELECT id, event_type AS eventType, login, account_id AS accountId, success, detail
+       FROM auth_audit_log
+       WHERE login = ?
+       ORDER BY id ASC`,
+      [login],
+    );
+
+    return rows as AuthAuditLogRow[];
+  } finally {
+    await cmsPool.end();
+  }
+}

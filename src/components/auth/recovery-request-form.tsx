@@ -7,7 +7,13 @@ import { requestRecoveryAction } from "@/app/auth/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
 import { emptyRecoveryActionState } from "@/server/recovery/types";
 
-export function RecoveryRequestForm() {
+type RecoveryRequestFormProps = {
+  temporaryDeliveryMode?: "preview" | "file";
+};
+
+export function RecoveryRequestForm({
+  temporaryDeliveryMode = "preview",
+}: RecoveryRequestFormProps) {
   const [state, formAction] = useActionState(
     requestRecoveryAction,
     emptyRecoveryActionState,
@@ -36,6 +42,14 @@ export function RecoveryRequestForm() {
           }
         >
           {state.message}
+        </div>
+      ) : null}
+
+      {temporaryDeliveryMode === "file" ? (
+        <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
+          Temporary delivery mode: the CMS is not sending emails yet. Matching
+          recovery requests are queued on the server for manual handling by an
+          operator.
         </div>
       ) : null}
 
