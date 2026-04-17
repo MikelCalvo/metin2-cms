@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-6 py-16">
@@ -25,12 +27,27 @@ export default function Home() {
         </article>
 
         <article className="rounded-2xl border border-neutral-200 p-5 shadow-sm">
-          <h2 className="text-lg font-medium text-neutral-950">Next step</h2>
+          <h2 className="text-lg font-medium text-neutral-950">Current auth slice</h2>
           <p className="mt-2 text-sm leading-6 text-neutral-700">
-            Implement login and register flows compatible with the current
-            legacy Metin2 account table.
+            Sign in, register a legacy-compatible account, and reach the first
+            protected account page backed by CMS-owned sessions.
           </p>
         </article>
+      </section>
+
+      <section className="flex flex-wrap gap-3">
+        <Link
+          href="/login"
+          className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-800"
+        >
+          Go to login
+        </Link>
+        <Link
+          href="/register"
+          className="inline-flex items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-950"
+        >
+          Create account
+        </Link>
       </section>
     </main>
   );
