@@ -7,6 +7,12 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/account
+      CMS_DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/metin2_cms
+      SESSION_COOKIE_NAME: mt2cms_session
+      SESSION_COOKIE_SECURE: "false"
+      APP_BASE_URL: http://127.0.0.1:3000
 
     steps:
       - name: Checkout
