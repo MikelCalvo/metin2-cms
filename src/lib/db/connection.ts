@@ -3,6 +3,8 @@ import "server-only";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createPool, type Pool } from "mysql2/promise";
 
+import { authAuditLog, webSessions } from "@/lib/db/schema/cms";
+import { legacyAccounts } from "@/lib/db/schema/account";
 import { env } from "@/lib/env";
 
 type GlobalDbPools = typeof globalThis & {
@@ -22,6 +24,14 @@ if (process.env.NODE_ENV !== "production") {
   globalForDb.__mt2CmsWebPool = cmsPool;
 }
 
-export const legacyAccountDb = drizzle({ client: legacyAccountPool, mode: "default" });
+export const legacyAccountDb = drizzle({
+  client: legacyAccountPool,
+  mode: "default",
+  schema: { legacyAccounts },
+});
 
-export const cmsDb = drizzle({ client: cmsPool, mode: "default" });
+export const cmsDb = drizzle({
+  client: cmsPool,
+  mode: "default",
+  schema: { webSessions, authAuditLog },
+});
