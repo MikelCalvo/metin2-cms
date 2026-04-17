@@ -1,5 +1,7 @@
 import { createPool } from "mysql2/promise";
 
+import { assertSafeTestDatabaseUrl } from "@/lib/db/test-safety";
+
 function requireEnv(name: string) {
   const value = process.env[name];
 
@@ -11,8 +13,11 @@ function requireEnv(name: string) {
 }
 
 export function assertIntegrationEnv() {
-  requireEnv("DATABASE_URL");
-  requireEnv("CMS_DATABASE_URL");
+  const databaseUrl = requireEnv("DATABASE_URL");
+  const cmsDatabaseUrl = requireEnv("CMS_DATABASE_URL");
+
+  assertSafeTestDatabaseUrl(databaseUrl);
+  assertSafeTestDatabaseUrl(cmsDatabaseUrl);
   requireEnv("APP_BASE_URL");
 }
 
@@ -28,15 +33,58 @@ export function createLogin(prefix: string) {
 }
 
 export async function resetIntegrationTables() {
-  const legacyPool = createPool(requireEnv("DATABASE_URL"));
-  const cmsPool = createPool(requireEnv("CMS_DATABASE_URL"));
+  const databaseUrl = requireEnv("DATABASE_URL");
+  const cmsDatabaseUrl = requireEnv("CMS_DATABASE_URL");
+
+  assertSafeTestDatabaseUrl(databaseUrl);
+  assertSafeTestDatabaseUrl(cmsDatabaseUrl);
+
+  const legacyPool = createPool(databaseUrl);
+  const cmsPool = createPool(cmsDatabaseUrl);
 
   try {
     await cmsPool.query("TRUNCATE TABLE auth_audit_log");
+    await cmsPool.query("TRUNCATE TABLE password_recovery_tokens");
     await cmsPool.query("TRUNCATE TABLE web_sessions");
     await legacyPool.query("TRUNCATE TABLE account");
   } finally {
     await cmsPool.end();
     await legacyPool.end();
+  }
+}
+
+export async function setLegacyAccountStatus(login: string, status: string) {
+  const databaseUrl = requireEnv("DATABASE_URL");
+
+  assertSafeTestDatabaseUrl(databaseUrl);
+
+  const legacyPool = createPool(databaseUrl);
+
+  try {
+    await legacyPool.query("UPDATE account SET status = ? WHERE login = ?", [
+      status,
+      login,
+    ]);
+  } finally {
+    await legacyPool.end();
+  }
+}
+
+export async function countPasswordRecoveryTokens(login: string) {
+  const cmsDatabaseUrl = requireEnv("CMS_DATABASE_URL");
+
+  assertSafeTestDatabaseUrl(cmsDatabaseUrl);
+
+  const cmsPool = createPool(cmsDatabaseUrl);
+
+  try {
+    const [rows] = await cmsPool.query(
+      "SELECT COUNT(*) AS count FROM password_recovery_tokens WHERE login = ?",
+      [login],
+    );
+
+    return Number((rows as Array<{ count: number }>)[0]?.count ?? 0);
+  } finally {
+    await cmsPool.end();
   }
 }

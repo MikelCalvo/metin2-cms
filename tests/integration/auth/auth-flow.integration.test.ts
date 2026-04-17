@@ -8,18 +8,28 @@ import {
 } from "@/server/account/account-service";
 import { isLegacyPasswordHash } from "@/server/auth/password-compat";
 import {
+  requestPasswordRecovery,
+  resetPasswordWithRecoveryToken,
+} from "@/server/recovery/recovery-service";
+import {
   createWebSession,
   findActiveSessionById,
 } from "@/server/session/session-repository";
 
 import {
   assertIntegrationEnv,
+  countPasswordRecoveryTokens,
   createLogin,
   resetIntegrationTables,
+  setLegacyAccountStatus,
   toMysqlDateTime,
 } from "../helpers/db";
 
 assertIntegrationEnv();
+
+function extractTokenFromResetUrl(url: string) {
+  return new URL(url).searchParams.get("token") ?? "";
+}
 
 describe("legacy auth flow against test MariaDB", () => {
   beforeEach(async () => {
@@ -54,6 +64,78 @@ describe("legacy auth flow against test MariaDB", () => {
     expect(stored?.status).toBe("OK");
     expect(stored?.password).not.toBe("abc12345");
     expect(isLegacyPasswordHash(stored?.password ?? "")).toBe(true);
+  });
+
+  it("rejects duplicate logins against the legacy unique index", async () => {
+    const login = createLogin("dup");
+
+    const first = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    expect(first.ok).toBe(true);
+
+    const second = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}2@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "7654321",
+    });
+
+    expect(second).toMatchObject({
+      ok: false,
+      code: "login_taken",
+    });
+  });
+
+  it("rejects a bad password for an existing legacy account", async () => {
+    const login = createLogin("bad");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    const auth = await authenticateLegacyAccount({
+      login,
+      password: "wrongpass1",
+    });
+
+    expect(auth).toMatchObject({
+      ok: false,
+      code: "invalid_credentials",
+    });
+  });
+
+  it("rejects a blocked account even when the password matches", async () => {
+    const login = createLogin("blk");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+    await setLegacyAccountStatus(login, "BLOCK");
+
+    const auth = await authenticateLegacyAccount({
+      login,
+      password: "abc12345",
+    });
+
+    expect(auth).toMatchObject({
+      ok: false,
+      code: "account_unavailable",
+    });
   });
 
   it("authenticates a registered account and persists a CMS web session", async () => {
@@ -106,5 +188,54 @@ describe("legacy auth flow against test MariaDB", () => {
     expect(storedSession).not.toBeNull();
     expect(storedSession?.accountId).toBe(auth.account.id);
     expect(storedSession?.login).toBe(login);
+  });
+
+  it("creates and consumes a password recovery token against the test databases", async () => {
+    const login = createLogin("rec");
+
+    await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    const request = await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+
+    expect(request.ok).toBe(true);
+    expect(request.previewResetUrl).toBeTruthy();
+    expect(await countPasswordRecoveryTokens(login)).toBe(1);
+
+    const token = extractTokenFromResetUrl(request.previewResetUrl ?? "");
+    expect(token).toHaveLength(64);
+
+    const reset = await resetPasswordWithRecoveryToken({
+      token,
+      password: "newpass12",
+      passwordConfirmation: "newpass12",
+    });
+
+    expect(reset).toMatchObject({ ok: true });
+
+    const oldPasswordAuth = await authenticateLegacyAccount({
+      login,
+      password: "abc12345",
+    });
+    const newPasswordAuth = await authenticateLegacyAccount({
+      login,
+      password: "newpass12",
+    });
+
+    expect(oldPasswordAuth).toMatchObject({
+      ok: false,
+      code: "invalid_credentials",
+    });
+    expect(newPasswordAuth).toMatchObject({ ok: true });
   });
 });

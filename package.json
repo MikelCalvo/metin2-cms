@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:integration:local": "node --env-file=.env.test.local ./node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts",
+    "test:integration:local": "sh -c 'set -a; . ./.env.test.local; set +a; pnpm test:integration'",
     "db:test:reset": "node ./scripts/reset-test-databases.mjs",
     "db:test:reset:local": "sh ./scripts/reset-test-databases-local.sh",
     "postinstall": "node ./scripts/setup-freebsd-next-wasm.mjs"

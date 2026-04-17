@@ -9,8 +9,11 @@ This repository now keeps two levels of automated verification:
 
 Current integration coverage proves:
 - a new account can be registered into `account_test.account`
+- duplicate login and blocked-account paths behave correctly against the legacy schema
 - the stored password uses the legacy `PASSWORD()`-compatible hash flow
 - the same credentials can log in through the service layer
+- recovery links are created in `metin2_cms_test.password_recovery_tokens`
+- a recovery token can rotate the legacy password in `account_test.account`
 - a web session can be persisted into `metin2_cms_test.web_sessions`
 
 Current test file:
@@ -88,3 +91,5 @@ Do not point integration env vars at the live schemas:
 Only use:
 - `account_test`
 - `metin2_cms_test`
+
+The helpers now hard-fail if a reset/integration env points at a non-`*_test` schema.

@@ -36,7 +36,9 @@ FLUSH PRIVILEGES;
 SQL
 
 mariadb account_test < "$PROJECT_ROOT/sql/test/account-test-schema.sql"
-mariadb metin2_cms_test < "$PROJECT_ROOT/drizzle/0000_auth_tables.sql"
+for sql_file in "$PROJECT_ROOT"/drizzle/*.sql; do
+  mariadb metin2_cms_test < "$sql_file"
+done
 
 cat > "$PROJECT_ROOT/.env.test.local" <<EOF
 DATABASE_URL=mysql://metin2_cms_test_legacy_auth:${LEGACY_TEST_PASSWORD}@127.0.0.1:3306/account_test
