@@ -5,7 +5,7 @@ import { createPool, type Pool } from "mysql2/promise";
 
 import { authAuditLog, webSessions } from "@/lib/db/schema/cms";
 import { legacyAccounts } from "@/lib/db/schema/account";
-import { env } from "@/lib/env";
+import { getEnv } from "@/lib/env";
 
 type GlobalDbPools = typeof globalThis & {
   __mt2CmsLegacyAccountPool?: Pool;
@@ -14,24 +14,46 @@ type GlobalDbPools = typeof globalThis & {
 
 const globalForDb = globalThis as GlobalDbPools;
 
-export const legacyAccountPool =
-  globalForDb.__mt2CmsLegacyAccountPool ?? createPool(env.DATABASE_URL);
+export function getLegacyAccountPool(): Pool {
+  if (globalForDb.__mt2CmsLegacyAccountPool) {
+    return globalForDb.__mt2CmsLegacyAccountPool;
+  }
 
-export const cmsPool = globalForDb.__mt2CmsWebPool ?? createPool(env.CMS_DATABASE_URL);
+  const pool = createPool(getEnv().DATABASE_URL);
 
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.__mt2CmsLegacyAccountPool = legacyAccountPool;
-  globalForDb.__mt2CmsWebPool = cmsPool;
+  if (process.env.NODE_ENV !== "production") {
+    globalForDb.__mt2CmsLegacyAccountPool = pool;
+  }
+
+  return pool;
 }
 
-export const legacyAccountDb = drizzle({
-  client: legacyAccountPool,
-  mode: "default",
-  schema: { legacyAccounts },
-});
+export function getCmsPool(): Pool {
+  if (globalForDb.__mt2CmsWebPool) {
+    return globalForDb.__mt2CmsWebPool;
+  }
 
-export const cmsDb = drizzle({
-  client: cmsPool,
-  mode: "default",
-  schema: { webSessions, authAuditLog },
-});
+  const pool = createPool(getEnv().CMS_DATABASE_URL);
+
+  if (process.env.NODE_ENV !== "production") {
+    globalForDb.__mt2CmsWebPool = pool;
+  }
+
+  return pool;
+}
+
+export function getLegacyAccountDb() {
+  return drizzle({
+    client: getLegacyAccountPool(),
+    mode: "default",
+    schema: { legacyAccounts },
+  });
+}
+
+export function getCmsDb() {
+  return drizzle({
+    client: getCmsPool(),
+    mode: "default",
+    schema: { webSessions, authAuditLog },
+  });
+}

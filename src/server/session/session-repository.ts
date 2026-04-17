@@ -2,18 +2,18 @@ import "server-only";
 
 import { and, eq, gt, isNull } from "drizzle-orm";
 
-import { cmsDb } from "@/lib/db/connection";
+import { getCmsDb } from "@/lib/db/connection";
 import { webSessions, type NewWebSession, type WebSession } from "@/lib/db/schema/cms";
 
 export async function createWebSession(session: NewWebSession): Promise<void> {
-  await cmsDb.insert(webSessions).values(session);
+  await getCmsDb().insert(webSessions).values(session);
 }
 
 export async function findActiveSessionById(
   sessionId: string,
   currentTime: string,
 ): Promise<WebSession | null> {
-  const rows = await cmsDb
+  const rows = await getCmsDb()
     .select()
     .from(webSessions)
     .where(
@@ -32,7 +32,7 @@ export async function revokeWebSession(
   sessionId: string,
   revokedAt: string,
 ): Promise<void> {
-  await cmsDb
+  await getCmsDb()
     .update(webSessions)
     .set({ revokedAt })
     .where(eq(webSessions.id, sessionId));

@@ -4,7 +4,7 @@ import { timingSafeEqual } from "node:crypto";
 
 import type { RowDataPacket } from "mysql2/promise";
 
-import { legacyAccountPool } from "@/lib/db/connection";
+import { getLegacyAccountPool } from "@/lib/db/connection";
 
 const LEGACY_PASSWORD_HASH_REGEX = /^\*[0-9A-F]{40}$/;
 
@@ -19,7 +19,7 @@ export function isLegacyPasswordHash(value: string): boolean {
 export async function hashPasswordWithLegacyAlgorithm(
   password: string,
 ): Promise<string> {
-  const [rows] = await legacyAccountPool.query<PasswordHashRow[]>(
+  const [rows] = await getLegacyAccountPool().query<PasswordHashRow[]>(
     "SELECT PASSWORD(?) AS hash",
     [password],
   );

@@ -72,6 +72,12 @@ FreeBSD note:
 - this repository installs `@next/swc-wasm-nodejs` and links it during `postinstall`
 - local `dev` and `build` scripts use `--webpack` so the project works on FreeBSD
 
+Environment note:
+- unit tests and `pnpm build` do not require a live MariaDB connection anymore
+- the DB env is resolved lazily when auth/account code actually touches the database
+- CI injects placeholder URLs so GitHub Actions does not fail on missing env config
+- real login/register runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
+
 Before using login/register locally, provision the CMS-owned tables in the CMS database.
 A ready-to-apply SQL file lives at:
 - `drizzle/0000_auth_tables.sql`

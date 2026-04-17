@@ -5,9 +5,9 @@ const { queryMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db/connection", () => ({
-  legacyAccountPool: {
+  getLegacyAccountPool: () => ({
     query: queryMock,
-  },
+  }),
 }));
 
 import {
