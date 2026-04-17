@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { closeOtherSessionsAction } from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
+import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
 
 export default async function AccountPage() {
@@ -14,6 +15,7 @@ export default async function AccountPage() {
 
   const { account, session } = authenticated;
   const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
+  const recentAuthActivity = await listRecentAuthActivityForAccount(account.id);
   const otherActiveSessions = activeSessions.filter(
     (activeSession) => activeSession.id !== session.id,
   );
@@ -140,6 +142,70 @@ export default async function AccountPage() {
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div>
+          <h2 className="text-lg font-medium text-neutral-950">Recent auth activity</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Latest sign-in and recovery events recorded in the CMS security audit log
+            for this account.
+          </p>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {recentAuthActivity.length > 0 ? (
+            recentAuthActivity.map((entry) => (
+              <article
+                key={entry.id}
+                className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
+              >
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium text-neutral-950">{entry.title}</p>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          entry.success
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        {entry.success ? "Success" : "Attention"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-neutral-600">{entry.description}</p>
+                  </div>
+
+                  <p className="text-xs text-neutral-500">{entry.occurredAt}</p>
+                </div>
+
+                <dl className="mt-4 grid gap-3 text-sm text-neutral-700 md:grid-cols-2">
+                  <div>
+                    <dt className="text-neutral-500">IP</dt>
+                    <dd>{entry.ip || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-neutral-500">User agent</dt>
+                    <dd className="break-all">{entry.userAgent || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-neutral-500">Outcome</dt>
+                    <dd>{entry.outcome}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-neutral-500">Delivery</dt>
+                    <dd>{entry.deliveryMode || "—"}</dd>
+                  </div>
+                </dl>
+              </article>
+            ))
+          ) : (
+            <p className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600">
+              No auth activity recorded yet for this account.
+            </p>
+          )}
         </div>
       </section>
 

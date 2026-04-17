@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 
 import { getCmsDb } from "@/lib/db/connection";
 import { authAuditLog, type NewAuthAuditLogEntry } from "@/lib/db/schema/cms";
@@ -41,4 +41,16 @@ export async function countAuthAuditEntriesSince(options: {
     .where(and(...conditions));
 
   return Number(rows[0]?.count ?? 0);
+}
+
+export async function listRecentAuthAuditEntriesForAccount(
+  accountId: number,
+  limit: number,
+) {
+  return getCmsDb()
+    .select()
+    .from(authAuditLog)
+    .where(eq(authAuditLog.accountId, accountId))
+    .orderBy(desc(authAuditLog.createdAt), desc(authAuditLog.id))
+    .limit(limit);
 }

@@ -6,6 +6,7 @@ import {
   authenticateLegacyAccount,
   registerLegacyCompatibleAccount,
 } from "@/server/account/account-service";
+import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { isLegacyPasswordHash } from "@/server/auth/password-compat";
 import {
   requestPasswordRecovery,
@@ -450,6 +451,72 @@ describe("legacy auth flow against test MariaDB", () => {
         }),
       ]),
     );
+  });
+
+  it("lists recent auth activity for the account in newest-first order", async () => {
+    const login = createLogin("history");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    await authenticateLegacyAccount({
+      login,
+      password: "wrongpass1",
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+    await authenticateLegacyAccount({
+      login,
+      password: "abc12345",
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+    await requestPasswordRecovery({
+      login,
+      email: `${login}@example.com`,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+    });
+
+    const activity = await listRecentAuthActivityForAccount(registration.account.id);
+
+    expect(
+      activity.map((entry) => ({
+        eventType: entry.eventType,
+        outcome: entry.outcome,
+        title: entry.title,
+        deliveryMode: entry.deliveryMode,
+      })),
+    ).toEqual([
+      {
+        eventType: "password_recovery.request",
+        outcome: "token_created",
+        title: "Recovery requested",
+        deliveryMode: "preview",
+      },
+      {
+        eventType: "login",
+        outcome: "authenticated",
+        title: "Successful sign-in",
+        deliveryMode: null,
+      },
+      {
+        eventType: "login",
+        outcome: "invalid_credentials",
+        title: "Failed sign-in",
+        deliveryMode: null,
+      },
+    ]);
   });
 
   it("rate limits repeated recovery requests for the same login", async () => {
