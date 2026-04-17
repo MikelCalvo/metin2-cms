@@ -45,6 +45,23 @@ export async function listActiveSessionsForAccount(
     .orderBy(desc(webSessions.lastSeenAt), desc(webSessions.createdAt));
 }
 
+export async function touchActiveSessionLastSeen(
+  sessionId: string,
+  lastSeenAt: string,
+  currentTime: string,
+): Promise<void> {
+  await getCmsDb()
+    .update(webSessions)
+    .set({ lastSeenAt })
+    .where(
+      and(
+        eq(webSessions.id, sessionId),
+        isNull(webSessions.revokedAt),
+        gt(webSessions.expiresAt, currentTime),
+      ),
+    );
+}
+
 export async function revokeWebSession(
   sessionId: string,
   revokedAt: string,

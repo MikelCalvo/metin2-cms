@@ -16,6 +16,7 @@ import {
   createWebSession,
   findActiveSessionById,
   listActiveSessionsForAccount,
+  touchActiveSessionLastSeen,
 } from "@/server/session/session-repository";
 import { revokeOtherSessionsForAccount } from "@/server/session/session-service";
 
@@ -291,6 +292,55 @@ describe("legacy auth flow against test MariaDB", () => {
     expect(storedSession).not.toBeNull();
     expect(storedSession?.accountId).toBe(auth.account.id);
     expect(storedSession?.login).toBe(login);
+  });
+
+  it("updates last_seen_at for an active session", async () => {
+    const login = createLogin("touch");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "7654321",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    const createdAt = new Date("2026-04-17T14:00:00Z");
+    const lastSeenAt = new Date("2026-04-17T14:05:00Z");
+    const refreshedAt = new Date("2026-04-17T14:15:00Z");
+    const expiresAt = new Date("2026-04-17T15:00:00Z");
+    const sessionId = `${login}-session`;
+
+    await createWebSession({
+      id: sessionId,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.1",
+      userAgent: "vitest-integration",
+      createdAt: toMysqlDateTime(createdAt),
+      lastSeenAt: toMysqlDateTime(lastSeenAt),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+
+    await touchActiveSessionLastSeen(
+      sessionId,
+      toMysqlDateTime(refreshedAt),
+      toMysqlDateTime(refreshedAt),
+    );
+
+    const storedSession = await findActiveSessionById(
+      sessionId,
+      toMysqlDateTime(refreshedAt),
+    );
+
+    expect(storedSession).not.toBeNull();
+    expect(storedSession?.lastSeenAt).toBe("2026-04-17 14:15:00");
   });
 
   it("lists active sessions and revokes the other sessions for an account", async () => {

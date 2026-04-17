@@ -16,6 +16,7 @@ Current integration coverage proves:
 - the same credentials can log in through the service layer
 - a CMS web session can be persisted into `metin2_cms_test.web_sessions`
 - active CMS sessions can be listed per account and other sessions can be revoked while keeping the current one
+- active CMS sessions can refresh `last_seen_at` for the current session
 - recent auth activity can be listed per account in newest-first order from `metin2_cms_test.auth_audit_log`
 - recovery links are created in `metin2_cms_test.password_recovery_tokens`
 - recovery requests write entries into `metin2_cms_test.auth_audit_log`

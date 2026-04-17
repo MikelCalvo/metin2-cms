@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const {
   createWebSessionMock,
   findActiveSessionByIdMock,
+  touchActiveSessionLastSeenMock,
   revokeWebSessionMock,
   listActiveSessionsForAccountMock,
   revokeOtherActiveSessionsForAccountMock,
@@ -10,6 +11,7 @@ const {
 } = vi.hoisted(() => ({
   createWebSessionMock: vi.fn(),
   findActiveSessionByIdMock: vi.fn(),
+  touchActiveSessionLastSeenMock: vi.fn(),
   revokeWebSessionMock: vi.fn(),
   listActiveSessionsForAccountMock: vi.fn(),
   revokeOtherActiveSessionsForAccountMock: vi.fn(),
@@ -23,6 +25,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@/server/session/session-repository", () => ({
   createWebSession: createWebSessionMock,
   findActiveSessionById: findActiveSessionByIdMock,
+  touchActiveSessionLastSeen: touchActiveSessionLastSeenMock,
   revokeWebSession: revokeWebSessionMock,
   listActiveSessionsForAccount: listActiveSessionsForAccountMock,
   revokeOtherActiveSessionsForAccount: revokeOtherActiveSessionsForAccountMock,
@@ -40,6 +43,7 @@ describe("session service", () => {
   beforeEach(() => {
     createWebSessionMock.mockReset();
     findActiveSessionByIdMock.mockReset();
+    touchActiveSessionLastSeenMock.mockReset();
     revokeWebSessionMock.mockReset();
     listActiveSessionsForAccountMock.mockReset();
     revokeOtherActiveSessionsForAccountMock.mockReset();
@@ -83,7 +87,7 @@ describe("session service", () => {
     await expect(getCurrentAuthenticatedSession()).resolves.toBeNull();
   });
 
-  it("loads the current session from the repository", async () => {
+  it("loads the current session from the repository and refreshes last activity", async () => {
     const cookieStore = {
       set: vi.fn(),
       get: vi.fn(() => ({ value: "session-test-id" })),
@@ -94,12 +98,20 @@ describe("session service", () => {
       id: "session-test-id",
       accountId: 7,
       login: "tester01",
+      lastSeenAt: "2026-04-17 13:55:00",
     });
 
     await expect(getCurrentAuthenticatedSession()).resolves.toMatchObject({
       id: "session-test-id",
       accountId: 7,
+      lastSeenAt: "2026-04-17 14:00:00",
     });
+
+    expect(touchActiveSessionLastSeenMock).toHaveBeenCalledWith(
+      "session-test-id",
+      "2026-04-17 14:00:00",
+      "2026-04-17 14:00:00",
+    );
   });
 
   it("lists active sessions for an account", async () => {

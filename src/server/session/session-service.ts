@@ -10,6 +10,7 @@ import {
   revokeActiveSessionsForAccount,
   revokeOtherActiveSessionsForAccount,
   revokeWebSession,
+  touchActiveSessionLastSeen,
 } from "@/server/session/session-repository";
 
 const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME ?? "mt2cms_session";
@@ -60,7 +61,19 @@ export async function getCurrentAuthenticatedSession() {
     return null;
   }
 
-  return findActiveSessionById(currentSession.value, toMysqlDateTime(new Date()));
+  const now = toMysqlDateTime(new Date());
+  const session = await findActiveSessionById(currentSession.value, now);
+
+  if (!session) {
+    return null;
+  }
+
+  await touchActiveSessionLastSeen(session.id, now, now);
+
+  return {
+    ...session,
+    lastSeenAt: now,
+  };
 }
 
 export async function listAuthenticatedSessionsForAccount(accountId: number) {
