@@ -143,6 +143,17 @@ describe("auth audit service", () => {
   it("clamps the limit and falls back to a generic description for unknown events", async () => {
     listRecentAuthAuditEntriesForAccountMock.mockResolvedValueOnce([
       {
+        id: 100,
+        eventType: "account.profile_update",
+        login: "tester01",
+        accountId: 7,
+        ip: "127.0.0.1",
+        userAgent: "Safari",
+        success: 1,
+        detail: "outcome=profile_updated",
+        createdAt: "2026-04-17 14:25:00",
+      },
+      {
         id: 99,
         eventType: "custom.event",
         login: "tester01",
@@ -156,6 +167,18 @@ describe("auth audit service", () => {
     ]);
 
     await expect(listRecentAuthActivityForAccount(7, 50)).resolves.toEqual([
+      {
+        id: 100,
+        eventType: "account.profile_update",
+        outcome: "profile_updated",
+        occurredAt: "2026-04-17 14:25:00",
+        success: true,
+        ip: "127.0.0.1",
+        userAgent: "Safari",
+        deliveryMode: null,
+        title: "Profile updated",
+        description: "The account email or delete code was updated from the authenticated account area.",
+      },
       {
         id: 99,
         eventType: "custom.event",

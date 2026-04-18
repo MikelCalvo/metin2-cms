@@ -100,6 +100,13 @@ function describeActivity(entry: AuthAuditLogEntry, outcome: string): AuthActivi
     };
   }
 
+  if (entry.eventType === "account.profile_update" && outcome === "profile_updated") {
+    return {
+      title: "Profile updated",
+      description: "The account email or delete code was updated from the authenticated account area.",
+    };
+  }
+
   return {
     title: "Authentication event",
     description: `${entry.eventType} (${outcome})`,

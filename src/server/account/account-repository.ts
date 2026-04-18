@@ -42,3 +42,19 @@ export async function updateLegacyAccountPassword(
     .set({ password: passwordHash })
     .where(eq(legacyAccounts.id, accountId));
 }
+
+export async function updateLegacyAccountProfile(
+  accountId: number,
+  profile: {
+    email: string;
+    socialId: string;
+  },
+): Promise<void> {
+  await getLegacyAccountDb()
+    .update(legacyAccounts)
+    .set({
+      email: profile.email,
+      socialId: profile.socialId,
+    })
+    .where(eq(legacyAccounts.id, accountId));
+}

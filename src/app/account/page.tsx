@@ -6,6 +6,7 @@ import {
 } from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
 import { ChangePasswordForm } from "@/components/account/change-password-form";
+import { ProfileSettingsForm } from "@/components/account/profile-settings-form";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
@@ -119,8 +120,9 @@ export default async function AccountPage() {
         </article>
       </section>
 
-      <section>
+      <section className="grid gap-4 lg:grid-cols-2">
         <ChangePasswordForm />
+        <ProfileSettingsForm email={account.email} socialId={account.socialId} />
       </section>
 
       <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -215,7 +217,7 @@ export default async function AccountPage() {
         <div>
           <h2 className="text-lg font-medium text-neutral-950">Recent auth activity</h2>
           <p className="mt-1 text-sm text-neutral-600">
-            Latest sign-in, recovery and account security events recorded in the CMS
+            Latest sign-in, recovery and account settings events recorded in the CMS
             audit log for this account.
           </p>
         </div>

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const {
   findAccountByIdMock,
   updateLegacyAccountPasswordMock,
+  updateLegacyAccountProfileMock,
   verifyLegacyPasswordMock,
   hashPasswordWithLegacyAlgorithmMock,
   createAuthAuditLogEntryMock,
@@ -10,6 +11,7 @@ const {
 } = vi.hoisted(() => ({
   findAccountByIdMock: vi.fn(),
   updateLegacyAccountPasswordMock: vi.fn(),
+  updateLegacyAccountProfileMock: vi.fn(),
   verifyLegacyPasswordMock: vi.fn(),
   hashPasswordWithLegacyAlgorithmMock: vi.fn(),
   createAuthAuditLogEntryMock: vi.fn(),
@@ -19,6 +21,7 @@ const {
 vi.mock("@/server/account/account-repository", () => ({
   findAccountById: findAccountByIdMock,
   updateLegacyAccountPassword: updateLegacyAccountPasswordMock,
+  updateLegacyAccountProfile: updateLegacyAccountProfileMock,
 }));
 
 vi.mock("@/server/auth/password-compat", () => ({
@@ -34,12 +37,16 @@ vi.mock("@/server/session/session-service", () => ({
   revokeOtherSessionsForAccount: revokeOtherSessionsForAccountMock,
 }));
 
-import { changeAuthenticatedAccountPassword } from "@/server/account/account-settings-service";
+import {
+  changeAuthenticatedAccountPassword,
+  updateAuthenticatedAccountProfile,
+} from "@/server/account/account-settings-service";
 
 describe("account settings service", () => {
   beforeEach(() => {
     findAccountByIdMock.mockReset();
     updateLegacyAccountPasswordMock.mockReset();
+    updateLegacyAccountProfileMock.mockReset();
     verifyLegacyPasswordMock.mockReset();
     hashPasswordWithLegacyAlgorithmMock.mockReset();
     createAuthAuditLogEntryMock.mockReset();
@@ -120,6 +127,43 @@ describe("account settings service", () => {
         accountId: 7,
         success: 0,
         detail: expect.stringContaining("invalid_current_password"),
+      }),
+    );
+  });
+
+  it("updates the authenticated account email and delete code", async () => {
+    findAccountByIdMock.mockResolvedValueOnce({
+      id: 7,
+      login: "tester01",
+      password: "legacy-hash",
+      status: "OK",
+    });
+
+    await expect(
+      updateAuthenticatedAccountProfile({
+        accountId: 7,
+        login: "tester01",
+        email: "updated@example.com",
+        socialId: "7654321",
+        ip: "127.0.0.1",
+        userAgent: "Vitest",
+      }),
+    ).resolves.toMatchObject({
+      ok: true,
+      message: "Profile updated successfully.",
+    });
+
+    expect(updateLegacyAccountProfileMock).toHaveBeenCalledWith(7, {
+      email: "updated@example.com",
+      socialId: "7654321",
+    });
+    expect(createAuthAuditLogEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "account.profile_update",
+        login: "tester01",
+        accountId: 7,
+        success: 1,
+        detail: expect.stringContaining("profile_updated"),
       }),
     );
   });

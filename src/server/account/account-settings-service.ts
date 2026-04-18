@@ -1,9 +1,15 @@
 import "server-only";
 
-import { findAccountById, updateLegacyAccountPassword } from "@/server/account/account-repository";
+import {
+  findAccountById,
+  updateLegacyAccountPassword,
+  updateLegacyAccountProfile,
+} from "@/server/account/account-repository";
 import type {
   ChangeAuthenticatedAccountPasswordInput,
   ChangeAuthenticatedAccountPasswordResult,
+  UpdateAuthenticatedAccountProfileInput,
+  UpdateAuthenticatedAccountProfileResult,
 } from "@/server/account/account-settings-types";
 import { createAuthAuditLogEntry } from "@/server/auth/auth-audit-repository";
 import {
@@ -17,6 +23,10 @@ function toMysqlDateTime(date: Date) {
 }
 
 function buildAccountPasswordChangeAuditDetail(outcome: string) {
+  return `outcome=${outcome}`;
+}
+
+function buildAccountProfileUpdateAuditDetail(outcome: string) {
   return `outcome=${outcome}`;
 }
 
@@ -79,5 +89,41 @@ export async function changeAuthenticatedAccountPassword(
   return {
     ok: true,
     message: "Password updated successfully.",
+  };
+}
+
+export async function updateAuthenticatedAccountProfile(
+  input: UpdateAuthenticatedAccountProfileInput,
+): Promise<UpdateAuthenticatedAccountProfileResult> {
+  const account = await findAccountById(input.accountId);
+
+  if (!account || account.status !== "OK") {
+    return {
+      ok: false,
+      code: "account_unavailable",
+      message: "This account is not available right now.",
+    };
+  }
+
+  const updatedAt = toMysqlDateTime(new Date());
+
+  await updateLegacyAccountProfile(input.accountId, {
+    email: input.email,
+    socialId: input.socialId,
+  });
+  await createAuthAuditLogEntry({
+    eventType: "account.profile_update",
+    login: input.login,
+    accountId: input.accountId,
+    ip: input.ip ?? null,
+    userAgent: input.userAgent ?? null,
+    success: 1,
+    detail: buildAccountProfileUpdateAuditDetail("profile_updated"),
+    createdAt: updatedAt,
+  });
+
+  return {
+    ok: true,
+    message: "Profile updated successfully.",
   };
 }

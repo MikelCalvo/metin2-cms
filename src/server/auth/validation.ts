@@ -22,7 +22,7 @@ export const passwordValueSchema = z
   .max(PASSWORD_MAX_LENGTH, `Password must be at most ${PASSWORD_MAX_LENGTH} characters.`)
   .regex(/^[A-Za-z0-9]+$/, "Password must use only letters and numbers.");
 
-const socialIdValueSchema = z
+export const socialIdValueSchema = z
   .string()
   .trim()
   .min(

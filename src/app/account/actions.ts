@@ -3,9 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { changeAuthenticatedAccountPassword } from "@/server/account/account-settings-service";
-import type { AccountPasswordChangeActionState } from "@/server/account/account-settings-types";
-import { parseAccountPasswordChangeFormData } from "@/server/account/account-settings-validation";
+import {
+  changeAuthenticatedAccountPassword,
+  updateAuthenticatedAccountProfile,
+} from "@/server/account/account-settings-service";
+import type {
+  AccountPasswordChangeActionState,
+  AccountProfileActionState,
+} from "@/server/account/account-settings-types";
+import {
+  parseAccountPasswordChangeFormData,
+  parseAccountProfileFormData,
+} from "@/server/account/account-settings-validation";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { getRequestMetadata } from "@/server/auth/request-metadata";
 import {
@@ -92,5 +101,69 @@ export async function changePasswordAction(
   return {
     status: "success",
     message: result.message,
+  };
+}
+
+export async function updateProfileAction(
+  _previousState: AccountProfileActionState,
+  formData: FormData,
+): Promise<AccountProfileActionState> {
+  const authenticated = await getCurrentAuthenticatedAccount();
+
+  if (!authenticated) {
+    redirect("/login");
+  }
+
+  const metadata = await getRequestMetadata();
+  const parsed = parseAccountProfileFormData(formData, metadata);
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "Please correct the highlighted profile fields.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+      values: {
+        email:
+          typeof formData.get("email") === "string"
+            ? (formData.get("email") as string)
+            : authenticated.account.email,
+        socialId:
+          typeof formData.get("socialId") === "string"
+            ? (formData.get("socialId") as string)
+            : authenticated.account.socialId,
+      },
+    };
+  }
+
+  const result = await updateAuthenticatedAccountProfile({
+    accountId: authenticated.account.id,
+    login: authenticated.account.login,
+    email: parsed.data.email,
+    socialId: parsed.data.socialId,
+    ip: parsed.data.ip,
+    userAgent: parsed.data.userAgent,
+  });
+
+  if (!result.ok) {
+    return {
+      status: "error",
+      message: result.message,
+      fieldErrors: result.fieldErrors,
+      values: {
+        email: parsed.data.email,
+        socialId: parsed.data.socialId,
+      },
+    };
+  }
+
+  revalidatePath("/account");
+
+  return {
+    status: "success",
+    message: result.message,
+    values: {
+      email: parsed.data.email,
+      socialId: parsed.data.socialId,
+    },
   };
 }

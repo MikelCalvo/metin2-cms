@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { passwordValueSchema } from "@/server/auth/validation";
+import {
+  emailValueSchema,
+  passwordValueSchema,
+  socialIdValueSchema,
+} from "@/server/auth/validation";
 import type { RequestMetadata } from "@/server/auth/types";
 
 const accountPasswordChangeSchema = z
@@ -21,6 +25,13 @@ const accountPasswordChangeSchema = z
     }
   });
 
+const accountProfileSchema = z.object({
+  email: emailValueSchema,
+  socialId: socialIdValueSchema,
+  ip: z.string().nullable().optional(),
+  userAgent: z.string().nullable().optional(),
+});
+
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
 
@@ -35,6 +46,18 @@ export function parseAccountPasswordChangeFormData(
     currentPassword: readString(formData, "currentPassword"),
     newPassword: readString(formData, "newPassword"),
     newPasswordConfirmation: readString(formData, "newPasswordConfirmation"),
+    ip: metadata.ip ?? null,
+    userAgent: metadata.userAgent ?? null,
+  });
+}
+
+export function parseAccountProfileFormData(
+  formData: FormData,
+  metadata: RequestMetadata = {},
+) {
+  return accountProfileSchema.safeParse({
+    email: readString(formData, "email"),
+    socialId: readString(formData, "socialId"),
     ip: metadata.ip ?? null,
     userAgent: metadata.userAgent ?? null,
   });

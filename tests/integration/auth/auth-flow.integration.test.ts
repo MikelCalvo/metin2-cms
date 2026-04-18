@@ -6,7 +6,10 @@ import {
   authenticateLegacyAccount,
   registerLegacyCompatibleAccount,
 } from "@/server/account/account-service";
-import { changeAuthenticatedAccountPassword } from "@/server/account/account-settings-service";
+import {
+  changeAuthenticatedAccountPassword,
+  updateAuthenticatedAccountProfile,
+} from "@/server/account/account-settings-service";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { isLegacyPasswordHash } from "@/server/auth/password-compat";
 import {
@@ -589,6 +592,51 @@ describe("legacy auth flow against test MariaDB", () => {
           eventType: "account.password_change",
           outcome: "password_updated",
           title: "Password changed",
+        }),
+      ]),
+    );
+  });
+
+  it("updates the authenticated account email and delete code", async () => {
+    const login = createLogin("profile");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "1234567",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    await expect(
+      updateAuthenticatedAccountProfile({
+        accountId: registration.account.id,
+        login: registration.account.login,
+        email: `${login}+updated@example.com`,
+        socialId: "7654321",
+        ip: "127.0.0.1",
+        userAgent: "vitest-profile",
+      }),
+    ).resolves.toMatchObject({ ok: true });
+
+    const updatedAccount = await findAccountByLogin(login);
+
+    expect(updatedAccount).toMatchObject({
+      email: `${login}+updated@example.com`,
+      socialId: "7654321",
+    });
+
+    await expect(listRecentAuthActivityForAccount(registration.account.id, 5)).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          eventType: "account.profile_update",
+          outcome: "profile_updated",
+          title: "Profile updated",
         }),
       ]),
     );
