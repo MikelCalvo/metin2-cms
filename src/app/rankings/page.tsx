@@ -1,16 +1,6 @@
 import Link from "next/link";
-import {
-  AlertTriangleIcon,
-  ArrowRightIcon,
-  CrownIcon,
-  DownloadIcon,
-  ShieldCheckIcon,
-  SwordsIcon,
-  TrophyIcon,
-  UserRoundPlusIcon,
-} from "lucide-react";
+import { AlertTriangleIcon, ArrowRightIcon, DownloadIcon, ShieldCheckIcon, UserRoundPlusIcon } from "lucide-react";
 
-import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -22,24 +12,6 @@ import { getRankingOverview } from "@/server/rankings/rankings-service";
 export const dynamic = "force-dynamic";
 
 const integerFormatter = new Intl.NumberFormat("en-US");
-
-const rankingHighlights = [
-  {
-    title: "Top characters",
-    description: "Level, EXP and playtime decide the order.",
-    icon: <TrophyIcon className="size-4" />,
-  },
-  {
-    title: "Top guilds",
-    description: "Ladder points lead the guild board.",
-    icon: <CrownIcon className="size-4" />,
-  },
-  {
-    title: "Live server data",
-    description: "Straight from the current player database.",
-    icon: <SwordsIcon className="size-4" />,
-  },
-] as const;
 
 const nextRoutes = [
   {
@@ -78,61 +50,8 @@ export default async function RankingsPage() {
 
   return (
     <SitePageShell>
-      <CmsPageHeader
-        eyebrow="Rankings"
-        title="The ladder is live."
-        description="Top characters and guilds, straight from the live server."
-        actions={
-          <>
-            <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/downloads">
-                Download starter pack
-                <DownloadIcon className="size-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
-            >
-              <Link href="/register">Create account</Link>
-            </Button>
-          </>
-        }
-      >
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Character ladder</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Guild ladder</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live server data</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Public leaderboard</div>
-      </CmsPageHeader>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        {rankingHighlights.map((highlight) => (
-          <Card
-            key={highlight.title}
-            className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
-          >
-            <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                {highlight.icon}
-              </div>
-              <div className="space-y-2">
-                <CardTitle className="text-xl text-white">{highlight.title}</CardTitle>
-                <CardDescription className="text-sm leading-6 text-zinc-400">
-                  {highlight.description}
-                </CardDescription>
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
-
       {rankingOverview.status === "unavailable" ? (
-        <PublicSection
-          eyebrow="Status"
-          title="The ladder is not available right now"
-          description="Try again in a moment."
-        >
+        <PublicSection eyebrow="Rankings" title="Live rankings unavailable" description="Try again in a moment.">
           <Alert className="border-white/10 bg-black/20 text-zinc-100">
             <AlertTriangleIcon className="size-4" />
             <AlertTitle>Ranking feed unavailable</AlertTitle>
@@ -141,11 +60,7 @@ export default async function RankingsPage() {
         </PublicSection>
       ) : (
         <>
-          <PublicSection
-            eyebrow="Characters"
-            title="Character ladder"
-            description="The highest characters on the live server."
-          >
+          <PublicSection eyebrow="Rankings" title="Character ladder" description="Top characters on the live server.">
             {rankingOverview.players.length > 0 ? (
               <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
                 <div className="overflow-x-auto">
@@ -193,7 +108,7 @@ export default async function RankingsPage() {
           <PublicSection
             eyebrow="Guilds"
             title="Guild ladder"
-            description="Guild standings from the live server."
+            description="Guild standings on the live server."
             contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]"
           >
             {rankingOverview.guilds.length > 0 ? (
