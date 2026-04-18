@@ -79,6 +79,9 @@ Environment note:
 - real login/register/recovery runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
 - live rankings runtime additionally requires `PLAYER_DATABASE_URL`
 - `PLAYER_DATABASE_URL` should point to a read-only MariaDB user for the `player` schema, not to the auth or CMS write credentials
+- private starter-pack delivery can be enabled with `STARTER_PACK_URL`
+- `STARTER_PACK_URL` is intentionally optional and should stay in environment configuration, not in committed source
+- when configured, `/downloads` exposes a CMS-owned `/downloads/client` redirect so the page markup does not need to embed the backing distribution URL directly
 - recovery delivery is temporary for now:
   - non-production defaults to `RECOVERY_DELIVERY_MODE=preview`
   - production defaults to `RECOVERY_DELIVERY_MODE=file`
@@ -182,6 +185,7 @@ Current phase:
 - the public landing page and auth entry routes now share reusable CMS shells instead of standalone one-off wrappers
 - the private web foundation now includes shared site navigation plus dedicated `/game`, `/downloads`, `/getting-started` and `/rankings` routes
 - `/downloads` and `/getting-started` now document the private client delivery and onboarding flow without embedding host-specific URLs in the repository
+- `/downloads` can now expose a live starter-pack CTA through `STARTER_PACK_URL`, using `/downloads/client` as the stable CMS-owned redirect path
 - `/rankings` now reads live character and guild ladder data from the `player` schema through a dedicated read-only database connection
 - ranking ordering is now documented in `docs/architecture/rankings.md`
 - `git push-deploy origin main` from the production working tree now pushes first and then rebuilds/restarts `metin2_cms`

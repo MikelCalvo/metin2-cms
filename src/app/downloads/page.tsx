@@ -6,6 +6,7 @@ import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getPublicEnv } from "@/lib/env";
 
 const downloadSteps = [
   {
@@ -37,6 +38,9 @@ const futureModules = [
 ] as const;
 
 export default function DownloadsPage() {
+  const starterPackUrl = getPublicEnv().STARTER_PACK_URL;
+  const hasStarterPackDownload = Boolean(starterPackUrl);
+
   return (
     <SitePageShell>
       <CmsPageHeader
@@ -45,26 +49,93 @@ export default function DownloadsPage() {
         description="This route is the clean replacement for the old download box and launcher funnel. It explains how the private client package should be delivered and used, without publishing sensitive URLs or environment-specific details in the repository."
         actions={
           <>
-            <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/getting-started">
-                Continue to onboarding
-                <ArrowRightIcon className="size-4" />
-              </Link>
-            </Button>
+            {hasStarterPackDownload ? (
+              <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
+                <Link href="/downloads/client">
+                  Download starter pack
+                  <DownloadIcon className="size-4" />
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
+                <Link href="/getting-started">
+                  Continue to onboarding
+                  <ArrowRightIcon className="size-4" />
+                </Link>
+              </Button>
+            )}
             <Button
               asChild
               variant="outline"
               className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
             >
-              <Link href="/login">Open sign in</Link>
+              <Link href={hasStarterPackDownload ? "/getting-started" : "/login"}>
+                {hasStarterPackDownload ? "Open getting started" : "Open sign in"}
+              </Link>
             </Button>
           </>
         }
       >
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Private delivery only</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+          {hasStarterPackDownload ? "Starter pack ready" : "Starter pack pending"}
+        </div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">No infra URLs in git</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Launcher flow comes later</div>
       </CmsPageHeader>
+
+      <PublicSection
+        eyebrow="Starter pack"
+        title={hasStarterPackDownload ? "The private starter pack is ready to download" : "Starter pack pending publication"}
+        description={
+          hasStarterPackDownload
+            ? "The CMS now exposes a stable download entrypoint without hardcoding the underlying distribution endpoint in git."
+            : "This page is already wired for the starter pack, but the private distribution URL has not been configured in the CMS environment yet."
+        }
+        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
+      >
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl text-white">Canonical download entrypoint</CardTitle>
+            <CardDescription className="text-sm leading-6 text-zinc-400">
+              The public UI links to an internal CMS route first, so the page does not expose environment-specific storage or reverse-proxy details directly in markup.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-zinc-300">
+            <p>
+              The starter pack remains a private asset, but players can now use a single stable button from the CMS instead of relying on side-channel instructions.
+            </p>
+            {hasStarterPackDownload ? (
+              <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
+                <Link href="/downloads/client">
+                  Download starter pack
+                  <DownloadIcon className="size-4" />
+                </Link>
+              </Button>
+            ) : (
+              <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 px-4 py-4 text-zinc-400">
+                The file is not published yet. Once STARTER_PACK_URL is configured on the server, this section will expose the live download button automatically.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl text-white">Why this shape</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              The starter pack URL lives in environment configuration, not in committed source.
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              The page can stay stable even if the backing distribution host changes later.
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              Future launcher/update improvements can keep reusing this route as the canonical download surface.
+            </div>
+          </CardContent>
+        </Card>
+      </PublicSection>
 
       <section className="grid gap-4 xl:grid-cols-3">
         {downloadSteps.map((step) => (

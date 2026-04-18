@@ -16,7 +16,14 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+const publicEnvSchema = z.object({
+  STARTER_PACK_URL: z.string().url().optional(),
+});
+
+export type PublicEnv = z.infer<typeof publicEnvSchema>;
+
 let cachedEnv: Env | undefined;
+let cachedPublicEnv: PublicEnv | undefined;
 
 function readRawEnv() {
   return {
@@ -44,6 +51,25 @@ export function getEnv(): Env {
 
   cachedEnv = parsedEnv.data;
   return cachedEnv;
+}
+
+export function getPublicEnv(): PublicEnv {
+  if (cachedPublicEnv) {
+    return cachedPublicEnv;
+  }
+
+  const parsedEnv = publicEnvSchema.safeParse({
+    STARTER_PACK_URL: process.env.STARTER_PACK_URL,
+  });
+
+  if (!parsedEnv.success) {
+    throw new Error(
+      `Invalid public environment configuration: ${JSON.stringify(parsedEnv.error.flatten().fieldErrors)}`,
+    );
+  }
+
+  cachedPublicEnv = parsedEnv.data;
+  return cachedPublicEnv;
 }
 
 export const env = new Proxy({} as Env, {
