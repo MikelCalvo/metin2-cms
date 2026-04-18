@@ -5,7 +5,6 @@ export type SiteNavItem = {
 
 export const siteNavigationItems = [
   { href: "/", label: "Home" },
-  { href: "/game", label: "Game" },
   { href: "/downloads", label: "Downloads" },
   { href: "/getting-started", label: "Start playing" },
   { href: "/rankings", label: "Rankings" },

@@ -43,8 +43,8 @@ export default async function RankingsPage() {
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/game">
-                Back to game overview
+              <Link href="/">
+                Back to home
                 <ArrowRightIcon className="size-4" />
               </Link>
             </Button>

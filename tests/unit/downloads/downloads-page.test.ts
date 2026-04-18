@@ -34,14 +34,15 @@ describe("downloads page", () => {
     expect(html).not.toContain("https://downloads.example.test/releases/starter-pack.zip");
   });
 
-  it("shows a pending publication state when the starter-pack URL is not configured", async () => {
+  it("shows a friendly placeholder state when the starter-pack URL is not configured", async () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: undefined,
     });
 
     const html = renderToStaticMarkup(await DownloadsPage());
 
-    expect(html).toContain("Starter pack pending publication");
+    expect(html).toContain("The download will appear here");
+    expect(html).toContain("Open getting started");
     expect(html).not.toContain('href="/downloads/client"');
   });
 });

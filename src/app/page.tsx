@@ -15,57 +15,70 @@ import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const playerExpectations = [
+const homeHighlights = [
+  {
+    title: "Launcher-ready install",
+    description: "Download once, open the launcher and let it handle the first patch before you log in.",
+    icon: <DownloadIcon className="size-4" />,
+  },
   {
     title: "Official Windows support",
-    description: "The default player path is built around Windows with the starter pack and launcher ready from day one.",
+    description: "Windows is the main path from the first click, with the starter pack and launcher already lined up.",
     icon: <HardDriveDownloadIcon className="size-4" />,
   },
   {
     title: "Linux via Wine",
-    description: "The same package is positioned to work for Linux players through Wine, without splitting the download experience.",
+    description: "Linux players stay on the same route instead of hunting for a separate community package.",
     icon: <SparklesIcon className="size-4" />,
-  },
-  {
-    title: "Launcher + auto patching",
-    description: "Players download once, then let the launcher keep the game updated before each session.",
-    icon: <DownloadIcon className="size-4" />,
-  },
-  {
-    title: "Secure account hub",
-    description: "Recovery, session control and account updates live in the same portal players already use to sign in.",
-    icon: <ShieldCheckIcon className="size-4" />,
   },
 ] as const;
 
-const entryRoutes = [
+const quickActions = [
   {
-    title: "Download the starter pack",
-    description: "One starter pack includes the launcher, the game files and the update path players expect from a live server.",
+    title: "Download",
+    description: "Grab the starter pack and get the launcher in the same download.",
     href: "/downloads",
-    icon: <DownloadIcon className="size-4" />,
     label: "Open downloads",
+    icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Create the account",
-    description: "Registration and recovery are already part of the same flow, so new players are not pushed into legacy PHP surfaces.",
+    title: "Create account",
+    description: "Register now so your first login is ready when the launcher finishes.",
     href: "/register",
-    icon: <ShieldCheckIcon className="size-4" />,
     label: "Create account",
+    icon: <ShieldCheckIcon className="size-4" />,
   },
   {
-    title: "Start playing",
-    description: "The onboarding route explains the shortest path from launcher install to the first successful login.",
+    title: "First launch",
+    description: "See the shortest path from install to entering the server.",
     href: "/getting-started",
-    icon: <ArrowRightIcon className="size-4" />,
     label: "View first-login guide",
+    icon: <ArrowRightIcon className="size-4" />,
   },
   {
-    title: "Check the live ladders",
-    description: "Rankings already connect to live player and guild data, giving the portal a real gameplay surface out of the box.",
+    title: "Live rankings",
+    description: "Check the ladders before you jump in or after the grind session ends.",
     href: "/rankings",
-    icon: <TrophyIcon className="size-4" />,
     label: "View rankings",
+    icon: <TrophyIcon className="size-4" />,
+  },
+] as const;
+
+const homeLoop = [
+  {
+    title: "Download and patch",
+    description: "One launcher-first entrypoint instead of scattered mirrors and old-school hand-holding.",
+    icon: <DownloadIcon className="size-4 text-violet-300" />,
+  },
+  {
+    title: "Secure account hub",
+    description: "Register, recover and manage your access from the same player-facing portal.",
+    icon: <ShieldCheckIcon className="size-4 text-violet-300" />,
+  },
+  {
+    title: "Competitive loop",
+    description: "Live ladders keep the site connected to the actual server instead of feeling like a dead landing page.",
+    icon: <SwordsIcon className="size-4 text-violet-300" />,
   },
 ] as const;
 
@@ -74,8 +87,8 @@ export default function Home() {
     <SitePageShell>
       <CmsPageHeader
         eyebrow="Enter the shard"
-        title="Download once. Patch automatically. Join the next Metin2 war."
-        description="This landing is shaped like a real server portal from the first load: official Windows support, Linux via Wine, one starter pack with an auto-updating launcher, secure account access and live rankings in the same place."
+        title="Patch, login and get into the fight."
+        description="This home is the game-facing front door: one starter pack with an auto-updating launcher, official Windows support, Linux via Wine and the key player routes right where people expect them."
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
@@ -100,20 +113,20 @@ export default function Home() {
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player rankings</div>
       </CmsPageHeader>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {playerExpectations.map((expectation) => (
+      <section className="grid gap-4 md:grid-cols-3">
+        {homeHighlights.map((highlight) => (
           <Card
-            key={expectation.title}
+            key={highlight.title}
             className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
           >
             <CardHeader className="space-y-3">
               <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                {expectation.icon}
+                {highlight.icon}
               </div>
               <div className="space-y-2">
-                <CardTitle className="text-xl text-white">{expectation.title}</CardTitle>
+                <CardTitle className="text-xl text-white">{highlight.title}</CardTitle>
                 <CardDescription className="text-sm leading-6 text-zinc-400">
-                  {expectation.description}
+                  {highlight.description}
                 </CardDescription>
               </div>
             </CardHeader>
@@ -122,21 +135,21 @@ export default function Home() {
       </section>
 
       <PublicSection
-        eyebrow="Player journey"
-        title="Everything players expect on day one"
-        description="The landing, download flow, onboarding and rankings are already framed like a live server site instead of a documentation hub."
+        eyebrow="Start here"
+        title="Everything important before the first session"
+        description="Less reading, less scrolling, more obvious next steps."
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {entryRoutes.map((route) => (
-            <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
+          {quickActions.map((action) => (
+            <Card key={action.href} className="border-white/10 bg-black/20 shadow-none">
               <CardHeader className="space-y-3">
                 <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                  {route.icon}
+                  {action.icon}
                 </div>
                 <div className="space-y-2">
-                  <CardTitle className="text-lg text-white">{route.title}</CardTitle>
+                  <CardTitle className="text-lg text-white">{action.title}</CardTitle>
                   <CardDescription className="text-sm leading-6 text-zinc-400">
-                    {route.description}
+                    {action.description}
                   </CardDescription>
                 </div>
               </CardHeader>
@@ -146,8 +159,8 @@ export default function Home() {
                   variant="ghost"
                   className="px-0 text-zinc-300 hover:bg-transparent hover:text-white"
                 >
-                  <Link href={route.href}>
-                    {route.label}
+                  <Link href={action.href}>
+                    {action.label}
                     <ArrowRightIcon className="size-4" />
                   </Link>
                 </Button>
@@ -157,52 +170,17 @@ export default function Home() {
         </div>
       </PublicSection>
 
-      <PublicSection
-        eyebrow="Ready to enter"
-        title="Starter pack, player account and live ladders in one loop"
-        description="Short path, clear CTAs and enough structure to fork and rebrand fast without turning the homepage back into documentation."
-        action={
-          <div className="flex flex-wrap gap-3">
-            <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/downloads">
-                Open downloads
-                <DownloadIcon className="size-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
-            >
-              <Link href="/rankings">View rankings</Link>
-            </Button>
-          </div>
-        }
-      >
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+      <section className="grid gap-4 md:grid-cols-3">
+        {homeLoop.map((item) => (
+          <div key={item.title} className="rounded-[28px] border border-white/10 bg-black/20 px-5 py-5">
             <div className="flex items-center gap-2 text-white">
-              <DownloadIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Starter pack</span>
+              {item.icon}
+              <span className="font-medium">{item.title}</span>
             </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">The launcher and the game arrive together in the same download surface.</p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">{item.description}</p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <ShieldCheckIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Player account</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">Registration, recovery and session control already fit the premium dark UI.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <SwordsIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Competitive loop</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">Live rankings complete the player-facing loop and make the site feel game-connected.</p>
-          </div>
-        </div>
-      </PublicSection>
+        ))}
+      </section>
     </SitePageShell>
   );
 }
