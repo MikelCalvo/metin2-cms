@@ -16,7 +16,7 @@ describe("rankings page", () => {
     getRankingOverviewMock.mockReset();
   });
 
-  it("renders live player and guild leaderboard data", async () => {
+  it("renders a public-facing player and guild ladder", async () => {
     getRankingOverviewMock.mockResolvedValueOnce({
       status: "available",
       players: [
@@ -50,13 +50,18 @@ describe("rankings page", () => {
 
     const html = renderToStaticMarkup(await RankingsPage());
 
-    expect(html).toContain("Live character ladder");
+    expect(html).toContain("The ladder is live.");
+    expect(html).toContain("Character ladder");
+    expect(html).toContain("Guild ladder");
+    expect(html).toContain("Ready to climb?");
     expect(html).toContain("mk");
     expect(html).toContain("Sura");
     expect(html).toContain("[GM-TEAM]");
+    expect(html).toContain('href="/downloads"');
+    expect(html).toContain('href="/register"');
   });
 
-  it("renders an unavailable state when rankings cannot be loaded", async () => {
+  it("renders a public unavailable state when rankings cannot be loaded", async () => {
     getRankingOverviewMock.mockResolvedValueOnce({
       status: "unavailable",
       reason: "not_configured",
@@ -65,7 +70,7 @@ describe("rankings page", () => {
 
     const html = renderToStaticMarkup(await RankingsPage());
 
-    expect(html).toContain("Ranking data is not available yet");
+    expect(html).toContain("The ladder is not available right now");
     expect(html).toContain("Rankings are not configured yet.");
   });
 });

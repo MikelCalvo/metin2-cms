@@ -2,18 +2,18 @@ import Link from "next/link";
 import {
   AlertTriangleIcon,
   ArrowRightIcon,
-  BarChart3Icon,
   CrownIcon,
+  DownloadIcon,
   ShieldCheckIcon,
   SwordsIcon,
   TrophyIcon,
+  UserRoundPlusIcon,
 } from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
@@ -22,6 +22,48 @@ import { getRankingOverview } from "@/server/rankings/rankings-service";
 export const dynamic = "force-dynamic";
 
 const integerFormatter = new Intl.NumberFormat("en-US");
+
+const rankingHighlights = [
+  {
+    title: "Top characters",
+    description: "Level, EXP and playtime decide the order.",
+    icon: <TrophyIcon className="size-4" />,
+  },
+  {
+    title: "Top guilds",
+    description: "Ladder points lead the guild board.",
+    icon: <CrownIcon className="size-4" />,
+  },
+  {
+    title: "Live server data",
+    description: "Straight from the current player database.",
+    icon: <SwordsIcon className="size-4" />,
+  },
+] as const;
+
+const nextRoutes = [
+  {
+    title: "Create account",
+    description: "Get your login ready.",
+    href: "/register",
+    label: "Create account",
+    icon: <UserRoundPlusIcon className="size-4" />,
+  },
+  {
+    title: "Download starter pack",
+    description: "Grab the launcher and client.",
+    href: "/downloads",
+    label: "Open downloads",
+    icon: <DownloadIcon className="size-4" />,
+  },
+  {
+    title: "First launch",
+    description: "Shortest path to first login.",
+    href: "/getting-started",
+    label: "View getting started",
+    icon: <ArrowRightIcon className="size-4" />,
+  },
+] as const;
 
 function formatInteger(value: number | null) {
   if (value === null) {
@@ -38,14 +80,14 @@ export default async function RankingsPage() {
     <SitePageShell>
       <CmsPageHeader
         eyebrow="Rankings"
-        title="Private read-only game-data leaderboard"
-        description="The rankings route is now wired to the live player database through a dedicated read-only path. It is the first real bridge between the private web shell and gameplay data without introducing commerce-side state."
+        title="The ladder is live."
+        description="Top characters and guilds, straight from the live server."
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/">
-                Back to home
-                <ArrowRightIcon className="size-4" />
+              <Link href="/downloads">
+                Download starter pack
+                <DownloadIcon className="size-4" />
               </Link>
             </Button>
             <Button
@@ -53,65 +95,43 @@ export default async function RankingsPage() {
               variant="outline"
               className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
             >
-              <Link href="/account">Open account</Link>
+              <Link href="/register">Create account</Link>
             </Button>
           </>
         }
       >
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Read-only ranking queries</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Player + guild ladders</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Item shop stays next</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Character ladder</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Guild ladder</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live server data</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Public leaderboard</div>
       </CmsPageHeader>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
-          <CardHeader className="space-y-3">
-            <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-              <TrophyIcon className="size-4" />
-            </div>
-            <div className="space-y-2">
-              <CardTitle className="text-xl text-white">Top characters</CardTitle>
-              <CardDescription className="text-sm leading-6 text-zinc-400">
-                Ordered by level, then experience, then playtime so the ladder stays deterministic and easy to read.
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
-
-        <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
-          <CardHeader className="space-y-3">
-            <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-              <CrownIcon className="size-4" />
-            </div>
-            <div className="space-y-2">
-              <CardTitle className="text-xl text-white">Top guilds</CardTitle>
-              <CardDescription className="text-sm leading-6 text-zinc-400">
-                Ladder points lead the guild ranking, with level and experience as stable tie-breakers.
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
-
-        <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
-          <CardHeader className="space-y-3">
-            <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-              <BarChart3Icon className="size-4" />
-            </div>
-            <div className="space-y-2">
-              <CardTitle className="text-xl text-white">Safe read path</CardTitle>
-              <CardDescription className="text-sm leading-6 text-zinc-400">
-                The CMS uses a dedicated ranking database connection for these ladders so gameplay reads stay isolated from auth and commerce flows.
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
+      <section className="grid gap-4 md:grid-cols-3">
+        {rankingHighlights.map((highlight) => (
+          <Card
+            key={highlight.title}
+            className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
+          >
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                {highlight.icon}
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-xl text-white">{highlight.title}</CardTitle>
+                <CardDescription className="text-sm leading-6 text-zinc-400">
+                  {highlight.description}
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+        ))}
       </section>
 
       {rankingOverview.status === "unavailable" ? (
         <PublicSection
-          eyebrow="Availability"
-          title="Ranking data is not available yet"
-          description="The page shell is ready, but the live ranking feed cannot be queried right now."
+          eyebrow="Status"
+          title="The ladder is not available right now"
+          description="Try again in a moment."
         >
           <Alert className="border-white/10 bg-black/20 text-zinc-100">
             <AlertTriangleIcon className="size-4" />
@@ -122,9 +142,9 @@ export default async function RankingsPage() {
       ) : (
         <>
           <PublicSection
-            eyebrow="Live ladder"
-            title="Live character ladder"
-            description="The first board now reads straight from the live character data and joins guild names when a character belongs to one."
+            eyebrow="Characters"
+            title="Character ladder"
+            description="The highest characters on the live server."
           >
             {rankingOverview.players.length > 0 ? (
               <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
@@ -136,10 +156,10 @@ export default async function RankingsPage() {
                         <th className="px-4 py-3 font-medium">Character</th>
                         <th className="px-4 py-3 font-medium">Class</th>
                         <th className="px-4 py-3 font-medium">Level</th>
-                        <th className="px-4 py-3 font-medium">Experience</th>
+                        <th className="px-4 py-3 font-medium">EXP</th>
                         <th className="px-4 py-3 font-medium">Playtime</th>
                         <th className="px-4 py-3 font-medium">Guild</th>
-                        <th className="px-4 py-3 font-medium">Last active</th>
+                        <th className="px-4 py-3 font-medium">Last seen</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/8">
@@ -162,18 +182,18 @@ export default async function RankingsPage() {
             ) : (
               <Alert className="border-white/10 bg-black/20 text-zinc-100">
                 <ShieldCheckIcon className="size-4" />
-                <AlertTitle>No characters to rank yet</AlertTitle>
+                <AlertTitle>No characters on the board yet</AlertTitle>
                 <AlertDescription className="text-zinc-400">
-                  The ranking query is healthy, but the live character table does not currently return any visible entries.
+                  The feed is healthy, but there are no visible character entries right now.
                 </AlertDescription>
               </Alert>
             )}
           </PublicSection>
 
           <PublicSection
-            eyebrow="Guild ladder"
-            title="Live guild standings"
-            description="Guild ladder points are surfaced alongside level, experience and war results so the web starts exposing more than a single player-only board."
+            eyebrow="Guilds"
+            title="Guild ladder"
+            description="Guild standings from the live server."
             contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]"
           >
             {rankingOverview.guilds.length > 0 ? (
@@ -206,37 +226,29 @@ export default async function RankingsPage() {
             ) : (
               <Alert className="border-white/10 bg-black/20 text-zinc-100">
                 <ShieldCheckIcon className="size-4" />
-                <AlertTitle>No guild standings yet</AlertTitle>
+                <AlertTitle>No guilds on the board yet</AlertTitle>
                 <AlertDescription className="text-zinc-400">
-                  The guild ladder is wired up, but the live guild table does not currently expose visible rows.
+                  The feed is healthy, but there are no visible guild rows right now.
                 </AlertDescription>
               </Alert>
             )}
 
             <Card className="border-white/10 bg-black/20 shadow-none">
               <CardHeader className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="border border-white/10 bg-white/5 text-zinc-300">
-                    Investigation result
-                  </Badge>
-                  <Badge variant="secondary" className="border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                    Implemented
-                  </Badge>
-                </div>
-                <CardTitle className="text-xl text-white">What the live schema gives us already</CardTitle>
+                <CardTitle className="text-xl text-white">What this board shows</CardTitle>
                 <CardDescription className="text-sm leading-6 text-zinc-400">
-                  The first ranking slice is based on live rows from `player.player`, `player.guild_member` and `player.guild`.
+                  Quick read, no filler.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
                 <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  Character ranking uses level, experience and playtime for deterministic ordering.
+                  Character rank follows level, EXP and playtime.
                 </div>
                 <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  Guild ranking uses ladder points first, then level and experience.
+                  Guild rank follows ladder points first.
                 </div>
                 <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  The next step can be class or empire filters, or character and guild detail pages.
+                  Last seen comes straight from live data.
                 </div>
               </CardContent>
             </Card>
@@ -244,33 +256,33 @@ export default async function RankingsPage() {
         </>
       )}
 
-      <PublicSection
-        eyebrow="Next up"
-        title="This now unlocks the item shop foundation cleanly"
-        description="With auth, onboarding and live rankings in place, the next risky step becomes commerce: catalog, pricing and audited order flows."
-      >
+      <PublicSection eyebrow="Next" title="Ready to climb?" description="Account. Download. First launch.">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <SwordsIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Read models done</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">The site now has a real gameplay-facing route backed by live data instead of only marketing or account UI.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <BarChart3Icon className="size-4 text-violet-300" />
-              <span className="font-medium">Clear boundary</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">Rankings stay read-only, which keeps this slice safer than jumping straight into purchase-side logic.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <TrophyIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Next roadmap handoff</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">From here we can wire the item shop foundation without building it on a fake or empty public shell.</p>
-          </div>
+          {nextRoutes.map((route) => (
+            <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
+              <CardHeader className="space-y-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                  {route.icon}
+                </div>
+                <div className="space-y-2">
+                  <CardTitle className="text-lg text-white">{route.title}</CardTitle>
+                  <CardDescription className="text-sm leading-6 text-zinc-400">{route.description}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="px-0 text-zinc-300 hover:bg-transparent hover:text-white"
+                >
+                  <Link href={route.href}>
+                    {route.label}
+                    <ArrowRightIcon className="size-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </PublicSection>
     </SitePageShell>
