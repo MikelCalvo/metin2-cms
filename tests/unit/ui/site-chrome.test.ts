@@ -10,7 +10,7 @@ import { SiteFooter } from "@/components/cms/site-footer";
 import { SiteHeader } from "@/components/cms/site-header";
 
 describe("site chrome", () => {
-  it("renders player-facing header actions and footer messaging", () => {
+  it("renders player-facing header actions and a minimal footer", () => {
     const headerHtml = renderToStaticMarkup(createElement(SiteHeader));
     const footerHtml = renderToStaticMarkup(createElement(SiteFooter));
 
@@ -21,8 +21,10 @@ describe("site chrome", () => {
     expect(headerHtml).toContain('href="/register"');
     expect(headerHtml).toContain('href="/login"');
 
-    expect(footerHtml).toContain("Launcher, account, rankings.");
-    expect(footerHtml).toContain("Download. Patch. Climb.");
+    expect(footerHtml).toContain("Windows · Linux");
     expect(footerHtml).toContain('href="/login"');
+    expect(footerHtml).not.toContain("Launcher, account, rankings.");
+    expect(footerHtml).not.toContain("Download. Patch. Climb.");
+    expect(footerHtml).not.toContain("Windows · Wine · Ladders · Launcher updates.");
   });
 });

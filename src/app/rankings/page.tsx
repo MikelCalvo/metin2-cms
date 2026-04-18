@@ -4,8 +4,6 @@ import { AlertTriangleIcon, ArrowRightIcon, DownloadIcon, ShieldCheckIcon, UserR
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 import { getRankingOverview } from "@/server/rankings/rankings-service";
 
@@ -105,12 +103,7 @@ export default async function RankingsPage() {
             )}
           </PublicSection>
 
-          <PublicSection
-            eyebrow="Guilds"
-            title="Guild ladder"
-            description="Guild standings on the live server."
-            contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]"
-          >
+          <PublicSection eyebrow="Guilds" title="Guild ladder" description="Guild standings on the live server.">
             {rankingOverview.guilds.length > 0 ? (
               <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
                 <div className="overflow-x-auto">
@@ -147,26 +140,6 @@ export default async function RankingsPage() {
                 </AlertDescription>
               </Alert>
             )}
-
-            <Card className="border-white/10 bg-black/20 shadow-none">
-              <CardHeader className="space-y-2">
-                <CardTitle className="text-xl text-white">What this board shows</CardTitle>
-                <CardDescription className="text-sm leading-6 text-zinc-400">
-                  Quick read, no filler.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
-                <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  Character rank follows level, EXP and playtime.
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  Guild rank follows ladder points first.
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  Last seen comes straight from live data.
-                </div>
-              </CardContent>
-            </Card>
           </PublicSection>
         </>
       )}
@@ -174,29 +147,27 @@ export default async function RankingsPage() {
       <PublicSection eyebrow="Next" title="Ready to climb?" description="Account. Download. First launch.">
         <div className="grid gap-4 md:grid-cols-3">
           {nextRoutes.map((route) => (
-            <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
-              <CardHeader className="space-y-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+            <Link
+              key={route.href}
+              href={route.href}
+              data-slot="route-card"
+              className="group flex h-full flex-col justify-between gap-6 rounded-[24px] border border-white/10 bg-black/20 p-5 text-left transition duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.06] hover:shadow-2xl hover:shadow-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+            >
+              <div className="space-y-4">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200 transition-colors group-hover:border-violet-300/30 group-hover:bg-violet-500/20 group-hover:text-violet-100">
                   {route.icon}
                 </div>
                 <div className="space-y-2">
-                  <CardTitle className="text-lg text-white">{route.title}</CardTitle>
-                  <CardDescription className="text-sm leading-6 text-zinc-400">{route.description}</CardDescription>
+                  <div className="text-lg font-medium text-white">{route.title}</div>
+                  <div className="text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">{route.description}</div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="px-0 text-zinc-300 hover:bg-transparent hover:text-white"
-                >
-                  <Link href={route.href}>
-                    {route.label}
-                    <ArrowRightIcon className="size-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 text-sm text-zinc-300 transition-colors group-hover:text-white">
+                <span>{route.label}</span>
+                <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
           ))}
         </div>
       </PublicSection>

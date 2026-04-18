@@ -16,7 +16,7 @@ describe("rankings page", () => {
     getRankingOverviewMock.mockReset();
   });
 
-  it("starts directly on the public ladders instead of a filler hero", async () => {
+  it("keeps rankings direct, removes guild filler, and uses clickable next-step cards", async () => {
     getRankingOverviewMock.mockResolvedValueOnce({
       status: "available",
       players: [
@@ -56,12 +56,14 @@ describe("rankings page", () => {
     expect(html).toContain("mk");
     expect(html).toContain("Sura");
     expect(html).toContain("[GM-TEAM]");
+    expect(html).toContain('data-slot="route-card"');
     expect(html).toContain('href="/downloads"');
     expect(html).toContain('href="/register"');
     expect(html).not.toContain("The ladder is live.");
     expect(html).not.toContain("Level, EXP and playtime decide the order.");
     expect(html).not.toContain("Ladder points lead the guild board.");
     expect(html).not.toContain("Straight from the current player database.");
+    expect(html).not.toContain("What this board shows");
   });
 
   it("renders a compact unavailable state when rankings cannot be loaded", async () => {

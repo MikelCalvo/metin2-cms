@@ -19,18 +19,30 @@ describe("rankings formatters", () => {
     expect(formatCharacterClassLabel(99)).toBe("Unknown");
   });
 
-  it("formats timestamps into a compact account-style label", () => {
-    expect(formatRankingTimestamp("2026-04-18 06:48:56", new Date("2026-04-18T12:00:00Z"))).toBe(
-      "Today · 06:48",
+  it("formats timestamps into natural public-facing relative labels", () => {
+    expect(formatRankingTimestamp("2026-04-18 10:00:00", new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "2 hours ago",
     );
-    expect(formatRankingTimestamp("2026-04-17 23:10:00", new Date("2026-04-18T12:00:00Z"))).toBe(
-      "Yesterday · 23:10",
+    expect(formatRankingTimestamp("2026-01-18 12:00:00", new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "3 months ago",
+    );
+    expect(formatRankingTimestamp("2026-04-18 14:00:00", new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "in 2 hours",
     );
   });
 
-  it("accepts Date instances returned by mysql2 runtime queries", () => {
-    expect(formatRankingTimestamp(new Date(2026, 3, 18, 6, 48, 56), new Date(2026, 3, 18, 12, 0, 0))).toBe(
-      "Today · 06:48",
+  it("does not round players into the next larger unit too early", () => {
+    expect(formatRankingTimestamp("2026-04-18 11:00:29", new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "59 minutes ago",
+    );
+    expect(formatRankingTimestamp("2026-04-17 12:30:01", new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "23 hours ago",
+    );
+  });
+
+  it("shows online for very recent timestamps, including Date instances from mysql2", () => {
+    expect(formatRankingTimestamp(new Date(2026, 3, 18, 11, 58, 0), new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "Online",
     );
   });
 
