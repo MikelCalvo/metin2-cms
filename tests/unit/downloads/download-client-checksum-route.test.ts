@@ -8,9 +8,9 @@ vi.mock("@/lib/env", () => ({
   getDownloadsEnv: getDownloadsEnvMock,
 }));
 
-import { GET } from "@/app/downloads/client/route";
+import { GET } from "@/app/downloads/client/checksum/route";
 
-describe("downloads client route", () => {
+describe("downloads client checksum route", () => {
   beforeEach(() => {
     getDownloadsEnvMock.mockReset();
   });
@@ -19,14 +19,12 @@ describe("downloads client route", () => {
     vi.unstubAllGlobals();
   });
 
-  it("proxies the starter pack through the CMS with basic auth when credentials are configured", async () => {
+  it("proxies the checksum through the CMS with basic auth when credentials are configured", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response("zip-body", {
+      new Response("hash  Metin2-Starter-Pack.zip", {
         status: 200,
         headers: {
-          "content-type": "application/zip",
-          "content-length": "8",
-          "content-disposition": 'attachment; filename="Metin2-Starter-Pack.zip"',
+          "content-type": "text/plain; charset=utf-8",
         },
       }),
     );
@@ -39,14 +37,13 @@ describe("downloads client route", () => {
       STARTER_PACK_PASSWORD: "super-secret",
     });
 
-    const response = await GET(new Request("https://cms.example.test/downloads/client"));
+    const response = await GET(new Request("https://cms.example.test/downloads/client/checksum"));
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("application/zip");
-    expect(response.headers.get("content-disposition")).toBe('attachment; filename="Metin2-Starter-Pack.zip"');
-    await expect(response.text()).resolves.toBe("zip-body");
+    expect(response.headers.get("content-type")).toBe("text/plain; charset=utf-8");
+    await expect(response.text()).resolves.toBe("hash  Metin2-Starter-Pack.zip");
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://downloads.example.test/releases/starter-pack.zip",
+      "https://downloads.example.test/releases/starter-pack.zip.sha256",
       expect.objectContaining({
         method: "GET",
         headers: expect.objectContaining({
@@ -56,17 +53,17 @@ describe("downloads client route", () => {
     );
   });
 
-  it("redirects directly to the starter-pack URL when auth credentials are not configured", async () => {
+  it("redirects directly to the checksum URL when auth credentials are not configured", async () => {
     getDownloadsEnvMock.mockReturnValue({
       STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
       STARTER_PACK_USERNAME: undefined,
       STARTER_PACK_PASSWORD: undefined,
     });
 
-    const response = await GET(new Request("https://cms.example.test/downloads/client"));
+    const response = await GET(new Request("https://cms.example.test/downloads/client/checksum"));
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://downloads.example.test/releases/starter-pack.zip");
+    expect(response.headers.get("location")).toBe("https://downloads.example.test/releases/starter-pack.zip.sha256");
   });
 
   it("redirects back to /downloads when the starter pack is not configured", async () => {
@@ -76,7 +73,7 @@ describe("downloads client route", () => {
       STARTER_PACK_PASSWORD: undefined,
     });
 
-    const response = await GET(new Request("https://cms.example.test/downloads/client"));
+    const response = await GET(new Request("https://cms.example.test/downloads/client/checksum"));
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://cms.example.test/downloads");

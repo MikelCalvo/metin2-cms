@@ -22,8 +22,30 @@ const publicEnvSchema = z.object({
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 
+const downloadsEnvSchema = z
+  .object({
+    STARTER_PACK_URL: z.string().url().optional(),
+    STARTER_PACK_USERNAME: z.string().min(1).optional(),
+    STARTER_PACK_PASSWORD: z.string().min(1).optional(),
+  })
+  .superRefine((env, context) => {
+    const hasUsername = Boolean(env.STARTER_PACK_USERNAME);
+    const hasPassword = Boolean(env.STARTER_PACK_PASSWORD);
+
+    if (hasUsername !== hasPassword) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "STARTER_PACK_USERNAME and STARTER_PACK_PASSWORD must be configured together",
+        path: hasUsername ? ["STARTER_PACK_PASSWORD"] : ["STARTER_PACK_USERNAME"],
+      });
+    }
+  });
+
+export type DownloadsEnv = z.infer<typeof downloadsEnvSchema>;
+
 let cachedEnv: Env | undefined;
 let cachedPublicEnv: PublicEnv | undefined;
+let cachedDownloadsEnv: DownloadsEnv | undefined;
 
 function readRawEnv() {
   return {
@@ -70,6 +92,27 @@ export function getPublicEnv(): PublicEnv {
 
   cachedPublicEnv = parsedEnv.data;
   return cachedPublicEnv;
+}
+
+export function getDownloadsEnv(): DownloadsEnv {
+  if (cachedDownloadsEnv) {
+    return cachedDownloadsEnv;
+  }
+
+  const parsedEnv = downloadsEnvSchema.safeParse({
+    STARTER_PACK_URL: process.env.STARTER_PACK_URL,
+    STARTER_PACK_USERNAME: process.env.STARTER_PACK_USERNAME,
+    STARTER_PACK_PASSWORD: process.env.STARTER_PACK_PASSWORD,
+  });
+
+  if (!parsedEnv.success) {
+    throw new Error(
+      `Invalid downloads environment configuration: ${JSON.stringify(parsedEnv.error.flatten().fieldErrors)}`,
+    );
+  }
+
+  cachedDownloadsEnv = parsedEnv.data;
+  return cachedDownloadsEnv;
 }
 
 export const env = new Proxy({} as Env, {

@@ -105,12 +105,21 @@ export default function DownloadsPage() {
               The starter pack remains a private asset, but players can now use a single stable button from the CMS instead of relying on side-channel instructions.
             </p>
             {hasStarterPackDownload ? (
-              <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-                <Link href="/downloads/client">
-                  Download starter pack
-                  <DownloadIcon className="size-4" />
-                </Link>
-              </Button>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
+                  <Link href="/downloads/client">
+                    Download starter pack
+                    <DownloadIcon className="size-4" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                >
+                  <Link href="/downloads/client/checksum">SHA256 checksum</Link>
+                </Button>
+              </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 px-4 py-4 text-zinc-400">
                 The file is not published yet. Once STARTER_PACK_URL is configured on the server, this section will expose the live download button automatically.
@@ -132,6 +141,9 @@ export default function DownloadsPage() {
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
               Future launcher/update improvements can keep reusing this route as the canonical download surface.
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              Checksum verification is exposed through a CMS-owned route as well, so players can validate the package without seeing the backing host details.
             </div>
           </CardContent>
         </Card>

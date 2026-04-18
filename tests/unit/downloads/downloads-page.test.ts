@@ -16,7 +16,7 @@ describe("downloads page", () => {
     getPublicEnvMock.mockReset();
   });
 
-  it("renders a starter-pack download CTA through the internal downloads route when configured", async () => {
+  it("renders starter-pack and checksum entrypoints through CMS-owned routes when configured", async () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
     });
@@ -24,7 +24,9 @@ describe("downloads page", () => {
     const html = renderToStaticMarkup(await DownloadsPage());
 
     expect(html).toContain("Download starter pack");
+    expect(html).toContain("SHA256 checksum");
     expect(html).toContain('href="/downloads/client"');
+    expect(html).toContain('href="/downloads/client/checksum"');
     expect(html).not.toContain("https://downloads.example.test/releases/starter-pack.zip");
   });
 
