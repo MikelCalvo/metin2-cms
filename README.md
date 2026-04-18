@@ -77,6 +77,8 @@ Environment note:
 - the DB env is resolved lazily when auth/account code actually touches the database
 - CI injects placeholder URLs so GitHub Actions does not fail on missing env config
 - real login/register/recovery runtime still requires valid `DATABASE_URL` and `CMS_DATABASE_URL`
+- live rankings runtime additionally requires `PLAYER_DATABASE_URL`
+- `PLAYER_DATABASE_URL` should point to a read-only MariaDB user for the `player` schema, not to the auth or CMS write credentials
 - recovery delivery is temporary for now:
   - non-production defaults to `RECOVERY_DELIVERY_MODE=preview`
   - production defaults to `RECOVERY_DELIVERY_MODE=file`
@@ -178,9 +180,10 @@ Current phase:
 - authenticated surfaces now use a darker modern dashboard/auth visual language instead of the original plain white milestone layout
 - `/account` now groups profile, game account, security center and recent activity with a stronger hierarchy
 - the public landing page and auth entry routes now share reusable CMS shells instead of standalone one-off wrappers
-- the public web foundation now includes shared site navigation plus dedicated `/game`, `/downloads`, `/getting-started` and `/rankings` routes
+- the private web foundation now includes shared site navigation plus dedicated `/game`, `/downloads`, `/getting-started` and `/rankings` routes
 - `/downloads` and `/getting-started` now document the private client delivery and onboarding flow without embedding host-specific URLs in the repository
-- `/rankings` now has a public read-only shell ready for the upcoming live game-data integration
+- `/rankings` now reads live character and guild ladder data from the `player` schema through a dedicated read-only database connection
+- ranking ordering is now documented in `docs/architecture/rankings.md`
 - `git push-deploy origin main` from the production working tree now pushes first and then rebuilds/restarts `metin2_cms`
 - `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and latest account change
 - `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
@@ -193,6 +196,5 @@ Roadmap reference:
 - `docs/plans/2026-04-18-web-product-roadmap.md`
 
 Next implementation order after this slice:
-- rankings and other live read-only game-data surfaces
 - item shop foundation and purchase audit model
 - admin/editorial tooling

@@ -25,7 +25,7 @@ export function SiteNav({
   className,
   linkClassName,
 }: SiteNavProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
 
   return (
     <nav className={cn("flex flex-wrap items-center gap-2", className)} aria-label="Primary">
