@@ -15,6 +15,7 @@ const FORWARDED_HEADERS = [
   "content-range",
   "cache-control",
 ] as const;
+const FORWARDED_REQUEST_HEADERS = ["range", "if-range"] as const;
 
 type StarterPackAsset = "archive" | "checksum";
 
@@ -28,6 +29,22 @@ function getStarterPackAssetUrl(starterPackUrl: string, asset: StarterPackAsset)
 
 function buildBasicAuthorization(username: string, password: string) {
   return `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+}
+
+function buildUpstreamRequestHeaders(request: Request, username: string, password: string) {
+  const headers: Record<string, string> = {
+    authorization: buildBasicAuthorization(username, password),
+  };
+
+  for (const headerName of FORWARDED_REQUEST_HEADERS) {
+    const headerValue = request.headers.get(headerName);
+
+    if (headerValue) {
+      headers[headerName] = headerValue;
+    }
+  }
+
+  return headers;
 }
 
 function getFilenameFromUrl(url: string) {
@@ -77,9 +94,11 @@ export async function handleStarterPackRequest(request: Request, asset: StarterP
   const upstreamResponse = await fetch(assetUrl, {
     method: request.method,
     cache: "no-store",
-    headers: {
-      authorization: buildBasicAuthorization(downloadsEnv.STARTER_PACK_USERNAME, downloadsEnv.STARTER_PACK_PASSWORD),
-    },
+    headers: buildUpstreamRequestHeaders(
+      request,
+      downloadsEnv.STARTER_PACK_USERNAME,
+      downloadsEnv.STARTER_PACK_PASSWORD,
+    ),
   });
 
   if (!upstreamResponse.ok) {

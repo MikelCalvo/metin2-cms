@@ -41,6 +41,7 @@ Keeping the real distribution URL and credentials in runtime env gives us:
 - `/downloads/client` proxies the archive through the CMS with server-side Basic Auth
 - `/downloads/client/checksum` proxies the checksum through the CMS with server-side Basic Auth
 - the browser never needs to know the backing credentials
+- resumable archive downloads remain available because the CMS forwards `Range` / `If-Range` and preserves `206 Partial Content`
 
 ### When only `STARTER_PACK_URL` is configured
 

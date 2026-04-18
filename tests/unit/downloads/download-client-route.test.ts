@@ -56,6 +56,54 @@ describe("downloads client route", () => {
     );
   });
 
+  it("forwards range headers and preserves partial-content responses for resumable downloads", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response("PK", {
+        status: 206,
+        headers: {
+          "content-type": "application/zip",
+          "content-length": "2",
+          "content-disposition": 'attachment; filename="Metin2-Starter-Pack.zip"',
+          "content-range": "bytes 0-1/1049126372",
+          "accept-ranges": "bytes",
+        },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    getDownloadsEnvMock.mockReturnValue({
+      STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
+      STARTER_PACK_USERNAME: "mt2update",
+      STARTER_PACK_PASSWORD: "super-secret",
+    });
+
+    const response = await GET(
+      new Request("https://cms.example.test/downloads/client", {
+        headers: {
+          Range: "bytes=0-1",
+          "If-Range": '"starter-pack-etag"',
+        },
+      }),
+    );
+
+    expect(response.status).toBe(206);
+    expect(response.headers.get("content-range")).toBe("bytes 0-1/1049126372");
+    expect(response.headers.get("accept-ranges")).toBe("bytes");
+    await expect(response.text()).resolves.toBe("PK");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://downloads.example.test/releases/starter-pack.zip",
+      expect.objectContaining({
+        method: "GET",
+        headers: expect.objectContaining({
+          authorization: `Basic ${Buffer.from("mt2update:super-secret").toString("base64")}`,
+          range: "bytes=0-1",
+          "if-range": '"starter-pack-etag"',
+        }),
+      }),
+    );
+  });
+
   it("redirects directly to the starter-pack URL when auth credentials are not configured", async () => {
     getDownloadsEnvMock.mockReturnValue({
       STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
