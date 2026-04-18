@@ -178,6 +178,9 @@ Current phase:
 - authenticated surfaces now use a darker modern dashboard/auth visual language instead of the original plain white milestone layout
 - `/account` now groups profile, game account, security center and recent activity with a stronger hierarchy
 - the public landing page and auth entry routes now share reusable CMS shells instead of standalone one-off wrappers
+- the public web foundation now includes shared site navigation plus dedicated `/game`, `/downloads`, `/getting-started` and `/rankings` routes
+- `/downloads` and `/getting-started` now document the private client delivery and onboarding flow without embedding host-specific URLs in the repository
+- `/rankings` now has a public read-only shell ready for the upcoming live game-data integration
 - `git push-deploy origin main` from the production working tree now pushes first and then rebuilds/restarts `metin2_cms`
 - `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and latest account change
 - `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
@@ -186,6 +189,10 @@ Current phase:
 - unit verification in place
 - MariaDB-backed integration verification in place for register/login/recovery + CMS session persistence
 
-Next implementation phase after this slice:
-- richer account area
-- rankings and itemshop slices
+Roadmap reference:
+- `docs/plans/2026-04-18-web-product-roadmap.md`
+
+Next implementation order after this slice:
+- rankings and other live read-only game-data surfaces
+- item shop foundation and purchase audit model
+- admin/editorial tooling
