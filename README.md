@@ -116,6 +116,49 @@ pnpm test:integration:local
 pnpm build
 ```
 
+## Production service and deploy flow
+
+The deployed CMS runs continuously through a FreeBSD `rc.d` service:
+- service name: `metin2_cms`
+- port: `3000`
+- runtime entrypoint: `/opt/metin2/runtime/metin2-cms/start.sh`
+
+The runtime service serves the production Next.js build from this same working tree.
+That means a source change is not public until a fresh build is generated and the service is restarted.
+
+### Auto deploy on push from this server
+
+This repository includes a local post-push deploy flow for the production working tree:
+- hook path: `.githooks/post-push`
+- hook runner: `scripts/post-push-deploy.mjs`
+- deploy script: `scripts/deploy-local.sh`
+- deploy log: `/opt/metin2/logs/metin2-cms-deploy.log`
+
+Behavior:
+- only pushes to `origin` that update `main` trigger a deploy
+- the remote URL is validated against the currently configured local `origin` remote instead of a hardcoded repository URL
+- dependency install runs automatically only when `package.json`, `pnpm-lock.yaml` or `pnpm-workspace.yaml` changed
+- deploys are serialized with a lock file so two pushes cannot overlap build/restart work
+- every triggered deploy runs `pnpm build`, restarts `metin2_cms`, and waits for the local `/login` healthcheck on port `3000`
+- the deploy script refuses to run if the repo is dirty or if `HEAD` does not match the pushed commit SHA
+- remote URLs are sanitized before they are written to the deploy log
+
+Local repo configuration on the server uses:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+### Manual deploy
+
+If a manual redeploy is needed on the server:
+
+```bash
+scripts/deploy-local.sh --sha="$(git rev-parse HEAD)"
+```
+
+Add `--install-deps` when the dependency manifests changed.
+
 ## Status
 
 Current phase:
@@ -130,6 +173,8 @@ Current phase:
 - shadcn/ui is now installed as the CMS component primitive layer
 - authenticated surfaces now use a darker modern dashboard/auth visual language instead of the original plain white milestone layout
 - `/account` now groups profile, game account, security center and recent activity with a stronger hierarchy
+- the public landing page and auth entry routes now share reusable CMS shells instead of standalone one-off wrappers
+- the production working tree now includes a local deploy flow that rebuilds and restarts `metin2_cms`
 - `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and latest account change
 - `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
 - `/account` now lets the authenticated user update the legacy account email and delete code from the protected area

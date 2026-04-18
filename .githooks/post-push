@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+REPO_DIR="$(git rev-parse --show-toplevel)"
+exec /usr/local/bin/node "${REPO_DIR}/scripts/post-push-deploy.mjs" "$@"
