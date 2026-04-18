@@ -18,6 +18,17 @@ describe("auth audit service", () => {
   it("maps recent auth audit rows into account activity items", async () => {
     listRecentAuthAuditEntriesForAccountMock.mockResolvedValueOnce([
       {
+        id: 5,
+        eventType: "account.password_change",
+        login: "tester01",
+        accountId: 7,
+        ip: "127.0.0.1",
+        userAgent: "Chrome",
+        success: 1,
+        detail: "outcome=password_updated",
+        createdAt: "2026-04-17 14:15:00",
+      },
+      {
         id: 4,
         eventType: "password_recovery.reset",
         login: "tester01",
@@ -64,6 +75,18 @@ describe("auth audit service", () => {
     ]);
 
     await expect(listRecentAuthActivityForAccount(7)).resolves.toEqual([
+      {
+        id: 5,
+        eventType: "account.password_change",
+        outcome: "password_updated",
+        occurredAt: "2026-04-17 14:15:00",
+        success: true,
+        ip: "127.0.0.1",
+        userAgent: "Chrome",
+        deliveryMode: null,
+        title: "Password changed",
+        description: "The account password was changed from the authenticated account area.",
+      },
       {
         id: 4,
         eventType: "password_recovery.reset",

@@ -17,6 +17,7 @@ Current integration coverage proves:
 - a CMS web session can be persisted into `metin2_cms_test.web_sessions`
 - active CMS sessions can be listed per account and other sessions can be revoked while keeping the current one
 - a specific non-current CMS session can be revoked safely for the authenticated account
+- an authenticated account can change its legacy-compatible password and revoke the other active CMS sessions
 - active CMS sessions can refresh `last_seen_at` for the current session
 - recent auth activity can be listed per account in newest-first order from `metin2_cms_test.auth_audit_log`
 - recovery links are created in `metin2_cms_test.password_recovery_tokens`

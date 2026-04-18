@@ -6,6 +6,7 @@ import {
   authenticateLegacyAccount,
   registerLegacyCompatibleAccount,
 } from "@/server/account/account-service";
+import { changeAuthenticatedAccountPassword } from "@/server/account/account-settings-service";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { isLegacyPasswordHash } from "@/server/auth/password-compat";
 import {
@@ -504,6 +505,93 @@ describe("legacy auth flow against test MariaDB", () => {
 
     const stillActive = await findActiveSessionById(sessionId, toMysqlDateTime(now));
     expect(stillActive).not.toBeNull();
+  });
+
+  it("changes the password for an authenticated account and revokes the other sessions", async () => {
+    const login = createLogin("pwchange");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "7654321",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 60_000);
+
+    await createWebSession({
+      id: `${login}-session-a`,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.1",
+      userAgent: "vitest-a",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+    await createWebSession({
+      id: `${login}-session-b`,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.2",
+      userAgent: "vitest-b",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+
+    await expect(
+      changeAuthenticatedAccountPassword({
+        accountId: registration.account.id,
+        login: registration.account.login,
+        currentSessionId: `${login}-session-a`,
+        currentPassword: "abc12345",
+        newPassword: "newpass12",
+        ip: "127.0.0.1",
+        userAgent: "vitest-a",
+      }),
+    ).resolves.toMatchObject({ ok: true });
+
+    const oldPasswordAuth = await authenticateLegacyAccount({
+      login,
+      password: "abc12345",
+    });
+    const newPasswordAuth = await authenticateLegacyAccount({
+      login,
+      password: "newpass12",
+    });
+
+    expect(oldPasswordAuth).toMatchObject({
+      ok: false,
+      code: "invalid_credentials",
+    });
+    expect(newPasswordAuth).toMatchObject({ ok: true });
+
+    const remainingSessions = await listActiveSessionsForAccount(
+      registration.account.id,
+      toMysqlDateTime(now),
+    );
+    expect(remainingSessions).toHaveLength(1);
+    expect(remainingSessions[0]?.id).toBe(`${login}-session-a`);
+
+    await expect(listRecentAuthActivityForAccount(registration.account.id, 5)).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          eventType: "account.password_change",
+          outcome: "password_updated",
+          title: "Password changed",
+        }),
+      ]),
+    );
   });
 
   it("creates and consumes a password recovery token against the test databases", async () => {

@@ -93,6 +93,13 @@ function describeActivity(entry: AuthAuditLogEntry, outcome: string): AuthActivi
     };
   }
 
+  if (entry.eventType === "account.password_change" && outcome === "password_updated") {
+    return {
+      title: "Password changed",
+      description: "The account password was changed from the authenticated account area.",
+    };
+  }
+
   return {
     title: "Authentication event",
     description: `${entry.eventType} (${outcome})`,

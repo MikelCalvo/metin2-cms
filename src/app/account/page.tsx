@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { closeOtherSessionsAction, revokeSessionAction } from "@/app/account/actions";
+import {
+  closeOtherSessionsAction,
+  revokeSessionAction,
+} from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
+import { ChangePasswordForm } from "@/components/account/change-password-form";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
@@ -115,6 +119,10 @@ export default async function AccountPage() {
         </article>
       </section>
 
+      <section>
+        <ChangePasswordForm />
+      </section>
+
       <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -207,8 +215,8 @@ export default async function AccountPage() {
         <div>
           <h2 className="text-lg font-medium text-neutral-950">Recent auth activity</h2>
           <p className="mt-1 text-sm text-neutral-600">
-            Latest sign-in and recovery events recorded in the CMS security audit log
-            for this account.
+            Latest sign-in, recovery and account security events recorded in the CMS
+            audit log for this account.
           </p>
         </div>
 

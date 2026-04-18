@@ -128,6 +128,7 @@ Current phase:
 - `/account` now supports revoking one specific non-current CMS session
 - `/account` now shows the most recent auth activity for the account from `auth_audit_log`
 - `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and recovery event
+- `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
 - the current CMS session now refreshes `last_seen_at` when protected areas load
 - unit verification in place
 - MariaDB-backed integration verification in place for register/login/recovery + CMS session persistence
