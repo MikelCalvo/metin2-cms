@@ -4,9 +4,9 @@
 
 Goal: reorganize the authenticated account area into a clearer, prettier and more modern dashboard with stronger visual hierarchy, explicit categories and less repeated card noise.
 
-Architecture: keep the current Next.js App Router structure and legacy-compatible data model, but stop treating `/account` as a flat list of white cards. Introduce a small shared dashboard UI layer for authenticated screens: section shells, summary cards, settings panels and compact activity rows. The redesign should prioritize information architecture first, then polish, then consistency across `/login`, `/register`, `/recover` and `/account`.
+Architecture: keep the current Next.js App Router structure and legacy-compatible data model, but stop treating `/account` as a flat list of white cards. Use shadcn/ui as the component primitive layer for authenticated screens: cards, separators, badges, tabs, buttons, inputs, alerts, sheets and dropdown primitives. On top of that, define a small CMS dashboard language for section shells, summary cards, settings panels and compact activity rows. The redesign should prioritize information architecture first, then polish, then consistency across `/login`, `/register`, `/recover` and `/account`.
 
-Tech stack: Next.js App Router, React server + client components, Tailwind utility classes, existing server actions, existing audit/session/profile services.
+Tech stack: Next.js App Router, React server + client components, Tailwind v4, shadcn/ui primitives, existing server actions, existing audit/session/profile services.
 
 ---
 
@@ -27,11 +27,12 @@ Main UX/UI problems observed:
 
 ## 2. Chosen visual direction
 
-Use a calm modern product-dashboard direction closer to Linear/Vercel than to a flashy game panel.
+Use a calm modern product-dashboard direction closer to Linear/Vercel than to a flashy game panel, but implement it over shadcn/ui instead of inventing every primitive by hand.
 
 Rationale:
 - `/account` is primarily a trust/security/settings surface, not marketing
 - dark-first, low-noise product UI works better for sessions, audit logs and forms
+- shadcn/ui gives us modern, proven primitives fast without locking us into a heavy theme framework
 - strong section hierarchy and restrained accent colors will make the CMS feel more premium without overdesigning it
 
 Design cues to borrow:
@@ -186,9 +187,25 @@ Introduce design tokens in `src/app/globals.css` via CSS custom properties or a 
 
 ### 4.2 Shared dashboard primitives
 
-Create a small reusable component layer under `src/components/account/` or `src/components/ui/`.
+Create a small reusable component layer under `src/components/account/` or `src/components/ui/`, but back it with shadcn/ui primitives instead of plain ad hoc divs.
 
-Proposed primitives:
+Proposed base shadcn components to install first:
+- `button`
+- `card`
+- `badge`
+- `input`
+- `label`
+- `tabs`
+- `separator`
+- `alert`
+- `dropdown-menu`
+- `sheet`
+- `dialog`
+- `tooltip`
+- `scroll-area`
+- `skeleton`
+
+Proposed CMS wrappers on top:
 - `DashboardSection`
   - title
   - description
@@ -209,6 +226,7 @@ Proposed primitives:
 
 Goal:
 - stop repeating the same hand-written panel shell styles in every form/card
+- let shadcn solve the primitive layer while we focus on layout, hierarchy and CMS-specific wrappers
 - make future `/admin`, rankings and itemshop screens benefit from the same design language
 
 ### 4.3 Copy cleanup
@@ -268,18 +286,21 @@ Reduce default cognitive load by:
 
 ## 6. Proposed execution order
 
-### Phase 1 — foundation / visual primitives
-Objective: stop styling each card/form ad hoc.
+### Phase 1 — shadcn foundation / visual primitives
+Objective: stop styling each card/form ad hoc and move to a modern reusable primitive layer.
 
 Tasks:
-1. Add page/surface/text/accent tokens in `src/app/globals.css`
-2. Create `StatusChip`
-3. Create `DashboardSection`
-4. Create `SummaryCard`
-5. Refactor `ChangePasswordForm` and `ProfileSettingsForm` to use shared shells
+1. bootstrap shadcn in the repo (`components.json`, util helpers, base tokens)
+2. add the first component set (`button`, `card`, `badge`, `input`, `label`, `separator`, `alert`, `tabs`)
+3. add page/surface/text/accent tokens in `src/app/globals.css`
+4. create `StatusChip`
+5. create `DashboardSection`
+6. create `SummaryCard`
+7. refactor `ChangePasswordForm` and `ProfileSettingsForm` to use shared shells
 
 Expected result:
 - visual consistency improves immediately without touching business logic
+- the repo gets a proper UI primitive layer ready for the rest of the CMS
 
 ### Phase 2 — `/account` layout rewrite
 Objective: reorganize the page by category and hierarchy.
