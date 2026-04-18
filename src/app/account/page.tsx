@@ -93,7 +93,12 @@ export default async function AccountPage() {
                 Close other sessions
               </button>
             </form>
-          ) : null}
+          ) : (
+            <p className="max-w-sm text-xs leading-5 text-neutral-500 md:text-right">
+              No other active sessions right now. The individual revoke control appears
+              when this account is also signed in from another browser or device.
+            </p>
+          )}
         </div>
 
         <div className="mt-4 space-y-3">
