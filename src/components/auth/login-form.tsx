@@ -1,32 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { LogInIcon, ShieldCheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { EyeIcon, EyeOffIcon, LogInIcon, ShieldCheckIcon } from "lucide-react";
+import { useActionState, useState } from "react";
 
 import { loginAction } from "@/app/auth/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { emptyAuthActionState } from "@/server/auth/types";
 
 export function LoginForm({ notice }: { notice?: string }) {
   const [state, formAction] = useActionState(loginAction, emptyAuthActionState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
+    <Card className="w-full border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
       <CardHeader className="space-y-2">
-        <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">
-          Metin2 CMS
-        </p>
         <CardTitle className="text-2xl text-white">Sign in</CardTitle>
-        <CardDescription className="text-zinc-400">
-          Access your account dashboard, session controls and recovery settings.
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-5">
@@ -65,10 +58,32 @@ export function LoginForm({ notice }: { notice?: string }) {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between gap-4">
-              <Label htmlFor="password" className="text-zinc-200">
-                Password
-              </Label>
+            <Label htmlFor="password" className="text-zinc-200">
+              Password
+            </Label>
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                maxLength={16}
+                className="border-white/10 bg-black/20 pr-10 text-zinc-100 placeholder:text-zinc-500"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((current) => !current)}
+                className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-zinc-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+              >
+                {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
+              </button>
+            </div>
+            {state.fieldErrors?.password?.[0] ? (
+              <p className="text-xs text-red-300">{state.fieldErrors.password[0]}</p>
+            ) : null}
+            <div className="flex justify-end">
               <Link
                 href="/recover"
                 className="text-xs text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
@@ -76,30 +91,20 @@ export function LoginForm({ notice }: { notice?: string }) {
                 Forgot password?
               </Link>
             </div>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              maxLength={16}
-              className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
-            />
-            {state.fieldErrors?.password?.[0] ? (
-              <p className="text-xs text-red-300">{state.fieldErrors.password[0]}</p>
-            ) : null}
           </div>
 
-          <Separator className="bg-white/8" />
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-3 pt-1">
             <AuthSubmitButton
               idleLabel="Sign in"
               pendingLabel="Signing in..."
-              className="bg-violet-500 text-white hover:bg-violet-400"
+              className="w-full bg-violet-500 text-white hover:bg-violet-400"
             />
-            <Button asChild variant="ghost" className="justify-start px-0 text-zinc-300 hover:bg-transparent hover:text-white">
-              <Link href="/register">Create account</Link>
-            </Button>
+            <div className="text-center text-sm text-zinc-400">
+              Need an account?{" "}
+              <Link href="/register" className="text-zinc-100 underline-offset-4 hover:underline">
+                Create account
+              </Link>
+            </div>
           </div>
         </form>
       </CardContent>
