@@ -125,6 +125,7 @@ The deployed CMS runs continuously through a FreeBSD `rc.d` service:
 
 The runtime service serves the production Next.js build from this same working tree.
 That means a source change is not public until a fresh build is generated and the service is restarted.
+Host-specific domains, remotes and access details are intentionally kept out of this repository.
 
 ### Auto deploy after a successful push from this server
 
