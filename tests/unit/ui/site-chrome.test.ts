@@ -16,13 +16,13 @@ describe("site chrome", () => {
 
     expect(headerHtml).toContain("Live ladders");
     expect(headerHtml).toContain("Create account");
-    expect(headerHtml).toContain("Already have an account? Sign in");
+    expect(headerHtml).toContain("Sign in");
     expect(headerHtml).toContain('href="/downloads"');
     expect(headerHtml).toContain('href="/register"');
     expect(headerHtml).toContain('href="/login"');
 
-    expect(footerHtml).toContain("Launcher, rankings and account access in one place");
-    expect(footerHtml).toContain("disconnected pages");
+    expect(footerHtml).toContain("Launcher, account, rankings.");
+    expect(footerHtml).toContain("Download. Patch. Climb.");
     expect(footerHtml).toContain('href="/login"');
   });
 });

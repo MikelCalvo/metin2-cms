@@ -17,18 +17,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const hubHighlights = [
   {
-    title: "One clean way in",
-    description: "Download the starter pack, let the launcher patch, then jump into the server without bouncing across old pages.",
+    title: "Download & patch",
+    description: "Starter pack and launcher. Nothing else to chase.",
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Live competitive loop",
-    description: "Rankings already connect the site to actual player and guild activity, so the portal feels alive instead of static.",
+    title: "Ladder live",
+    description: "Players and guilds already have a place on the board.",
     icon: <TrophyIcon className="size-4" />,
   },
   {
-    title: "Account + recovery",
-    description: "Registration, sign-in and recovery stay in the same player-facing portal when someone needs help getting back in.",
+    title: "Account ready",
+    description: "Register, sign in or recover from the same portal.",
     icon: <ShieldCheckIcon className="size-4" />,
   },
 ] as const;
@@ -36,28 +36,28 @@ const hubHighlights = [
 const quickRoutes = [
   {
     title: "Play now",
-    description: "Go straight to the starter pack and launcher path players actually need.",
+    description: "Starter pack + launcher.",
     href: "/downloads",
     label: "Open downloads",
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Create your account",
-    description: "Get your login ready before the launcher finishes syncing the client.",
+    title: "Create account",
+    description: "Get your login ready first.",
     href: "/register",
     label: "Create account",
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
-    title: "First launch guide",
-    description: "Follow the short route from first click to first successful login.",
+    title: "First launch",
+    description: "Shortest path to first login.",
     href: "/getting-started",
     label: "View getting started",
     icon: <ArrowRightIcon className="size-4" />,
   },
   {
-    title: "See who is leading",
-    description: "Check the live ladders before you log in or after a long grind session.",
+    title: "Rankings",
+    description: "Check players and guilds.",
     href: "/rankings",
     label: "View rankings",
     icon: <TrophyIcon className="size-4" />,
@@ -66,18 +66,18 @@ const quickRoutes = [
 
 const portalLoop = [
   {
-    title: "Start fast",
-    description: "Short copy, obvious CTAs and one clear path from download to first login.",
+    title: "Download",
+    description: "Grab the client.",
     icon: <SparklesIcon className="size-4 text-violet-300" />,
   },
   {
-    title: "Stay connected",
-    description: "Downloads, recovery and rankings live together so the site stays useful after day one.",
+    title: "Enter",
+    description: "Patch and log in.",
     icon: <ShieldCheckIcon className="size-4 text-violet-300" />,
   },
   {
-    title: "Keep climbing",
-    description: "The portal is built around the real Metin2 loop: enter, compete, recover fast if needed, repeat.",
+    title: "Climb",
+    description: "Come back for the ladder.",
     icon: <SwordsIcon className="size-4 text-violet-300" />,
   },
 ] as const;
@@ -88,7 +88,7 @@ export default function Home() {
       <CmsPageHeader
         eyebrow="Enter the shard"
         title="Patch up. Enter the server. Start climbing."
-        description="This is the main game-facing hub: download the launcher, create your account, recover access if needed and jump into the live rankings with the main player routes kept in one clear place."
+        description="Download the launcher, create your account and jump into the ladder from one clear server hub."
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
@@ -132,11 +132,7 @@ export default function Home() {
         ))}
       </section>
 
-      <PublicSection
-        eyebrow="Start here"
-        title="The routes players actually use"
-        description="Everything important is one click away: no documentation maze, no dead-end splash pages."
-      >
+      <PublicSection eyebrow="Start here" title="The routes that matter" description="Four routes. No filler.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {quickRoutes.map((route) => (
             <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
@@ -166,11 +162,7 @@ export default function Home() {
         </div>
       </PublicSection>
 
-      <PublicSection
-        eyebrow="Server loop"
-        title="Built around the real Metin2 routine"
-        description="Get people in fast, keep trust high, and make the site feel connected to the server every day."
-      >
+      <PublicSection eyebrow="Server loop" title="Download. Enter. Climb.">
         <div className="grid gap-4 md:grid-cols-3">
           {portalLoop.map((item) => (
             <div key={item.title} className="rounded-[28px] border border-white/10 bg-black/20 px-5 py-5">

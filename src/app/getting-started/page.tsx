@@ -19,55 +19,55 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 const playerSteps = [
   {
     title: "Create your account",
-    description: "Register first so your login is ready before the launcher finishes its first sync.",
+    description: "Make the account first.",
     href: "/register",
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
     title: "Download the starter pack",
-    description: "Grab the launcher and base client from the downloads route.",
+    description: "Grab the launcher.",
     href: "/downloads",
     icon: <DownloadIcon className="size-4" />,
   },
   {
     title: "Run the launcher once",
-    description: "Let it patch to the current live version before the first sign-in.",
+    description: "Patch to live.",
     href: "/downloads",
     icon: <SparklesIcon className="size-4" />,
   },
   {
     title: "Enter and secure the account",
-    description: "Log in, keep the account details safe and use recovery if you ever lose access.",
+    description: "Sign in and keep recovery close.",
     href: "/login",
     icon: <KeyRoundIcon className="size-4" />,
   },
 ] as const;
 
 const firstSessionChecklist = [
-  "confirm the account email before your first long session",
-  "save the delete code somewhere safe",
-  "use the recovery route if the login ever stops working",
-  "come back to the portal for rankings, downloads and account actions",
+  "confirm the account email",
+  "save the delete code",
+  "use recovery if the login breaks",
+  "come back for rankings and downloads",
 ] as const;
 
 const nextLinks = [
   {
     title: "Downloads",
-    description: "Grab or re-open the starter pack route whenever you need the launcher again.",
+    description: "Open the launcher again whenever you need it.",
     href: "/downloads",
     label: "Open downloads",
     icon: <DownloadIcon className="size-4" />,
   },
   {
     title: "Rankings",
-    description: "Check the live ladder once you are in and starting to climb.",
+    description: "Check the live ladder.",
     href: "/rankings",
     label: "View rankings",
     icon: <TrophyIcon className="size-4" />,
   },
   {
     title: "Recovery",
-    description: "If something goes wrong, use the recovery flow from the same portal.",
+    description: "Use this if something goes wrong.",
     href: "/recover",
     label: "Open recovery",
     icon: <ShieldCheckIcon className="size-4" />,
@@ -80,7 +80,7 @@ export default function GettingStartedPage() {
       <CmsPageHeader
         eyebrow="Getting started"
         title="Create account. Download. Patch. Enter."
-        description="This is the short path to the first real session: make the account, grab the starter pack, let the launcher sync and step into the server."
+        description="Create account, download, patch, enter."
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
@@ -145,9 +145,7 @@ export default function GettingStartedPage() {
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
             <CardTitle className="text-xl text-white">Quick checklist</CardTitle>
-            <CardDescription className="text-sm leading-6 text-zinc-400">
-              The player-facing essentials worth handling before the long session starts.
-            </CardDescription>
+            <CardDescription className="text-sm leading-6 text-zinc-400">What to do before the long session.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {firstSessionChecklist.map((item) => (
@@ -162,16 +160,12 @@ export default function GettingStartedPage() {
           <KeyRoundIcon className="size-4" />
           <AlertTitle>Recovery matters from day one</AlertTitle>
           <AlertDescription className="text-zinc-400">
-            If a player loses access, the recovery route is already part of the modern portal. Use that path instead of hunting around old web surfaces.
+            If access breaks, use recovery from the same portal.
           </AlertDescription>
         </Alert>
       </PublicSection>
 
-      <PublicSection
-        eyebrow="After you are in"
-        title="The other routes worth keeping close"
-        description="Once the first login works, these are the pages that stay useful every day."
-      >
+      <PublicSection eyebrow="After that" title="Keep these close" description="Downloads. Ladder. Recovery.">
         <div className="grid gap-4 md:grid-cols-3">
           {nextLinks.map((link) => (
             <Card key={link.href} className="border-white/10 bg-black/20 shadow-none">

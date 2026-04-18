@@ -8,8 +8,8 @@ describe("home page", () => {
     const html = renderToStaticMarkup(await Home());
 
     expect(html).toContain("Patch up. Enter the server. Start climbing.");
-    expect(html).toContain("The routes players actually use");
-    expect(html).toContain("Live player + guild rankings");
+    expect(html).toContain("The routes that matter");
+    expect(html).toContain("Four routes. No filler.");
     expect(html).toContain('href="/downloads"');
     expect(html).toContain('href="/register"');
     expect(html).toContain('href="/rankings"');

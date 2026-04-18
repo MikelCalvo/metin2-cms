@@ -6,11 +6,9 @@ export function SiteFooter() {
   return (
     <footer className="rounded-[28px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
       <div className="flex flex-col gap-6 px-6 py-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-white">Launcher, rankings and account access in one place</p>
-          <p className="max-w-2xl text-sm leading-6 text-zinc-400">
-            Download the starter pack, patch up, create or recover your account, then jump back into the server without bouncing across disconnected pages.
-          </p>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-white">Launcher, account, rankings.</p>
+          <p className="hidden max-w-2xl text-sm leading-6 text-zinc-400 sm:block">Download. Patch. Climb.</p>
         </div>
 
         <div className="space-y-3 lg:text-right">
@@ -32,7 +30,7 @@ export function SiteFooter() {
             </Link>
           </div>
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-            Official Windows support · Linux via Wine · Live ladders · Launcher auto-updates the client.
+            Windows · Wine · Ladders · Launcher updates.
           </p>
         </div>
       </div>

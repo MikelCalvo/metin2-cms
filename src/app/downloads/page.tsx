@@ -20,17 +20,17 @@ import { getPublicEnv } from "@/lib/env";
 const starterPackBenefits = [
   {
     title: "Launcher included",
-    description: "The starter pack already includes the launcher and the base client in one player-friendly download.",
+    description: "Launcher and base client in one download.",
     icon: <DownloadIcon className="size-4" />,
   },
   {
     title: "Windows first",
-    description: "Official Windows support is the default path from the first click to the first login.",
+    description: "Official Windows support from the first click.",
     icon: <MonitorIcon className="size-4" />,
   },
   {
     title: "Resume-friendly",
-    description: "If the connection drops, the protected download path still supports resuming the file.",
+    description: "Resume works if the connection drops.",
     icon: <HardDriveDownloadIcon className="size-4" />,
   },
 ] as const;
@@ -51,29 +51,29 @@ const launchSteps = [
 ] as const;
 
 const quickNotes = [
-  "The launcher auto-updates the game after install.",
-  "Linux players can stay on the same package through Wine.",
-  "SHA256 is available if you want to verify the file manually.",
+  "Launcher auto-updates after install.",
+  "Linux works through Wine.",
+  "SHA256 is there if you want it.",
 ] as const;
 
 const nextRoutes = [
   {
     title: "Create account",
-    description: "Set up your login before the first launch.",
+    description: "Set up your login first.",
     href: "/register",
     label: "Create account",
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
     title: "First launch guide",
-    description: "See the short path from download to first successful session.",
+    description: "Shortest path to first login.",
     href: "/getting-started",
     label: "Open getting started",
     icon: <ArrowRightIcon className="size-4" />,
   },
   {
     title: "Live rankings",
-    description: "Check the ladder before or after you jump in.",
+    description: "Check players and guilds.",
     href: "/rankings",
     label: "View rankings",
     icon: <TrophyIcon className="size-4" />,
@@ -91,7 +91,7 @@ export default function DownloadsPage() {
       <CmsPageHeader
         eyebrow="Downloads"
         title="One download between you and the server."
-        description="Grab the starter pack, open the launcher, let it patch, then step into the live world."
+        description="Download the starter pack, open the launcher, patch, enter."
         actions={
           <>
             {hasStarterPackDownload ? (
@@ -132,8 +132,8 @@ export default function DownloadsPage() {
         title={hasStarterPackDownload ? "Your launcher path starts here" : "The client will appear here"}
         description={
           hasStarterPackDownload
-            ? "Clean, short and player-facing: download the pack, let the launcher sync and move on to the actual game."
-            : "The layout is ready. As soon as the starter pack is configured, the main download button will go live here."
+            ? "One pack. One launcher. One clear start."
+            : "As soon as the pack is configured, the button goes live here."
         }
         contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
       >
@@ -141,7 +141,7 @@ export default function DownloadsPage() {
           <CardHeader className="space-y-2">
             <CardTitle className="text-xl text-white">Metin2 starter pack</CardTitle>
             <CardDescription className="text-sm leading-6 text-zinc-400">
-              One clear download, no split packages and no unnecessary detours. Just the starter pack players expect when they are ready to start.
+              Starter pack, launcher and checksum in one place.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-zinc-300">
@@ -197,9 +197,9 @@ export default function DownloadsPage() {
 
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Before you click</CardTitle>
+            <CardTitle className="text-xl text-white">Quick launch</CardTitle>
             <CardDescription className="text-sm leading-6 text-zinc-400">
-              The short version players want before the first launch.
+              What players need before first login.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
@@ -258,11 +258,7 @@ export default function DownloadsPage() {
         </Card>
       </PublicSection>
 
-      <PublicSection
-        eyebrow="After the download"
-        title="What players usually do next"
-        description="Keep the path short: prepare the account, finish the first launch, then check the ladder."
-      >
+      <PublicSection eyebrow="Next" title="What players usually do next" description="Account. First login. Ladder.">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
           <div className="grid gap-4 md:grid-cols-3">
             {launchSteps.map((step, index) => (

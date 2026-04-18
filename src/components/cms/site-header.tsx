@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRightIcon, DownloadIcon, ShieldCheckIcon, UserRoundPlusIcon } from "lucide-react";
+import { ArrowRightIcon, DownloadIcon, UserRoundPlusIcon } from "lucide-react";
 
 import { SiteNav } from "@/components/cms/site-nav";
 import { Badge } from "@/components/ui/badge";
@@ -8,27 +8,21 @@ import { Button } from "@/components/ui/button";
 export function SiteHeader() {
   return (
     <header className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
-      <div className="flex flex-col gap-6 px-5 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-        <div className="space-y-4">
+      <div className="flex flex-col gap-5 px-5 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/" className="text-sm font-semibold tracking-[0.18em] text-white uppercase">
               Metin2 Portal
             </Link>
             <Badge variant="secondary" className="border border-white/10 bg-white/5 text-zinc-300">
-              Launcher-ready
+              launcher-ready
             </Badge>
             <Badge variant="secondary" className="border border-violet-400/20 bg-violet-500/10 text-violet-200">
               Live ladders
             </Badge>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
-              <ShieldCheckIcon className="size-4 text-violet-300" />
-              <span>Download the client, patch fast, recover access if needed and keep up with rankings from one server hub.</span>
-            </div>
-            <SiteNav />
-          </div>
+          <SiteNav />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -52,7 +46,7 @@ export function SiteHeader() {
           </Button>
 
           <Link href="/login" className="text-sm text-zinc-400 transition-colors hover:text-white">
-            Already have an account? Sign in
+            Sign in
           </Link>
         </div>
       </div>
