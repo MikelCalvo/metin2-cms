@@ -18,6 +18,7 @@ export type Env = z.infer<typeof envSchema>;
 
 const publicEnvSchema = z.object({
   STARTER_PACK_URL: z.string().url().optional(),
+  STARTER_PACK_SHA256: z.string().min(1).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
@@ -82,6 +83,7 @@ export function getPublicEnv(): PublicEnv {
 
   const parsedEnv = publicEnvSchema.safeParse({
     STARTER_PACK_URL: process.env.STARTER_PACK_URL,
+    STARTER_PACK_SHA256: process.env.STARTER_PACK_SHA256,
   });
 
   if (!parsedEnv.success) {

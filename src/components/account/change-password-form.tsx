@@ -23,8 +23,8 @@ export function ChangePasswordForm() {
       <CardHeader className="space-y-2">
         <CardTitle className="text-lg text-white">Password & recovery</CardTitle>
         <CardDescription className="text-zinc-400">
-          Change the legacy-compatible password. Other active CMS sessions are revoked
-          after a successful update.
+          Rotate the legacy-compatible password used by the website and the game. Other active
+          sessions are revoked after a successful update.
         </CardDescription>
       </CardHeader>
       <CardContent>

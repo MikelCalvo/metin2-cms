@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { ArrowRightIcon, DownloadIcon, LockIcon, ShieldCheckIcon, SparklesIcon, WrenchIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  CheckCircle2Icon,
+  DownloadIcon,
+  HardDriveDownloadIcon,
+  MonitorIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+  TerminalSquareIcon,
+} from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
@@ -8,45 +17,62 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicEnv } from "@/lib/env";
 
-const downloadSteps = [
+const compatibilityCards = [
   {
-    title: "Get the private client package",
-    description:
-      "Client delivery remains intentionally private. Operators can share the current launcher or client build without exposing infrastructure URLs in the repo.",
-    icon: <LockIcon className="size-4" />,
+    title: "Official Windows support",
+    description: "The default path is fully centered around Windows, from the starter pack to launcher-first updates.",
+    icon: <MonitorIcon className="size-4" />,
   },
   {
-    title: "Install and patch cleanly",
-    description:
-      "Use the provided package as the source of truth, then let the private update flow patch the client before the first session.",
-    icon: <WrenchIcon className="size-4" />,
+    title: "Linux via Wine",
+    description: "Linux players can stay on the same package and join through Wine instead of a separate community build.",
+    icon: <SparklesIcon className="size-4" />,
   },
   {
-    title: "Sign in with the CMS account",
-    description:
-      "The web account and the live server credentials stay aligned, so onboarding can move from registration to login without old PHP surfaces.",
+    title: "Launcher included",
+    description: "The same download ships the launcher and the base client, so the first session starts from one clear entrypoint.",
+    icon: <DownloadIcon className="size-4" />,
+  },
+  {
+    title: "Auto-updating launcher",
+    description: "After install, the launcher that auto-updates the game keeps players aligned with the current live version.",
     icon: <ShieldCheckIcon className="size-4" />,
   },
 ] as const;
 
-const futureModules = [
-  "current client release notes",
-  "launcher and patcher guidance",
-  "install troubleshooting",
-  "manual checksum and package notes",
-  "later download history or changelog surfaces",
+const installSteps = [
+  {
+    title: "Download the starter pack",
+    description: "Grab the single package that already includes the launcher and the base game files.",
+  },
+  {
+    title: "Run the launcher once",
+    description: "Let it prepare folders and pull the latest game changes before the first sign-in.",
+  },
+  {
+    title: "Sign in and play",
+    description: "Use the same credentials you manage in the portal, then jump straight into the live world.",
+  },
+] as const;
+
+const packageHighlights = [
+  "One starter pack includes the launcher, client files and update path.",
+  "Official Windows support is the primary path, with Linux via Wine covered in the same experience.",
+  "Players can verify integrity through the SHA256 checksum before their first run.",
 ] as const;
 
 export default function DownloadsPage() {
-  const starterPackUrl = getPublicEnv().STARTER_PACK_URL;
+  const publicEnv = getPublicEnv();
+  const starterPackUrl = publicEnv.STARTER_PACK_URL;
+  const starterPackChecksum = publicEnv.STARTER_PACK_SHA256;
   const hasStarterPackDownload = Boolean(starterPackUrl);
 
   return (
     <SitePageShell>
       <CmsPageHeader
         eyebrow="Downloads"
-        title="Private download center and install flow"
-        description="This route is the clean replacement for the old download box and launcher funnel. It explains how the private client package should be delivered and used, without publishing sensitive URLs or environment-specific details in the repository."
+        title="Starter Pack + Auto-Updating Launcher"
+        description="One polished desktop path for the whole first-session experience: official Windows support, Linux via Wine and a launcher that auto-updates the game after install."
         actions={
           <>
             {hasStarterPackDownload ? (
@@ -59,7 +85,7 @@ export default function DownloadsPage() {
             ) : (
               <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
                 <Link href="/getting-started">
-                  Continue to onboarding
+                  View install flow
                   <ArrowRightIcon className="size-4" />
                 </Link>
               </Button>
@@ -69,60 +95,76 @@ export default function DownloadsPage() {
               variant="outline"
               className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
             >
-              <Link href={hasStarterPackDownload ? "/getting-started" : "/login"}>
-                {hasStarterPackDownload ? "Open getting started" : "Open sign in"}
+              <Link href={hasStarterPackDownload ? "/downloads/client/checksum" : "/getting-started"}>
+                {hasStarterPackDownload ? "SHA256 checksum" : "Open getting started"}
               </Link>
             </Button>
           </>
         }
       >
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-          {hasStarterPackDownload ? "Starter pack ready" : "Starter pack pending"}
-        </div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">No infra URLs in git</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Launcher flow comes later</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Launcher included</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Launcher auto-updates the game</div>
       </CmsPageHeader>
 
       <PublicSection
-        eyebrow="Starter pack"
-        title={hasStarterPackDownload ? "The private starter pack is ready to download" : "Starter pack pending publication"}
+        eyebrow="Current release"
+        title={hasStarterPackDownload ? "One starter pack, one clear way to enter the server" : "Starter pack pending publication"}
         description={
           hasStarterPackDownload
-            ? "The CMS now exposes a stable download entrypoint without hardcoding the underlying distribution endpoint in git."
-            : "This page is already wired for the starter pack, but the private distribution URL has not been configured in the CMS environment yet."
+            ? "The download surface is streamlined around a single package, the launcher and the verification path players expect from a live server."
+            : "The page design is already ready for the live download flow. As soon as the starter-pack URL is configured, the main release card will turn into a live CTA."
         }
-        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
+        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]"
       >
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Canonical download entrypoint</CardTitle>
+            <CardTitle className="text-xl text-white">Starter pack release panel</CardTitle>
             <CardDescription className="text-sm leading-6 text-zinc-400">
-              The public UI links to an internal CMS route first, so the page does not expose environment-specific storage or reverse-proxy details directly in markup.
+              Built to feel like a real server download surface: the launcher, the client and the verification path live together in one primary card.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-zinc-300">
-            <p>
-              The starter pack remains a private asset, but players can now use a single stable button from the CMS instead of relying on side-channel instructions.
-            </p>
+            <div className="grid gap-3 md:grid-cols-3">
+              {packageHighlights.map((highlight) => (
+                <div key={highlight} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                  {highlight}
+                </div>
+              ))}
+            </div>
+
             {hasStarterPackDownload ? (
-              <div className="flex flex-wrap gap-3">
-                <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-                  <Link href="/downloads/client">
-                    Download starter pack
-                    <DownloadIcon className="size-4" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
-                >
-                  <Link href="/downloads/client/checksum">SHA256 checksum</Link>
-                </Button>
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
+                    <Link href="/downloads/client">
+                      Download starter pack
+                      <DownloadIcon className="size-4" />
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                  >
+                    <Link href="/downloads/client/checksum">Download checksum file</Link>
+                  </Button>
+                </div>
+
+                <div className="rounded-[24px] border border-white/10 bg-[#07080d] px-4 py-4">
+                  <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">SHA256 verification</p>
+                  <p className="mt-3 break-all font-mono text-sm text-zinc-200">
+                    {starterPackChecksum || "Use the checksum file button above to verify the package before first launch."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-zinc-500">
+                    Compare this value with the downloaded `.sha256` file if you want to verify the starter pack manually before launching.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 px-4 py-4 text-zinc-400">
-                The file is not published yet. Once STARTER_PACK_URL is configured on the server, this section will expose the live download button automatically.
+                The live file is not configured yet. Once the starter-pack URL is present, this panel will expose the download and checksum actions automatically.
               </div>
             )}
           </CardContent>
@@ -130,35 +172,40 @@ export default function DownloadsPage() {
 
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Why this shape</CardTitle>
+            <CardTitle className="text-xl text-white">Compatibility at a glance</CardTitle>
+            <CardDescription className="text-sm leading-6 text-zinc-400">
+              The default messaging is already shaped for a real server release instead of a documentation-only handoff.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-              The starter pack URL lives in environment configuration, not in committed source.
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-              The page can stay stable even if the backing distribution host changes later.
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-              Future launcher/update improvements can keep reusing this route as the canonical download surface.
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-              Checksum verification is exposed through a CMS-owned route as well, so players can validate the package without seeing the backing host details.
-            </div>
+            {compatibilityCards.map((card) => (
+              <div key={card.title} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                <div className="flex items-center gap-2 text-white">
+                  <span className="flex size-8 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                    {card.icon}
+                  </span>
+                  <span className="font-medium">{card.title}</span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{card.description}</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </PublicSection>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        {downloadSteps.map((step) => (
-          <Card key={step.title} className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {compatibilityCards.map((card) => (
+          <Card
+            key={card.title}
+            className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
+          >
             <CardHeader className="space-y-3">
               <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                {step.icon}
+                {card.icon}
               </div>
               <div className="space-y-2">
-                <CardTitle className="text-xl text-white">{step.title}</CardTitle>
-                <CardDescription className="text-sm leading-6 text-zinc-400">{step.description}</CardDescription>
+                <CardTitle className="text-xl text-white">{card.title}</CardTitle>
+                <CardDescription className="text-sm leading-6 text-zinc-400">{card.description}</CardDescription>
               </div>
             </CardHeader>
           </Card>
@@ -166,78 +213,85 @@ export default function DownloadsPage() {
       </section>
 
       <PublicSection
-        eyebrow="What this route owns"
-        title="Download guidance first, automated delivery later"
-        description="The immediate goal is giving players and operators a canonical private place for install guidance. Actual package transport and launcher release mechanics can remain outside the repo until the product surface is stable."
-        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
+        eyebrow="Install flow"
+        title="From first click to first login in three steps"
+        description="The download area is streamlined so the first session feels obvious even before custom launcher docs or patch notes are added."
       >
-        <Card className="border-white/10 bg-black/20 shadow-none">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Current recommended posture</CardTitle>
-            <CardDescription className="text-sm leading-6 text-zinc-400">
-              Keep the delivery path private, but make the onboarding instructions first-class so the website stops depending on side-channel explanations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
-            <p>
-              The repository should never become the place where private distribution endpoints, proxy details or operator-only URLs are embedded. This page can still explain the workflow clearly: receive the current package, install it, patch it, then sign in.
-            </p>
-            <p>
-              Once the rest of the site shell is stable, this route can expand into release notes, known issues and a more structured launcher or patcher experience.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/10 bg-black/20 shadow-none">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Planned modules</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {futureModules.map((module) => (
-              <div key={module} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
-                {module}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-3">
+          {installSteps.map((step, index) => (
+            <Card key={step.title} className="border-white/10 bg-black/20 shadow-none">
+              <CardHeader className="space-y-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-sm font-semibold text-violet-200">
+                  {index + 1}
+                </div>
+                <div className="space-y-2">
+                  <CardTitle className="text-lg text-white">{step.title}</CardTitle>
+                  <CardDescription className="text-sm leading-6 text-zinc-400">{step.description}</CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
       </PublicSection>
 
       <PublicSection
-        eyebrow="Player path"
-        title="After the package is in hand"
-        description="Downloads are only one step. The next route explains the onboarding path from account setup to first successful session."
+        eyebrow="Support"
+        title="Verification and first-session confidence"
+        description="The launcher handles updates, but the page still surfaces the manual checks players look for before they run a large package for the first time."
         action={
-          <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-            <Link href="/getting-started">
-              Open getting started
-              <ArrowRightIcon className="size-4" />
-            </Link>
+          <Button
+            asChild
+            variant="outline"
+            className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+          >
+            <Link href="/getting-started">Open getting started</Link>
           </Button>
         }
+        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]"
       >
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <DownloadIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Install</span>
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl text-white">What players can verify here</CardTitle>
+            <CardDescription className="text-sm leading-6 text-zinc-400">
+              The portal already exposes the two trust signals people usually want before the first run: the main package and the checksum path.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              Download the package through the same player-facing route you would expose in production.
             </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">Place the package in the expected local path and avoid mixing old client trees with the new build source of truth.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <ShieldCheckIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Authenticate</span>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              Use the checksum route to validate the archive manually before the first launcher run.
             </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">Use the same credentials managed through the CMS account and recovery flows.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
-            <div className="flex items-center gap-2 text-white">
-              <SparklesIcon className="size-4 text-violet-300" />
-              <span className="font-medium">Patch and play</span>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              If everything matches, the launcher takes over future updates automatically.
             </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">The website becomes the canonical explanation layer even when the actual package transport remains private.</p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl text-white">Inside the same download</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
+            <div className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              <CheckCircle2Icon className="mt-1 size-4 shrink-0 text-violet-300" />
+              <p>Launcher entrypoint and first patch flow.</p>
+            </div>
+            <div className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              <CheckCircle2Icon className="mt-1 size-4 shrink-0 text-violet-300" />
+              <p>Base client files for the first start on Windows or Linux via Wine.</p>
+            </div>
+            <div className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              <CheckCircle2Icon className="mt-1 size-4 shrink-0 text-violet-300" />
+              <p>Checksum route for manual verification before running the package.</p>
+            </div>
+            <div className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              <TerminalSquareIcon className="mt-1 size-4 shrink-0 text-violet-300" />
+              <p>One message for both official Windows support and Linux via Wine instead of split download pages.</p>
+            </div>
+          </CardContent>
+        </Card>
       </PublicSection>
     </SitePageShell>
   );

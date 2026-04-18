@@ -7,10 +7,10 @@ export function SiteFooter() {
     <footer className="rounded-[28px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
       <div className="flex flex-col gap-6 px-6 py-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-3">
-          <p className="text-sm font-medium text-white">Metin2 CMS private web roadmap</p>
+          <p className="text-sm font-medium text-white">Official launcher, secure account and live rankings</p>
           <p className="max-w-2xl text-sm leading-6 text-zinc-400">
-            Player-facing site routes, the protected account center, live game-data surfaces and a modern item
-            shop are being built as separate layers so the legacy server contract stays stable.
+            One portal for the whole first-player journey: download the starter pack, patch through
+            the launcher, manage account security and check the live ladders.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export function SiteFooter() {
             </Link>
           </div>
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-            Private infrastructure and download endpoints stay outside the repository.
+            Official Windows support · Linux via Wine · Launcher auto-updates the client.
           </p>
         </div>
       </div>

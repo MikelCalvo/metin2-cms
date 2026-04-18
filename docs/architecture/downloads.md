@@ -8,6 +8,7 @@ Expose a stable starter-pack entrypoint from the CMS without committing host-spe
 
 - `/downloads` is the user-facing CMS page for client delivery
 - `STARTER_PACK_URL` is the runtime URL of the starter-pack archive
+- `STARTER_PACK_SHA256` is an optional runtime hash used to show the visible checksum in the downloads UI
 - `STARTER_PACK_USERNAME` and `STARTER_PACK_PASSWORD` are optional runtime credentials for protected downloads
 - `/downloads/client` is the CMS-owned archive path used by the UI
 - `/downloads/client/checksum` is the CMS-owned checksum path used by the UI
@@ -30,6 +31,11 @@ Keeping the real distribution URL and credentials in runtime env gives us:
 - `/downloads` also exposes a checksum entrypoint
 - those CTAs point to `/downloads/client` and `/downloads/client/checksum`
 
+### When `STARTER_PACK_SHA256` is also configured
+
+- `/downloads` can show the visible checksum inline in the release card
+- the checksum file route still remains available for manual verification and mirrors
+
 ### When `STARTER_PACK_USERNAME` and `STARTER_PACK_PASSWORD` are also configured
 
 - `/downloads/client` proxies the archive through the CMS with server-side Basic Auth
@@ -50,6 +56,7 @@ Keeping the real distribution URL and credentials in runtime env gives us:
 ## Operational rule
 
 - keep the concrete starter-pack URL in environment configuration only
+- keep the visible checksum in environment configuration if the UI should expose it inline
 - keep download credentials in environment configuration only
 - do not commit infrastructure-specific storage or reverse-proxy URLs to git
 - keep the CMS page as the canonical user-facing download surface even if the actual file hosting changes later

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import {
   ArrowRightIcon,
-  CompassIcon,
-  CreditCardIcon,
   DownloadIcon,
+  HardDriveDownloadIcon,
   ShieldCheckIcon,
+  SparklesIcon,
   SwordsIcon,
   TrophyIcon,
 } from "lucide-react";
@@ -12,80 +12,83 @@ import {
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
-const foundationPillars = [
+const playerExpectations = [
   {
-    title: "Trust and account security",
-    description:
-      "Legacy-compatible login, registration, recovery, session management and audit history already run on the new CMS stack.",
-    icon: <ShieldCheckIcon className="size-4" />,
+    title: "Official Windows support",
+    description: "The default player path is built around Windows with the starter pack and launcher ready from day one.",
+    icon: <HardDriveDownloadIcon className="size-4" />,
   },
   {
-    title: "Gameplay-facing private web",
-    description:
-      "The next slice turns the project into a proper private player portal with game, onboarding and download surfaces instead of only auth routes.",
-    icon: <CompassIcon className="size-4" />,
+    title: "Linux via Wine",
+    description: "The same package is positioned to work for Linux players through Wine, without splitting the download experience.",
+    icon: <SparklesIcon className="size-4" />,
   },
   {
-    title: "Rankings and item shop runway",
-    description:
-      "Once the shared site shell is stable, live data and audited commerce flows can land without inheriting old PHP architecture.",
-    icon: <CreditCardIcon className="size-4" />,
-  },
-] as const;
-
-const deliveryAreas = [
-  {
-    title: "Game overview",
-    description: "Explain the product, the server identity and the modern web direction without relying on the old CMS layout.",
-    href: "/game",
-    icon: <SwordsIcon className="size-4" />,
-  },
-  {
-    title: "Private downloads",
-    description: "Document the client delivery and install flow without hardcoding private endpoints or infrastructure details into the repository.",
-    href: "/downloads",
+    title: "Launcher + auto patching",
+    description: "Players download once, then let the launcher keep the game updated before each session.",
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Player onboarding",
-    description: "Give new players a clean path from account creation to first login, patching and session security basics.",
-    href: "/getting-started",
-    icon: <ArrowRightIcon className="size-4" />,
-  },
-  {
-    title: "Rankings runway",
-    description: "Prepare the site shell where read-only ladders and later character or guild data can connect cleanly.",
-    href: "/rankings",
-    icon: <TrophyIcon className="size-4" />,
+    title: "Secure account hub",
+    description: "Recovery, session control and account updates live in the same portal players already use to sign in.",
+    icon: <ShieldCheckIcon className="size-4" />,
   },
 ] as const;
 
-const executionOrder = [
-  "Shared site navigation and reusable route shells",
-  "Game, downloads and getting-started routes",
-  "Rankings read models and ladder presentation",
-  "Item shop catalog, pricing and audited order flows",
-  "Admin and editorial tooling",
+const entryRoutes = [
+  {
+    title: "Download the starter pack",
+    description: "One starter pack includes the launcher, the game files and the update path players expect from a live server.",
+    href: "/downloads",
+    icon: <DownloadIcon className="size-4" />,
+    label: "Open downloads",
+  },
+  {
+    title: "Create the account",
+    description: "Registration and recovery are already part of the same flow, so new players are not pushed into legacy PHP surfaces.",
+    href: "/register",
+    icon: <ShieldCheckIcon className="size-4" />,
+    label: "Create account",
+  },
+  {
+    title: "Start playing",
+    description: "The onboarding route explains the shortest path from launcher install to the first successful login.",
+    href: "/getting-started",
+    icon: <ArrowRightIcon className="size-4" />,
+    label: "View first-login guide",
+  },
+  {
+    title: "Check the live ladders",
+    description: "Rankings already connect to live player and guild data, giving the portal a real gameplay surface out of the box.",
+    href: "/rankings",
+    icon: <TrophyIcon className="size-4" />,
+    label: "View rankings",
+  },
+] as const;
+
+const launchHighlights = [
+  "One starter pack with the launcher included",
+  "Official Windows support and Linux via Wine messaging already in place",
+  "Account center, recovery flow and live rankings in the same visual system",
+  "Dark premium UI that can be rebranded quickly without changing the product structure",
 ] as const;
 
 export default function Home() {
   return (
     <SitePageShell>
       <CmsPageHeader
-        eyebrow="Private player web"
-        title="Modern Metin2 CMS foundation for account, rankings and item shop work"
-        description="The current stack already covers legacy-compatible auth and the account center. The next milestone is turning that base into a coherent private player portal with player-facing routes, onboarding and read-only game-data surfaces."
+        eyebrow="Enter the shard"
+        title="Download once. Patch automatically. Join the next Metin2 war."
+        description="This landing is shaped like a real server portal from the first load: official Windows support, Linux via Wine, one starter pack with an auto-updating launcher, secure account access and live rankings in the same place."
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/account">
-                Open account center
-                <ArrowRightIcon className="size-4" />
+              <Link href="/downloads">
+                Download starter pack
+                <DownloadIcon className="size-4" />
               </Link>
             </Button>
             <Button
@@ -93,30 +96,31 @@ export default function Home() {
               variant="outline"
               className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
             >
-              <Link href="/downloads">Download guide</Link>
+              <Link href="/register">Create account</Link>
             </Button>
           </>
         }
       >
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Private distribution flow</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Legacy-safe identity</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Next up: rankings + shop</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Auto-updating launcher</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player rankings</div>
       </CmsPageHeader>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        {foundationPillars.map((pillar) => (
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {playerExpectations.map((expectation) => (
           <Card
-            key={pillar.title}
+            key={expectation.title}
             className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
           >
             <CardHeader className="space-y-3">
               <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                {pillar.icon}
+                {expectation.icon}
               </div>
               <div className="space-y-2">
-                <CardTitle className="text-xl text-white">{pillar.title}</CardTitle>
+                <CardTitle className="text-xl text-white">{expectation.title}</CardTitle>
                 <CardDescription className="text-sm leading-6 text-zinc-400">
-                  {pillar.description}
+                  {expectation.description}
                 </CardDescription>
               </div>
             </CardHeader>
@@ -125,110 +129,128 @@ export default function Home() {
       </section>
 
       <PublicSection
-        eyebrow="Roadmap alignment"
-        title="What this modern web is replacing"
-        description="The old Metin2 portal bundled marketing pages, downloads, onboarding, rankings, account access and item shop ideas into one legacy surface. The modern replacement keeps those areas, but separates them into cleaner product layers."
-        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]"
-      >
-        <Card className="border-white/10 bg-black/20 shadow-none">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Structured replacement domains</CardTitle>
-            <CardDescription className="text-sm leading-6 text-zinc-400">
-              Build the private web as player-facing site routes, account and trust, live game-data views, then commerce and operations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">Public web</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-300">
-                  Landing, game, downloads and onboarding routes establish the structure the rest of the site can grow into.
-                </p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">Account and trust</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-300">
-                  Auth, sessions, recovery and the account center stay isolated from the rest of the site information layer.
-                </p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">Read-only game data</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-300">
-                  Rankings and later character or guild pages should connect through dedicated read models instead of raw page-level queries.
-                </p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">Commerce</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-300">
-                  The item shop lands after the site shell is coherent, with catalog and order auditing owned by the CMS schema.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/10 bg-black/20 shadow-none">
-          <CardHeader className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="border border-white/10 bg-white/5 text-zinc-300">
-                Current order
-              </Badge>
-              <Badge variant="secondary" className="border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                Safe path
-              </Badge>
-            </div>
-            <CardTitle className="text-xl text-white">Execution order from here</CardTitle>
-            <CardDescription className="text-sm leading-6 text-zinc-400">
-              Read-heavy surfaces first, stateful shop flows afterwards.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {executionOrder.map((step, index) => (
-              <div key={step} className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20 text-xs font-semibold text-zinc-300">
-                  {index + 1}
-                </div>
-                <p className="text-sm leading-6 text-zinc-300">{step}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </PublicSection>
-
-      <PublicSection
-        eyebrow="Route map"
-        title="Start from the right surface"
-        description="Each route below is part of the current implementation slice and is intentionally framed so later rankings, news and item shop work can reuse the same shell."
+        eyebrow="Player journey"
+        title="Everything players expect on day one"
+        description="The landing, download flow, onboarding and rankings are already framed like a live server site instead of a documentation hub."
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {deliveryAreas.map((area) => (
-            <Card key={area.href} className="border-white/10 bg-black/20 shadow-none">
+          {entryRoutes.map((route) => (
+            <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
               <CardHeader className="space-y-3">
                 <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                  {area.icon}
+                  {route.icon}
                 </div>
                 <div className="space-y-2">
-                  <CardTitle className="text-lg text-white">{area.title}</CardTitle>
+                  <CardTitle className="text-lg text-white">{route.title}</CardTitle>
                   <CardDescription className="text-sm leading-6 text-zinc-400">
-                    {area.description}
+                    {route.description}
                   </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
-                <Separator className="bg-white/8" />
                 <Button
                   asChild
                   variant="ghost"
-                  className="mt-4 px-0 text-zinc-300 hover:bg-transparent hover:text-white"
+                  className="px-0 text-zinc-300 hover:bg-transparent hover:text-white"
                 >
-                  <Link href={area.href}>
-                    Open route
+                  <Link href={route.href}>
+                    {route.label}
                     <ArrowRightIcon className="size-4" />
                   </Link>
                 </Button>
               </CardContent>
             </Card>
           ))}
+        </div>
+      </PublicSection>
+
+      <PublicSection
+        eyebrow="Launch-ready"
+        title="A dark premium mock that already feels like a real server homepage"
+        description="The visual language is streamlined around the three things that move players forward fastest: download, secure account access and competitive progression."
+        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
+      >
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl text-white">Built around the first session</CardTitle>
+            <CardDescription className="text-sm leading-6 text-zinc-400">
+              The homepage points players straight into the actions that matter instead of making them read a roadmap first.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
+            {launchHighlights.map((highlight) => (
+              <div key={highlight} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                {highlight}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-xl text-white">Next click</CardTitle>
+            <CardDescription className="text-sm leading-6 text-zinc-400">
+              Players should be able to understand the route in seconds: grab the pack, create the account, patch through the launcher and hit the ladders.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-zinc-300">
+              One starter pack includes the launcher and the update path.
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-zinc-300">
+              The account center already covers recovery, password rotation and session control.
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-zinc-300">
+              Live rankings make the portal feel connected to the game instead of only to auth.
+            </div>
+          </CardContent>
+        </Card>
+      </PublicSection>
+
+      <PublicSection
+        eyebrow="Ready to enter"
+        title="Grab the starter pack, create the account and let the launcher do the rest"
+        description="The homepage, downloads and player hub now read like a polished server mock that can be branded quickly and shipped without rewriting the structure."
+        action={
+          <div className="flex flex-wrap gap-3">
+            <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
+              <Link href="/downloads">
+                Open downloads
+                <DownloadIcon className="size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+            >
+              <Link href="/rankings">View rankings</Link>
+            </Button>
+          </div>
+        }
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+            <div className="flex items-center gap-2 text-white">
+              <DownloadIcon className="size-4 text-violet-300" />
+              <span className="font-medium">Starter pack</span>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">The launcher and the game arrive together in the same download surface.</p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+            <div className="flex items-center gap-2 text-white">
+              <ShieldCheckIcon className="size-4 text-violet-300" />
+              <span className="font-medium">Player account</span>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">Registration, recovery and session control already fit the premium dark UI.</p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+            <div className="flex items-center gap-2 text-white">
+              <SwordsIcon className="size-4 text-violet-300" />
+              <span className="font-medium">Competitive loop</span>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">Live rankings complete the player-facing loop and make the site feel game-connected.</p>
+          </div>
         </div>
       </PublicSection>
     </SitePageShell>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRightIcon, LogInIcon, ShieldCheckIcon } from "lucide-react";
+import { ArrowRightIcon, DownloadIcon, LogInIcon, ShieldCheckIcon } from "lucide-react";
 
 import { SiteNav } from "@/components/cms/site-nav";
 import { Badge } from "@/components/ui/badge";
@@ -12,20 +12,20 @@ export function SiteHeader() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/" className="text-sm font-semibold tracking-[0.18em] text-white uppercase">
-              Metin2 CMS
+              Metin2 Portal
             </Link>
             <Badge variant="secondary" className="border border-white/10 bg-white/5 text-zinc-300">
-              Private web
+              Launcher-ready
             </Badge>
             <Badge variant="secondary" className="border border-violet-400/20 bg-violet-500/10 text-violet-200">
-              Next.js SSR
+              Windows + Wine
             </Badge>
           </div>
 
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
               <ShieldCheckIcon className="size-4 text-violet-300" />
-              <span>Modern account, rankings and item shop foundation for the private Metin2 web.</span>
+              <span>Official Windows support, Linux via Wine and a launcher that keeps the client updated.</span>
             </div>
             <SiteNav />
           </div>
@@ -37,7 +37,10 @@ export function SiteHeader() {
             variant="outline"
             className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
           >
-            <Link href="/downloads">Download guide</Link>
+            <Link href="/downloads">
+              <DownloadIcon className="size-4" />
+              Downloads
+            </Link>
           </Button>
 
           <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">

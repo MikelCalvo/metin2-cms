@@ -40,7 +40,7 @@ export function ProfileSettingsForm({
           <div className="space-y-1">
             <CardTitle className="text-lg text-white">Profile settings</CardTitle>
             <CardDescription className="text-zinc-400">
-              Manage the live legacy account contact details used by the CMS and the game.
+              Manage the contact and recovery details that power sign-in across the portal and the legacy game account.
             </CardDescription>
           </div>
           <StatusChip tone={status === "OK" ? "success" : "attention"}>{status}</StatusChip>
@@ -108,7 +108,7 @@ export function ProfileSettingsForm({
               className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
             />
             <p className="text-xs text-zinc-500">
-              Legacy-compatible alphanumeric delete code stored in the account table.
+              Legacy-compatible delete code stored in the live account table and kept editable from the player hub.
             </p>
             {state.fieldErrors?.socialId?.[0] ? (
               <p className="text-xs text-red-300">{state.fieldErrors.socialId[0]}</p>

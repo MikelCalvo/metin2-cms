@@ -4,9 +4,9 @@ export type SiteNavItem = {
 };
 
 export const siteNavigationItems = [
-  { href: "/", label: "Overview" },
+  { href: "/", label: "Home" },
   { href: "/game", label: "Game" },
   { href: "/downloads", label: "Downloads" },
-  { href: "/getting-started", label: "Getting started" },
+  { href: "/getting-started", label: "Start playing" },
   { href: "/rankings", label: "Rankings" },
 ] as const satisfies readonly SiteNavItem[];
