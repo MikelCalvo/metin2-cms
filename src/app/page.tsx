@@ -69,13 +69,6 @@ const entryRoutes = [
   },
 ] as const;
 
-const launchHighlights = [
-  "One starter pack with the launcher included",
-  "Official Windows support and Linux via Wine messaging already in place",
-  "Account center, recovery flow and live rankings in the same visual system",
-  "Dark premium UI that can be rebranded quickly without changing the product structure",
-] as const;
-
 export default function Home() {
   return (
     <SitePageShell>
@@ -165,52 +158,9 @@ export default function Home() {
       </PublicSection>
 
       <PublicSection
-        eyebrow="Launch-ready"
-        title="A dark premium mock that already feels like a real server homepage"
-        description="The visual language is streamlined around the three things that move players forward fastest: download, secure account access and competitive progression."
-        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
-      >
-        <Card className="border-white/10 bg-black/20 shadow-none">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Built around the first session</CardTitle>
-            <CardDescription className="text-sm leading-6 text-zinc-400">
-              The homepage points players straight into the actions that matter instead of making them read a roadmap first.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
-            {launchHighlights.map((highlight) => (
-              <div key={highlight} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                {highlight}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/10 bg-black/20 shadow-none">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Next click</CardTitle>
-            <CardDescription className="text-sm leading-6 text-zinc-400">
-              Players should be able to understand the route in seconds: grab the pack, create the account, patch through the launcher and hit the ladders.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-zinc-300">
-              One starter pack includes the launcher and the update path.
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-zinc-300">
-              The account center already covers recovery, password rotation and session control.
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-zinc-300">
-              Live rankings make the portal feel connected to the game instead of only to auth.
-            </div>
-          </CardContent>
-        </Card>
-      </PublicSection>
-
-      <PublicSection
         eyebrow="Ready to enter"
-        title="Grab the starter pack, create the account and let the launcher do the rest"
-        description="The homepage, downloads and player hub now read like a polished server mock that can be branded quickly and shipped without rewriting the structure."
+        title="Starter pack, player account and live ladders in one loop"
+        description="Short path, clear CTAs and enough structure to fork and rebrand fast without turning the homepage back into documentation."
         action={
           <div className="flex flex-wrap gap-3">
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">

@@ -113,7 +113,7 @@ export default function DownloadsPage() {
         title={hasStarterPackDownload ? "One starter pack, one clear way to enter the server" : "Starter pack pending publication"}
         description={
           hasStarterPackDownload
-            ? "The download surface is streamlined around a single package, the launcher and the verification path players expect from a live server."
+            ? "A cleaner release surface built around one package, one launcher and one verification path."
             : "The page design is already ready for the live download flow. As soon as the starter-pack URL is configured, the main release card will turn into a live CTA."
         }
         contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]"
@@ -193,29 +193,10 @@ export default function DownloadsPage() {
         </Card>
       </PublicSection>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {compatibilityCards.map((card) => (
-          <Card
-            key={card.title}
-            className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
-          >
-            <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                {card.icon}
-              </div>
-              <div className="space-y-2">
-                <CardTitle className="text-xl text-white">{card.title}</CardTitle>
-                <CardDescription className="text-sm leading-6 text-zinc-400">{card.description}</CardDescription>
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
-
       <PublicSection
         eyebrow="Install flow"
         title="From first click to first login in three steps"
-        description="The download area is streamlined so the first session feels obvious even before custom launcher docs or patch notes are added."
+        description="Minimal guidance for the first session without burying the player in a wall of instructions."
       >
         <div className="grid gap-4 md:grid-cols-3">
           {installSteps.map((step, index) => (
@@ -237,7 +218,7 @@ export default function DownloadsPage() {
       <PublicSection
         eyebrow="Support"
         title="Verification and first-session confidence"
-        description="The launcher handles updates, but the page still surfaces the manual checks players look for before they run a large package for the first time."
+        description="The launcher does the heavy lifting, but the page still gives players the checksum and package hints they expect before first launch."
         action={
           <Button
             asChild

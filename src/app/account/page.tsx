@@ -85,9 +85,8 @@ export default async function AccountPage() {
                   Welcome back, {account.login}
                 </h1>
                 <p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
-                  Everything important for the player profile now lives in one place: contact and
-                  recovery details, launcher-ready legacy account state, signed-in devices and the
-                  recent activity trail.
+                  Recovery details, launcher-ready account state, signed-in devices and recent
+                  activity now live in clearer sections instead of one dense dashboard.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3 text-sm text-zinc-400">
@@ -110,7 +109,7 @@ export default async function AccountPage() {
                   Jump straight to the next player action without digging through a dense dashboard.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="grid gap-3 sm:grid-cols-2">
                 <Button asChild className="w-full justify-between bg-violet-500 text-white hover:bg-violet-400">
                   <Link href="/downloads">
                     Open downloads
@@ -137,7 +136,7 @@ export default async function AccountPage() {
                     <ArrowRightIcon className="size-4" />
                   </Link>
                 </Button>
-                <form action={logoutAction}>
+                <form action={logoutAction} className="sm:col-span-2">
                   <Button
                     type="submit"
                     variant="outline"
