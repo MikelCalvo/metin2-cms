@@ -1,0 +1,102 @@
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { formatAccountEventTimestamp, formatSessionIdentifier, summarizeUserAgent } from "@/lib/account-ui-formatters";
+import { cn } from "@/lib/utils";
+
+import { revokeSessionAction } from "@/app/account/actions";
+import { StatusChip } from "@/components/account/status-chip";
+
+type SessionCardProps = {
+  session: {
+    id: string;
+    createdAt: string;
+    lastSeenAt: string;
+    ip: string | null;
+    userAgent: string | null;
+  };
+  isCurrent: boolean;
+};
+
+export function SessionCard({ session, isCurrent }: SessionCardProps) {
+  const deviceLabel = summarizeUserAgent(session.userAgent);
+  const shortId = formatSessionIdentifier(session.id);
+
+  return (
+    <Card
+      className={cn(
+        "border-white/10 bg-white/[0.04] shadow-xl shadow-black/20 backdrop-blur-xl",
+        isCurrent && "bg-white/[0.07]",
+      )}
+    >
+      <CardContent className="space-y-4 px-5 py-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-base font-medium text-white">{deviceLabel}</p>
+              <StatusChip tone={isCurrent ? "current" : "neutral"}>
+                {isCurrent ? "Current session" : "Active"}
+              </StatusChip>
+            </div>
+            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">{shortId}</p>
+          </div>
+          {!isCurrent ? (
+            <form action={revokeSessionAction}>
+              <input type="hidden" name="sessionId" value={session.id} />
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+              >
+                Revoke session
+              </Button>
+            </form>
+          ) : null}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Last seen</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">
+              {formatAccountEventTimestamp(session.lastSeenAt)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Created</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">
+              {formatAccountEventTimestamp(session.createdAt)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">IP address</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{session.ip || "—"}</p>
+          </div>
+        </div>
+
+        <Separator className="bg-white/8" />
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value={session.id} className="border-none">
+            <AccordionTrigger className="py-0 text-sm text-zinc-300 hover:no-underline">
+              Technical details
+            </AccordionTrigger>
+            <AccordionContent className="pt-3">
+              <dl className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
+                <div className="space-y-1">
+                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">Session ID</dt>
+                  <dd className="break-all text-zinc-100">{session.id}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">User agent</dt>
+                  <dd className="break-all text-zinc-100">{session.userAgent || "—"}</dd>
+                </div>
+              </dl>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </CardContent>
+    </Card>
+  );
+}

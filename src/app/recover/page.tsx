@@ -13,8 +13,10 @@ export default async function RecoverPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
-      <RecoveryRequestForm temporaryDeliveryMode={recoveryDeliveryConfig.mode} />
+    <main className="min-h-screen bg-[#09090b] px-6 py-16 text-zinc-100">
+      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col justify-center">
+        <RecoveryRequestForm temporaryDeliveryMode={recoveryDeliveryConfig.mode} />
+      </div>
     </main>
   );
 }

@@ -13,7 +13,7 @@ export type AccountSecuritySummaryItem = {
     | "active-sessions"
     | "last-successful-sign-in"
     | "latest-sign-in-issue"
-    | "latest-recovery-event";
+    | "latest-account-change";
   label: string;
   value: string;
   helper: string;
@@ -34,8 +34,13 @@ function findLatestSignInIssue(recentAuthActivity: AccountAuthActivityEntry[]) {
   );
 }
 
-function findLatestRecoveryEvent(recentAuthActivity: AccountAuthActivityEntry[]) {
-  return recentAuthActivity.find((entry) => entry.eventType.startsWith("password_recovery."));
+function findLatestAccountChange(recentAuthActivity: AccountAuthActivityEntry[]) {
+  return recentAuthActivity.find(
+    (entry) =>
+      entry.eventType.startsWith("password_recovery.") ||
+      entry.eventType === "account.password_change" ||
+      entry.eventType === "account.profile_update",
+  );
 }
 
 function describeActiveSessions(activeSessions: SummarySession[], currentSessionId: string) {
@@ -66,7 +71,7 @@ export function buildAccountSecuritySummary(input: {
   const activeSessions = describeActiveSessions(input.activeSessions, input.currentSessionId);
   const latestSuccessfulSignIn = findLatestSuccessfulSignIn(input.recentAuthActivity);
   const latestSignInIssue = findLatestSignInIssue(input.recentAuthActivity);
-  const latestRecoveryEvent = findLatestRecoveryEvent(input.recentAuthActivity);
+  const latestAccountChange = findLatestAccountChange(input.recentAuthActivity);
 
   return [
     {
@@ -106,19 +111,19 @@ export function buildAccountSecuritySummary(input: {
           helper: "No failed or blocked sign-in attempts were found in the recent audit log.",
           tone: "neutral",
         },
-    latestRecoveryEvent
+    latestAccountChange
       ? {
-          id: "latest-recovery-event",
-          label: "Latest recovery event",
-          value: latestRecoveryEvent.occurredAt,
-          helper: latestRecoveryEvent.title,
+          id: "latest-account-change",
+          label: "Latest account change",
+          value: latestAccountChange.occurredAt,
+          helper: latestAccountChange.title,
           tone: "neutral",
         }
       : {
-          id: "latest-recovery-event",
-          label: "Latest recovery event",
-          value: "No recovery activity recorded",
-          helper: "No password recovery or reset events were found in the recent audit log.",
+          id: "latest-account-change",
+          label: "Latest account change",
+          value: "No account changes recorded",
+          helper: "No recovery, password or profile changes were found in the recent audit log.",
           tone: "neutral",
         },
   ];

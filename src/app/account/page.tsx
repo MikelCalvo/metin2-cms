@@ -1,16 +1,38 @@
+import {
+  CoinsIcon,
+  LogOutIcon,
+  ShieldAlertIcon,
+  ShieldCheckIcon,
+  ShieldIcon,
+  SparklesIcon,
+  WalletIcon,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 
-import {
-  closeOtherSessionsAction,
-  revokeSessionAction,
-} from "@/app/account/actions";
+import { closeOtherSessionsAction } from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
+import { ActivityRow } from "@/components/account/activity-row";
 import { ChangePasswordForm } from "@/components/account/change-password-form";
+import { DashboardSection } from "@/components/account/dashboard-section";
 import { ProfileSettingsForm } from "@/components/account/profile-settings-form";
+import { SessionCard } from "@/components/account/session-card";
+import { StatusChip } from "@/components/account/status-chip";
+import { SummaryCard } from "@/components/account/summary-card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
+
+const summaryIcons = {
+  "active-sessions": <ShieldIcon className="size-4" />,
+  "last-successful-sign-in": <ShieldCheckIcon className="size-4" />,
+  "latest-sign-in-issue": <ShieldAlertIcon className="size-4" />,
+  "latest-account-change": <SparklesIcon className="size-4" />,
+} as const;
 
 export default async function AccountPage() {
   const authenticated = await getCurrentAuthenticatedAccount();
@@ -27,264 +49,202 @@ export default async function AccountPage() {
     activeSessions,
     recentAuthActivity,
   });
+  const currentActiveSession =
+    activeSessions.find((activeSession) => activeSession.id === session.id) ?? activeSessions[0] ?? null;
   const otherActiveSessions = activeSessions.filter(
     (activeSession) => activeSession.id !== session.id,
   );
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-6 py-16">
-      <section className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-neutral-500">
-          Authenticated account
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-neutral-950">
-          Welcome, {account.login}
-        </h1>
-        <p className="max-w-2xl text-sm leading-6 text-neutral-600">
-          This is the first protected area of the modern Metin2 CMS. It reads the
-          authenticated session from the CMS-owned session store and loads the
-          live legacy account record.
-        </p>
-      </section>
-
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-lg font-medium text-neutral-950">Security summary</h2>
-          <p className="mt-1 text-sm text-neutral-600">
-            Quick overview of current web sessions and the most recent authentication
-            events recorded for this account.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {securitySummary.map((item) => (
-            <article
-              key={item.id}
-              className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
-            >
-              <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">
-                {item.label}
-              </p>
-              <p
-                className={`mt-3 text-lg font-semibold tracking-tight ${
-                  item.tone === "success"
-                    ? "text-emerald-700"
-                    : item.tone === "attention"
-                      ? "text-amber-700"
-                      : "text-neutral-950"
-                }`}
-              >
-                {item.value}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">{item.helper}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-medium text-neutral-950">Identity</h2>
-          <dl className="mt-3 space-y-2 text-sm text-neutral-700">
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Login</dt>
-              <dd>{account.login}</dd>
+    <main className="min-h-screen bg-[#09090b] text-zinc-100">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 sm:py-12 lg:px-8">
+        <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_35%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.03))] shadow-2xl shadow-black/30">
+          <div className="flex flex-col gap-8 px-6 py-8 sm:px-8 lg:flex-row lg:items-start lg:justify-between lg:px-10 lg:py-10">
+            <div className="max-w-3xl space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+                  Account center
+                </p>
+                <StatusChip tone={account.status === "OK" ? "success" : "attention"}>
+                  {account.status}
+                </StatusChip>
+              </div>
+              <div className="space-y-3">
+                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                  {account.login}
+                </h1>
+                <p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
+                  Manage profile details, game account state and sign-in security from one
+                  place. This area is now the operational dashboard for the authenticated CMS
+                  account.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3 text-sm text-zinc-400">
+                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                  Email: {account.email || "Not configured"}
+                </div>
+                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                  {activeSessions.length} active session{activeSessions.length === 1 ? "" : "s"}
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Email</dt>
-              <dd>{account.email || "—"}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Status</dt>
-              <dd>{account.status}</dd>
-            </div>
-          </dl>
-        </article>
 
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-medium text-neutral-950">Legacy balances</h2>
-          <dl className="mt-3 space-y-2 text-sm text-neutral-700">
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Cash</dt>
-              <dd>{account.cash}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Mileage</dt>
-              <dd>{account.mileage}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Last play</dt>
-              <dd>{account.lastPlay}</dd>
-            </div>
-          </dl>
-        </article>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <ChangePasswordForm />
-        <ProfileSettingsForm email={account.email} socialId={account.socialId} />
-      </section>
-
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-medium text-neutral-950">Web sessions</h2>
-            <p className="mt-1 text-sm text-neutral-600">
-              Active CMS sessions tied to this account. Use this to spot stale
-              browser sessions and close the ones you are not using anymore.
-            </p>
-          </div>
-
-          {otherActiveSessions.length > 0 ? (
-            <form action={closeOtherSessionsAction}>
-              <button
+            <form action={logoutAction}>
+              <Button
                 type="submit"
-                className="inline-flex w-fit items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-950"
+                variant="outline"
+                className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
               >
-                Close other sessions
-              </button>
+                <LogOutIcon className="size-4" />
+                Sign out
+              </Button>
             </form>
-          ) : (
-            <p className="max-w-sm text-xs leading-5 text-neutral-500 md:text-right">
-              No other active sessions right now. The individual revoke control appears
-              when this account is also signed in from another browser or device.
-            </p>
-          )}
-        </div>
+          </div>
+        </section>
 
-        <div className="mt-4 space-y-3">
-          {activeSessions.map((activeSession) => {
-            const isCurrentSession = activeSession.id === session.id;
-
-            return (
-              <article
-                key={activeSession.id}
-                className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-neutral-950">
-                        {isCurrentSession ? "Current session" : "Active session"}
-                      </p>
-                      {isCurrentSession ? (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                          Current
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="text-xs text-neutral-500">ID: {activeSession.id}</p>
-                  </div>
-
-                  {!isCurrentSession ? (
-                    <form action={revokeSessionAction}>
-                      <input type="hidden" name="sessionId" value={activeSession.id} />
-                      <button
-                        type="submit"
-                        className="inline-flex w-fit items-center justify-center rounded-xl border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-900 transition hover:border-neutral-950"
-                      >
-                        Revoke session
-                      </button>
-                    </form>
-                  ) : null}
-                </div>
-
-                <dl className="mt-4 grid gap-3 text-sm text-neutral-700 md:grid-cols-2">
-                  <div>
-                    <dt className="text-neutral-500">Last seen</dt>
-                    <dd>{activeSession.lastSeenAt}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-neutral-500">Created</dt>
-                    <dd>{activeSession.createdAt}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-neutral-500">IP</dt>
-                    <dd>{activeSession.ip || "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-neutral-500">User agent</dt>
-                    <dd className="break-all">{activeSession.userAgent || "—"}</dd>
-                  </div>
-                </dl>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-        <div>
-          <h2 className="text-lg font-medium text-neutral-950">Recent auth activity</h2>
-          <p className="mt-1 text-sm text-neutral-600">
-            Latest sign-in, recovery and account settings events recorded in the CMS
-            audit log for this account.
-          </p>
-        </div>
-
-        <div className="mt-4 space-y-3">
-          {recentAuthActivity.length > 0 ? (
-            recentAuthActivity.map((entry) => (
-              <article
-                key={entry.id}
-                className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium text-neutral-950">{entry.title}</p>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          entry.success
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {entry.success ? "Success" : "Attention"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-neutral-600">{entry.description}</p>
-                  </div>
-
-                  <p className="text-xs text-neutral-500">{entry.occurredAt}</p>
-                </div>
-
-                <dl className="mt-4 grid gap-3 text-sm text-neutral-700 md:grid-cols-2">
-                  <div>
-                    <dt className="text-neutral-500">IP</dt>
-                    <dd>{entry.ip || "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-neutral-500">User agent</dt>
-                    <dd className="break-all">{entry.userAgent || "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-neutral-500">Outcome</dt>
-                    <dd>{entry.outcome}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-neutral-500">Delivery</dt>
-                    <dd>{entry.deliveryMode || "—"}</dd>
-                  </div>
-                </dl>
-              </article>
-            ))
-          ) : (
-            <p className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600">
-              No auth activity recorded yet for this account.
-            </p>
-          )}
-        </div>
-      </section>
-
-      <form action={logoutAction}>
-        <button
-          type="submit"
-          className="inline-flex w-fit items-center justify-center rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 transition hover:border-neutral-950"
+        <DashboardSection
+          badge="Overview"
+          title="Account overview"
+          description="A quick read on activity, access health and the latest account-level changes."
+          contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
         >
-          Sign out
-        </button>
-      </form>
+          {securitySummary.map((item) => (
+            <SummaryCard
+              key={item.id}
+              label={item.label}
+              value={item.value}
+              helper={item.helper}
+              tone={item.tone}
+              icon={summaryIcons[item.id]}
+            />
+          ))}
+        </DashboardSection>
+
+        <DashboardSection
+          badge="Profile"
+          title="Profile and game account"
+          description="Editable identity details on the left and live game account data on the right."
+          contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]"
+        >
+          <ProfileSettingsForm
+            login={account.login}
+            status={account.status}
+            email={account.email}
+            socialId={account.socialId}
+          />
+
+          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">Game account</CardTitle>
+              <CardDescription className="text-zinc-400">
+                Read-only legacy data pulled directly from the live account schema.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <WalletIcon className="size-4" />
+                    <p className="text-[0.72rem] uppercase tracking-[0.14em]">Cash</p>
+                  </div>
+                  <p className="mt-2 text-xl font-semibold tracking-tight text-white">
+                    {account.cash}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <CoinsIcon className="size-4" />
+                    <p className="text-[0.72rem] uppercase tracking-[0.14em]">Mileage</p>
+                  </div>
+                  <p className="mt-2 text-xl font-semibold tracking-tight text-white">
+                    {account.mileage}
+                  </p>
+                </div>
+              </div>
+
+              <Separator className="bg-white/8" />
+
+              <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-4">
+                <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                  Last play
+                </p>
+                <p className="mt-2 text-base font-medium text-zinc-100">{account.lastPlay}</p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Latest activity timestamp recorded by the legacy game stack.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </DashboardSection>
+
+        <DashboardSection
+          badge="Security"
+          title="Security center"
+          description="Session control, password rotation and the device currently authenticated in the CMS."
+          action={
+            otherActiveSessions.length > 0 ? (
+              <form action={closeOtherSessionsAction}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                >
+                  Close other sessions
+                </Button>
+              </form>
+            ) : undefined
+          }
+          contentClassName="grid gap-4 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]"
+        >
+          <ChangePasswordForm />
+
+          <div className="space-y-4">
+            <div className="space-y-1 px-1">
+              <h3 className="text-base font-medium text-white">Signed-in sessions</h3>
+              <p className="text-sm text-zinc-400">
+                Your current device is highlighted first. Other browser sessions can be revoked individually.
+              </p>
+            </div>
+
+            {currentActiveSession ? <SessionCard session={currentActiveSession} isCurrent /> : null}
+
+            {otherActiveSessions.length > 0 ? (
+              <div className="space-y-3">
+                {otherActiveSessions.map((activeSession) => (
+                  <SessionCard key={activeSession.id} session={activeSession} isCurrent={false} />
+                ))}
+              </div>
+            ) : (
+              <Alert className="border-white/10 bg-white/[0.04] text-zinc-100">
+                <ShieldCheckIcon className="size-4" />
+                <AlertTitle>No other active sessions</AlertTitle>
+                <AlertDescription className="text-zinc-400">
+                  This account is only signed in from the current browser right now.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </DashboardSection>
+
+        <DashboardSection
+          badge="Activity"
+          title="Recent account activity"
+          description="Compact sign-in, recovery and settings events from the CMS audit log."
+          contentClassName="space-y-3"
+        >
+          {recentAuthActivity.length > 0 ? (
+            recentAuthActivity.map((entry) => <ActivityRow key={entry.id} entry={entry} />)
+          ) : (
+            <Alert className="border-white/10 bg-white/[0.04] text-zinc-100">
+              <SparklesIcon className="size-4" />
+              <AlertTitle>No recent activity yet</AlertTitle>
+              <AlertDescription className="text-zinc-400">
+                Sign-in, recovery and account-setting events will start appearing here as soon as they are recorded.
+              </AlertDescription>
+            </Alert>
+          )}
+        </DashboardSection>
+      </div>
     </main>
   );
 }

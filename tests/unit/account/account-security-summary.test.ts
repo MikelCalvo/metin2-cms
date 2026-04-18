@@ -9,6 +9,18 @@ describe("account security summary", () => {
       activeSessions: [{ id: "session-current" }, { id: "session-other" }],
       recentAuthActivity: [
         {
+          id: 11,
+          eventType: "account.profile_update",
+          outcome: "profile_updated",
+          occurredAt: "2026-04-18 10:05:00",
+          success: true,
+          ip: "127.0.0.1",
+          userAgent: "Chrome",
+          deliveryMode: null,
+          title: "Profile updated",
+          description: "The account email or delete code was updated from the authenticated account area.",
+        },
+        {
           id: 10,
           eventType: "login",
           outcome: "authenticated",
@@ -70,10 +82,10 @@ describe("account security summary", () => {
         tone: "attention",
       },
       {
-        id: "latest-recovery-event",
-        label: "Latest recovery event",
-        value: "2026-04-18 09:45:00",
-        helper: "Recovery requested",
+        id: "latest-account-change",
+        label: "Latest account change",
+        value: "2026-04-18 10:05:00",
+        helper: "Profile updated",
         tone: "neutral",
       },
     ]);
@@ -109,10 +121,10 @@ describe("account security summary", () => {
         tone: "neutral",
       },
       {
-        id: "latest-recovery-event",
-        label: "Latest recovery event",
-        value: "No recovery activity recorded",
-        helper: "No password recovery or reset events were found in the recent audit log.",
+        id: "latest-account-change",
+        label: "Latest account change",
+        value: "No account changes recorded",
+        helper: "No recovery, password or profile changes were found in the recent audit log.",
         tone: "neutral",
       },
     ]);

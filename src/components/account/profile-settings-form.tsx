@@ -1,17 +1,28 @@
 "use client";
 
+import { MailIcon, ShieldIcon } from "lucide-react";
 import { useActionState } from "react";
 
 import { updateProfileAction } from "@/app/account/actions";
+import { StatusChip } from "@/components/account/status-chip";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { emptyAccountProfileActionState } from "@/server/account/account-settings-types";
 
 type ProfileSettingsFormProps = {
+  login: string;
+  status: string;
   email: string;
   socialId: string;
 };
 
 export function ProfileSettingsForm({
+  login,
+  status,
   email,
   socialId,
 }: ProfileSettingsFormProps) {
@@ -23,68 +34,96 @@ export function ProfileSettingsForm({
   const resolvedSocialId = state.values?.socialId ?? socialId;
 
   return (
-    <form action={formAction} className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-      <div className="space-y-1">
-        <h2 className="text-lg font-medium text-neutral-950">Profile settings</h2>
-        <p className="text-sm text-neutral-600">
-          Update the legacy account contact email and delete code stored in the live
-          account table.
-        </p>
-      </div>
-
-      {state.message ? (
-        <div
-          className={
-            state.status === "success"
-              ? "rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-              : "rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-          }
-        >
-          {state.message}
+    <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <CardHeader className="space-y-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle className="text-lg text-white">Profile settings</CardTitle>
+            <CardDescription className="text-zinc-400">
+              Manage the live legacy account contact details used by the CMS and the game.
+            </CardDescription>
+          </div>
+          <StatusChip tone={status === "OK" ? "success" : "attention"}>{status}</StatusChip>
         </div>
-      ) : null}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Login</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{login}</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Delete code</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{resolvedSocialId || "—"}</p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-5">
+          {state.message ? (
+            <Alert
+              variant={state.status === "error" ? "destructive" : "default"}
+              className={
+                state.status === "error"
+                  ? "border-red-400/20 bg-red-500/10 text-red-100"
+                  : "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+              }
+            >
+              {state.status === "error" ? <ShieldIcon className="size-4" /> : <MailIcon className="size-4" />}
+              <AlertTitle>{state.status === "error" ? "Profile update failed" : "Profile updated"}</AlertTitle>
+              <AlertDescription className={state.status === "error" ? "text-red-100/90" : "text-emerald-100/90"}>
+                {state.message}
+              </AlertDescription>
+            </Alert>
+          ) : null}
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium text-neutral-900">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          maxLength={64}
-          defaultValue={resolvedEmail}
-          className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none transition focus:border-neutral-950"
-        />
-        {state.fieldErrors?.email?.[0] ? (
-          <p className="text-xs text-red-600">{state.fieldErrors.email[0]}</p>
-        ) : null}
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-zinc-200">
+              Email
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              maxLength={64}
+              defaultValue={resolvedEmail}
+              className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+            />
+            {state.fieldErrors?.email?.[0] ? (
+              <p className="text-xs text-red-300">{state.fieldErrors.email[0]}</p>
+            ) : null}
+          </div>
 
-      <div className="space-y-2">
-        <label htmlFor="socialId" className="text-sm font-medium text-neutral-900">
-          Delete code / social ID
-        </label>
-        <input
-          id="socialId"
-          name="socialId"
-          type="text"
-          required
-          minLength={7}
-          maxLength={13}
-          defaultValue={resolvedSocialId}
-          className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none transition focus:border-neutral-950"
-        />
-        <p className="text-xs text-neutral-500">
-          Legacy-compatible alphanumeric delete code used by the game account.
-        </p>
-        {state.fieldErrors?.socialId?.[0] ? (
-          <p className="text-xs text-red-600">{state.fieldErrors.socialId[0]}</p>
-        ) : null}
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="socialId" className="text-zinc-200">
+              Delete code / social ID
+            </Label>
+            <Input
+              id="socialId"
+              name="socialId"
+              type="text"
+              required
+              minLength={7}
+              maxLength={13}
+              defaultValue={resolvedSocialId}
+              className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+            />
+            <p className="text-xs text-zinc-500">
+              Legacy-compatible alphanumeric delete code stored in the account table.
+            </p>
+            {state.fieldErrors?.socialId?.[0] ? (
+              <p className="text-xs text-red-300">{state.fieldErrors.socialId[0]}</p>
+            ) : null}
+          </div>
 
-      <AuthSubmitButton idleLabel="Save profile" pendingLabel="Saving profile..." />
-    </form>
+          <Separator className="bg-white/8" />
+
+          <AuthSubmitButton
+            idleLabel="Save profile"
+            pendingLabel="Saving profile..."
+            className="bg-violet-500 text-white hover:bg-violet-400"
+          />
+        </form>
+      </CardContent>
+    </Card>
   );
 }

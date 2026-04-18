@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { KeyRoundIcon, MailboxIcon } from "lucide-react";
 import { useActionState } from "react";
 
 import { requestRecoveryAction } from "@/app/auth/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { emptyRecoveryActionState } from "@/server/recovery/types";
 
 type RecoveryRequestFormProps = {
@@ -20,98 +27,109 @@ export function RecoveryRequestForm({
   );
 
   return (
-    <form
-      action={formAction}
-      className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
-    >
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-950">
-          Recover password
-        </h1>
-        <p className="text-sm text-neutral-600">
-          Enter the login and email tied to the legacy Metin2 account.
+    <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
+      <CardHeader className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">
+          Metin2 CMS
         </p>
-      </div>
-
-      {state.message ? (
-        <div
-          className={
-            state.status === "success"
-              ? "rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-              : "rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-          }
-        >
-          {state.message}
-        </div>
-      ) : null}
-
-      {temporaryDeliveryMode === "file" ? (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
-          Temporary delivery mode: the CMS is not sending emails yet. Matching
-          recovery requests are queued on the server for manual handling by an
-          operator.
-        </div>
-      ) : null}
-
-      {state.previewResetUrl ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          <p className="font-medium">Development preview</p>
-          <p className="mt-1 break-all">
-            Reset link: <a className="underline" href={state.previewResetUrl}>{state.previewResetUrl}</a>
-          </p>
-        </div>
-      ) : null}
-
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <label htmlFor="login" className="text-sm font-medium text-neutral-900">
-            Login
-          </label>
-          <input
-            id="login"
-            name="login"
-            type="text"
-            required
-            maxLength={16}
-            defaultValue={state.values?.login ?? ""}
-            className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none transition focus:border-neutral-950"
-          />
-          {state.fieldErrors?.login?.[0] ? (
-            <p className="text-xs text-red-600">{state.fieldErrors.login[0]}</p>
+        <CardTitle className="text-2xl text-white">Recover password</CardTitle>
+        <CardDescription className="text-zinc-400">
+          Enter the login and email tied to the legacy Metin2 account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-5">
+          {state.message ? (
+            <Alert
+              variant={state.status === "success" ? "default" : "destructive"}
+              className={
+                state.status === "success"
+                  ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+                  : "border-red-400/20 bg-red-500/10 text-red-100"
+              }
+            >
+              <KeyRoundIcon className="size-4" />
+              <AlertTitle>
+                {state.status === "success" ? "Recovery request created" : "Recovery request failed"}
+              </AlertTitle>
+              <AlertDescription className={state.status === "success" ? "text-emerald-100/90" : "text-red-100/90"}>
+                {state.message}
+              </AlertDescription>
+            </Alert>
           ) : null}
-        </div>
 
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-neutral-900">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            maxLength={64}
-            defaultValue={state.values?.email ?? ""}
-            className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none transition focus:border-neutral-950"
-          />
-          {state.fieldErrors?.email?.[0] ? (
-            <p className="text-xs text-red-600">{state.fieldErrors.email[0]}</p>
+          {temporaryDeliveryMode === "file" ? (
+            <Alert className="border-sky-400/20 bg-sky-500/10 text-sky-100">
+              <MailboxIcon className="size-4" />
+              <AlertTitle>Temporary delivery mode</AlertTitle>
+              <AlertDescription className="text-sky-100/90">
+                Matching recovery requests are queued on the server for manual handling by an operator.
+              </AlertDescription>
+            </Alert>
           ) : null}
-        </div>
-      </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <AuthSubmitButton
-          idleLabel="Create recovery link"
-          pendingLabel="Creating link..."
-        />
-        <Link
-          href="/login"
-          className="text-sm text-neutral-600 underline-offset-4 hover:underline"
-        >
-          Back to sign in
-        </Link>
-      </div>
-    </form>
+          {state.previewResetUrl ? (
+            <Alert className="border-amber-400/20 bg-amber-500/10 text-amber-100">
+              <KeyRoundIcon className="size-4" />
+              <AlertTitle>Development preview</AlertTitle>
+              <AlertDescription className="break-all text-amber-100/90">
+                Reset link: <a className="underline" href={state.previewResetUrl}>{state.previewResetUrl}</a>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="login" className="text-zinc-200">
+                Login
+              </Label>
+              <Input
+                id="login"
+                name="login"
+                type="text"
+                required
+                maxLength={16}
+                defaultValue={state.values?.login ?? ""}
+                className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+              />
+              {state.fieldErrors?.login?.[0] ? (
+                <p className="text-xs text-red-300">{state.fieldErrors.login[0]}</p>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-zinc-200">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                maxLength={64}
+                defaultValue={state.values?.email ?? ""}
+                className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+              />
+              {state.fieldErrors?.email?.[0] ? (
+                <p className="text-xs text-red-300">{state.fieldErrors.email[0]}</p>
+              ) : null}
+            </div>
+          </div>
+
+          <Separator className="bg-white/8" />
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <AuthSubmitButton
+              idleLabel="Create recovery link"
+              pendingLabel="Creating link..."
+              className="bg-violet-500 text-white hover:bg-violet-400"
+            />
+            <Button asChild variant="ghost" className="justify-start px-0 text-zinc-300 hover:bg-transparent hover:text-white">
+              <Link href="/login">Back to sign in</Link>
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

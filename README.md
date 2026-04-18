@@ -127,7 +127,10 @@ Current phase:
 - `/account` now shows active CMS sessions and can close the other sessions for the same account
 - `/account` now supports revoking one specific non-current CMS session
 - `/account` now shows the most recent auth activity for the account from `auth_audit_log`
-- `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and recovery event
+- shadcn/ui is now installed as the CMS component primitive layer
+- authenticated surfaces now use a darker modern dashboard/auth visual language instead of the original plain white milestone layout
+- `/account` now groups profile, game account, security center and recent activity with a stronger hierarchy
+- `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and latest account change
 - `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
 - `/account` now lets the authenticated user update the legacy account email and delete code from the protected area
 - the current CMS session now refreshes `last_seen_at` when protected areas load
