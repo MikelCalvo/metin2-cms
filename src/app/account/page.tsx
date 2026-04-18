@@ -4,6 +4,7 @@ import { closeOtherSessionsAction, revokeSessionAction } from "@/app/account/act
 import { logoutAction } from "@/app/auth/actions";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
+import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
 
 export default async function AccountPage() {
@@ -16,6 +17,11 @@ export default async function AccountPage() {
   const { account, session } = authenticated;
   const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
   const recentAuthActivity = await listRecentAuthActivityForAccount(account.id);
+  const securitySummary = buildAccountSecuritySummary({
+    currentSessionId: session.id,
+    activeSessions,
+    recentAuthActivity,
+  });
   const otherActiveSessions = activeSessions.filter(
     (activeSession) => activeSession.id !== session.id,
   );
@@ -34,6 +40,41 @@ export default async function AccountPage() {
           authenticated session from the CMS-owned session store and loads the
           live legacy account record.
         </p>
+      </section>
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-lg font-medium text-neutral-950">Security summary</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Quick overview of current web sessions and the most recent authentication
+            events recorded for this account.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {securitySummary.map((item) => (
+            <article
+              key={item.id}
+              className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
+            >
+              <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">
+                {item.label}
+              </p>
+              <p
+                className={`mt-3 text-lg font-semibold tracking-tight ${
+                  item.tone === "success"
+                    ? "text-emerald-700"
+                    : item.tone === "attention"
+                      ? "text-amber-700"
+                      : "text-neutral-950"
+                }`}
+              >
+                {item.value}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">{item.helper}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
