@@ -126,15 +126,18 @@ The deployed CMS runs continuously through a FreeBSD `rc.d` service:
 The runtime service serves the production Next.js build from this same working tree.
 That means a source change is not public until a fresh build is generated and the service is restarted.
 
-### Auto deploy on push from this server
+### Auto deploy after a successful push from this server
 
-This repository includes a local post-push deploy flow for the production working tree:
-- hook path: `.githooks/post-push`
-- hook runner: `scripts/post-push-deploy.mjs`
+This repository includes a local push-and-deploy flow for the production working tree:
+- push wrapper: `scripts/push-and-deploy.sh`
+- git alias: `git push-deploy`
+- deploy decision runner: `scripts/post-push-deploy.mjs`
 - deploy script: `scripts/deploy-local.sh`
 - deploy log: `/opt/metin2/logs/metin2-cms-deploy.log`
 
 Behavior:
+- use `git push-deploy origin main` (or `scripts/push-and-deploy.sh origin main`) for production pushes from this host
+- the wrapper pushes first and only starts the deploy if `git push` succeeds
 - only pushes to `origin` that update `main` trigger a deploy
 - the remote URL is validated against the currently configured local `origin` remote instead of a hardcoded repository URL
 - dependency install runs automatically only when `package.json`, `pnpm-lock.yaml` or `pnpm-workspace.yaml` changed
@@ -146,7 +149,7 @@ Behavior:
 Local repo configuration on the server uses:
 
 ```bash
-git config core.hooksPath .githooks
+git config alias.push-deploy '!sh scripts/push-and-deploy.sh'
 ```
 
 ### Manual deploy
@@ -174,7 +177,7 @@ Current phase:
 - authenticated surfaces now use a darker modern dashboard/auth visual language instead of the original plain white milestone layout
 - `/account` now groups profile, game account, security center and recent activity with a stronger hierarchy
 - the public landing page and auth entry routes now share reusable CMS shells instead of standalone one-off wrappers
-- the production working tree now includes a local deploy flow that rebuilds and restarts `metin2_cms`
+- `git push-deploy origin main` from the production working tree now pushes first and then rebuilds/restarts `metin2_cms`
 - `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and latest account change
 - `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
 - `/account` now lets the authenticated user update the legacy account email and delete code from the protected area
