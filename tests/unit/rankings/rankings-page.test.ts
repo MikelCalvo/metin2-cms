@@ -29,7 +29,7 @@ describe("rankings page", () => {
           playtime: 2,
           job: 5,
           classLabel: "Sura",
-          lastPlay: "2026-04-18 05:45:44",
+          lastPlay: new Date(2026, 3, 18, 5, 45, 44),
           guildName: null,
         },
       ],

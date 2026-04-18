@@ -28,6 +28,12 @@ describe("rankings formatters", () => {
     );
   });
 
+  it("accepts Date instances returned by mysql2 runtime queries", () => {
+    expect(formatRankingTimestamp(new Date(2026, 3, 18, 6, 48, 56), new Date(2026, 3, 18, 12, 0, 0))).toBe(
+      "Today · 06:48",
+    );
+  });
+
   it("returns an em dash for zero or missing timestamps", () => {
     expect(formatRankingTimestamp("0000-00-00 00:00:00")).toBe("—");
     expect(formatRankingTimestamp("")).toBe("—");

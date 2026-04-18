@@ -1,3 +1,5 @@
+export type RankingTimestamp = string | Date | null;
+
 export type PlayerRankingRow = {
   id: number;
   name: string;
@@ -5,7 +7,7 @@ export type PlayerRankingRow = {
   exp: number;
   playtime: number;
   job: number;
-  lastPlay: string;
+  lastPlay: RankingTimestamp;
   guildName: string | null;
 };
 
