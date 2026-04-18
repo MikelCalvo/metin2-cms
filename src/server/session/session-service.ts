@@ -6,6 +6,7 @@ import type { IssueSessionInput, SessionContext } from "@/server/auth/types";
 import {
   createWebSession,
   findActiveSessionById,
+  findActiveSessionForAccountById,
   listActiveSessionsForAccount,
   revokeActiveSessionsForAccount,
   revokeOtherActiveSessionsForAccount,
@@ -93,6 +94,26 @@ export async function revokeOtherSessionsForAccount(
     currentSessionId,
     toMysqlDateTime(new Date()),
   );
+}
+
+export async function revokeSessionForAccount(
+  accountId: number,
+  sessionId: string,
+  currentSessionId: string,
+): Promise<boolean> {
+  if (sessionId === currentSessionId) {
+    return false;
+  }
+
+  const now = toMysqlDateTime(new Date());
+  const session = await findActiveSessionForAccountById(accountId, sessionId, now);
+
+  if (!session) {
+    return false;
+  }
+
+  await revokeWebSession(session.id, now);
+  return true;
 }
 
 export async function revokeSessionsForAccount(accountId: number): Promise<void> {

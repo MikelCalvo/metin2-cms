@@ -28,6 +28,27 @@ export async function findActiveSessionById(
   return rows[0] ?? null;
 }
 
+export async function findActiveSessionForAccountById(
+  accountId: number,
+  sessionId: string,
+  currentTime: string,
+): Promise<WebSession | null> {
+  const rows = await getCmsDb()
+    .select()
+    .from(webSessions)
+    .where(
+      and(
+        eq(webSessions.accountId, accountId),
+        eq(webSessions.id, sessionId),
+        isNull(webSessions.revokedAt),
+        gt(webSessions.expiresAt, currentTime),
+      ),
+    )
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
 export async function listActiveSessionsForAccount(
   accountId: number,
   currentTime: string,

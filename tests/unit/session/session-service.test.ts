@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const {
   createWebSessionMock,
   findActiveSessionByIdMock,
+  findActiveSessionForAccountByIdMock,
   touchActiveSessionLastSeenMock,
   revokeWebSessionMock,
   listActiveSessionsForAccountMock,
@@ -11,6 +12,7 @@ const {
 } = vi.hoisted(() => ({
   createWebSessionMock: vi.fn(),
   findActiveSessionByIdMock: vi.fn(),
+  findActiveSessionForAccountByIdMock: vi.fn(),
   touchActiveSessionLastSeenMock: vi.fn(),
   revokeWebSessionMock: vi.fn(),
   listActiveSessionsForAccountMock: vi.fn(),
@@ -25,6 +27,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@/server/session/session-repository", () => ({
   createWebSession: createWebSessionMock,
   findActiveSessionById: findActiveSessionByIdMock,
+  findActiveSessionForAccountById: findActiveSessionForAccountByIdMock,
   touchActiveSessionLastSeen: touchActiveSessionLastSeenMock,
   revokeWebSession: revokeWebSessionMock,
   listActiveSessionsForAccount: listActiveSessionsForAccountMock,
@@ -37,12 +40,14 @@ import {
   issueAuthenticatedSession,
   listAuthenticatedSessionsForAccount,
   revokeOtherSessionsForAccount,
+  revokeSessionForAccount,
 } from "@/server/session/session-service";
 
 describe("session service", () => {
   beforeEach(() => {
     createWebSessionMock.mockReset();
     findActiveSessionByIdMock.mockReset();
+    findActiveSessionForAccountByIdMock.mockReset();
     touchActiveSessionLastSeenMock.mockReset();
     revokeWebSessionMock.mockReset();
     listActiveSessionsForAccountMock.mockReset();
@@ -139,6 +144,47 @@ describe("session service", () => {
       "session-test-id",
       expect.any(String),
     );
+  });
+
+  it("revokes a selected session that belongs to the authenticated account", async () => {
+    findActiveSessionForAccountByIdMock.mockResolvedValueOnce({
+      id: "session-other",
+      accountId: 7,
+      login: "tester01",
+    });
+
+    await expect(
+      revokeSessionForAccount(7, "session-other", "session-current"),
+    ).resolves.toBe(true);
+
+    expect(findActiveSessionForAccountByIdMock).toHaveBeenCalledWith(
+      7,
+      "session-other",
+      expect.any(String),
+    );
+    expect(revokeWebSessionMock).toHaveBeenCalledWith(
+      "session-other",
+      expect.any(String),
+    );
+  });
+
+  it("does not revoke the current session from the targeted revoke action", async () => {
+    await expect(
+      revokeSessionForAccount(7, "session-current", "session-current"),
+    ).resolves.toBe(false);
+
+    expect(findActiveSessionForAccountByIdMock).not.toHaveBeenCalled();
+    expect(revokeWebSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("does not revoke a session that does not belong to the account", async () => {
+    findActiveSessionForAccountByIdMock.mockResolvedValueOnce(null);
+
+    await expect(
+      revokeSessionForAccount(7, "session-other", "session-current"),
+    ).resolves.toBe(false);
+
+    expect(revokeWebSessionMock).not.toHaveBeenCalled();
   });
 
   it("revokes and clears the current session", async () => {

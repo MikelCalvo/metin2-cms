@@ -18,7 +18,10 @@ import {
   listActiveSessionsForAccount,
   touchActiveSessionLastSeen,
 } from "@/server/session/session-repository";
-import { revokeOtherSessionsForAccount } from "@/server/session/session-service";
+import {
+  revokeOtherSessionsForAccount,
+  revokeSessionForAccount,
+} from "@/server/session/session-service";
 
 import {
   assertIntegrationEnv,
@@ -402,6 +405,105 @@ describe("legacy auth flow against test MariaDB", () => {
     );
     expect(sessionsAfter).toHaveLength(1);
     expect(sessionsAfter[0]?.id).toBe(`${login}-session-a`);
+  });
+
+  it("revokes a specific other session for the same account", async () => {
+    const login = createLogin("revoke");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "7654321",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 60_000);
+
+    await createWebSession({
+      id: `${login}-session-a`,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.1",
+      userAgent: "vitest-a",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+    await createWebSession({
+      id: `${login}-session-b`,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.2",
+      userAgent: "vitest-b",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+
+    await expect(
+      revokeSessionForAccount(
+        registration.account.id,
+        `${login}-session-b`,
+        `${login}-session-a`,
+      ),
+    ).resolves.toBe(true);
+
+    const remainingSessions = await listActiveSessionsForAccount(
+      registration.account.id,
+      toMysqlDateTime(now),
+    );
+
+    expect(remainingSessions).toHaveLength(1);
+    expect(remainingSessions[0]?.id).toBe(`${login}-session-a`);
+  });
+
+  it("does not revoke the current session via the targeted revoke helper", async () => {
+    const login = createLogin("selfkeep");
+
+    const registration = await registerLegacyCompatibleAccount({
+      login,
+      email: `${login}@example.com`,
+      password: "abc12345",
+      passwordConfirmation: "abc12345",
+      socialId: "7654321",
+    });
+
+    expect(registration.ok).toBe(true);
+    if (!registration.ok) {
+      return;
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 60_000);
+    const sessionId = `${login}-session-a`;
+
+    await createWebSession({
+      id: sessionId,
+      accountId: registration.account.id,
+      login: registration.account.login,
+      ip: "127.0.0.1",
+      userAgent: "vitest-a",
+      createdAt: toMysqlDateTime(now),
+      lastSeenAt: toMysqlDateTime(now),
+      expiresAt: toMysqlDateTime(expiresAt),
+      revokedAt: null,
+    });
+
+    await expect(
+      revokeSessionForAccount(registration.account.id, sessionId, sessionId),
+    ).resolves.toBe(false);
+
+    const stillActive = await findActiveSessionById(sessionId, toMysqlDateTime(now));
+    expect(stillActive).not.toBeNull();
   });
 
   it("creates and consumes a password recovery token against the test databases", async () => {

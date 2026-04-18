@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { closeOtherSessionsAction } from "@/app/account/actions";
+import { closeOtherSessionsAction, revokeSessionAction } from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
@@ -119,6 +119,18 @@ export default async function AccountPage() {
                     </div>
                     <p className="text-xs text-neutral-500">ID: {activeSession.id}</p>
                   </div>
+
+                  {!isCurrentSession ? (
+                    <form action={revokeSessionAction}>
+                      <input type="hidden" name="sessionId" value={activeSession.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex w-fit items-center justify-center rounded-xl border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-900 transition hover:border-neutral-950"
+                      >
+                        Revoke session
+                      </button>
+                    </form>
+                  ) : null}
                 </div>
 
                 <dl className="mt-4 grid gap-3 text-sm text-neutral-700 md:grid-cols-2">

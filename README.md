@@ -125,6 +125,7 @@ Current phase:
 - temporary recovery delivery modes in place (`preview` for dev, `file` for production)
 - recovery requests now write `auth_audit_log` entries and are rate-limited per login
 - `/account` now shows active CMS sessions and can close the other sessions for the same account
+- `/account` now supports revoking one specific non-current CMS session
 - `/account` now shows the most recent auth activity for the account from `auth_audit_log`
 - the current CMS session now refreshes `last_seen_at` when protected areas load
 - unit verification in place
