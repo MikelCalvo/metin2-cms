@@ -35,7 +35,7 @@ export function CmsPageShell({
 
 type CmsPageHeaderProps = {
   eyebrow?: string;
-  title: string;
+  title: ReactNode;
   description?: string;
   actions?: ReactNode;
   children?: ReactNode;

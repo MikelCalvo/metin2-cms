@@ -18,17 +18,19 @@ type SiteNavProps = {
   items?: readonly SiteNavItem[];
   className?: string;
   linkClassName?: string;
+  ariaLabel?: string;
 };
 
 export function SiteNav({
   items = siteNavigationItems,
   className,
   linkClassName,
+  ariaLabel = "Primary",
 }: SiteNavProps) {
   const pathname = usePathname() ?? "/";
 
   return (
-    <nav className={cn("flex flex-wrap items-center gap-2", className)} aria-label="Primary">
+    <nav className={cn("flex flex-wrap items-center gap-2", className)} aria-label={ariaLabel}>
       {items.map((item) => {
         const active = isItemActive(pathname, item.href);
 

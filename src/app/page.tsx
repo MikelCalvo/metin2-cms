@@ -1,37 +1,11 @@
 import Link from "next/link";
-import {
-  ArrowRightIcon,
-  DownloadIcon,
-  ShieldCheckIcon,
-  SparklesIcon,
-  SwordsIcon,
-  TrophyIcon,
-  UserRoundPlusIcon,
-} from "lucide-react";
+import { ArrowRightIcon, DownloadIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-const hubHighlights = [
-  {
-    title: "Download & patch",
-    description: "Starter pack and launcher. Nothing else to chase.",
-    icon: <DownloadIcon className="size-4" />,
-  },
-  {
-    title: "Ladder live",
-    description: "Players and guilds already have a place on the board.",
-    icon: <TrophyIcon className="size-4" />,
-  },
-  {
-    title: "Account ready",
-    description: "Register, sign in or recover from the same portal.",
-    icon: <ShieldCheckIcon className="size-4" />,
-  },
-] as const;
 
 const quickRoutes = [
   {
@@ -64,73 +38,47 @@ const quickRoutes = [
   },
 ] as const;
 
-const portalLoop = [
-  {
-    title: "Download",
-    description: "Grab the client.",
-    icon: <SparklesIcon className="size-4 text-violet-300" />,
-  },
-  {
-    title: "Enter",
-    description: "Patch and log in.",
-    icon: <ShieldCheckIcon className="size-4 text-violet-300" />,
-  },
-  {
-    title: "Climb",
-    description: "Come back for the ladder.",
-    icon: <SwordsIcon className="size-4 text-violet-300" />,
-  },
-] as const;
-
 export default function Home() {
   return (
     <SitePageShell>
       <CmsPageHeader
-        eyebrow="Enter the shard"
-        title="Patch up. Enter the server. Start climbing."
-        description="Download the launcher, create your account and jump into the ladder from one clear server hub."
-        actions={
+        title={
           <>
-            <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-              <Link href="/downloads">
-                Download starter pack
-                <DownloadIcon className="size-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
-            >
-              <Link href="/register">Create account</Link>
-            </Button>
+            <span className="block">Enter the server.</span>
+            <span className="block">Start climbing.</span>
           </>
         }
+        description="Download the launcher, create your account and jump into the ladder from one clear server hub."
       >
+        <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row">
+          <Link
+            href="/downloads"
+            className="group inline-flex items-center justify-between gap-4 rounded-2xl border border-white/12 bg-white/[0.08] px-4 py-3 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.12]"
+          >
+            <span className="flex items-center gap-3">
+              <DownloadIcon className="size-4 text-zinc-200" />
+              Download starter pack
+            </span>
+            <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+
+          <Link
+            href="/register"
+            className="group inline-flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium text-zinc-100 transition hover:border-white/20 hover:bg-white/[0.06]"
+          >
+            <span className="flex items-center gap-3">
+              <UserRoundPlusIcon className="size-4 text-zinc-300" />
+              Create account
+            </span>
+            <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Auto-updating launcher</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player + guild rankings</div>
       </CmsPageHeader>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        {hubHighlights.map((highlight) => (
-          <Card
-            key={highlight.title}
-            className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
-          >
-            <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                {highlight.icon}
-              </div>
-              <div className="space-y-2">
-                <CardTitle className="text-xl text-white">{highlight.title}</CardTitle>
-                <CardDescription className="text-sm leading-6 text-zinc-400">{highlight.description}</CardDescription>
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
 
       <PublicSection eyebrow="Start here" title="The routes that matter" description="Four routes. No filler.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -158,20 +106,6 @@ export default function Home() {
                 </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Server loop" title="Download. Enter. Climb.">
-        <div className="grid gap-4 md:grid-cols-3">
-          {portalLoop.map((item) => (
-            <div key={item.title} className="rounded-[28px] border border-white/10 bg-black/20 px-5 py-5">
-              <div className="flex items-center gap-2 text-white">
-                {item.icon}
-                <span className="font-medium">{item.title}</span>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">{item.description}</p>
-            </div>
           ))}
         </div>
       </PublicSection>

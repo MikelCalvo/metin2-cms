@@ -10,7 +10,7 @@ import { SiteFooter } from "@/components/cms/site-footer";
 import { SiteHeader } from "@/components/cms/site-header";
 
 describe("site chrome", () => {
-  it("renders player-facing header actions and a minimal footer", () => {
+  it("renders player-facing header actions and a footer that mirrors the active nav state", () => {
     const headerHtml = renderToStaticMarkup(createElement(SiteHeader));
     const footerHtml = renderToStaticMarkup(createElement(SiteFooter));
 
@@ -23,6 +23,8 @@ describe("site chrome", () => {
 
     expect(footerHtml).toContain("Windows · Linux");
     expect(footerHtml).toContain('href="/login"');
+    expect(footerHtml).toContain('aria-current="page"');
+    expect(footerHtml).toContain("border-violet-400/30 bg-violet-500/10 text-violet-100");
     expect(footerHtml).not.toContain("Launcher, account, rankings.");
     expect(footerHtml).not.toContain("Download. Patch. Climb.");
     expect(footerHtml).not.toContain("Windows · Wine · Ladders · Launcher updates.");
