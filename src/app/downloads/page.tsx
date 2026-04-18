@@ -5,7 +5,9 @@ import {
   DownloadIcon,
   HardDriveDownloadIcon,
   MonitorIcon,
-  SparklesIcon,
+  ShieldCheckIcon,
+  TrophyIcon,
+  UserRoundPlusIcon,
 } from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
@@ -15,43 +17,67 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicEnv } from "@/lib/env";
 
-const packageHighlights = [
+const starterPackBenefits = [
   {
     title: "Launcher included",
-    description: "The starter pack already includes the launcher and the base client in one clear download.",
+    description: "The starter pack already includes the launcher and the base client in one player-friendly download.",
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Official Windows support",
-    description: "Windows is the main path and the easiest way to get from download to first login.",
+    title: "Windows first",
+    description: "Official Windows support is the default path from the first click to the first login.",
     icon: <MonitorIcon className="size-4" />,
   },
   {
-    title: "Linux via Wine",
-    description: "Linux players can stay on the same package instead of looking for a split build.",
-    icon: <SparklesIcon className="size-4" />,
+    title: "Resume-friendly",
+    description: "If the connection drops, the protected download path still supports resuming the file.",
+    icon: <HardDriveDownloadIcon className="size-4" />,
   },
 ] as const;
 
-const installSteps = [
+const launchSteps = [
   {
     title: "Download the starter pack",
-    description: "Use the main button below and save the package locally.",
+    description: "Grab the main package and keep it locally for the first install.",
   },
   {
-    title: "Open the launcher",
-    description: "Run it once and let it pull the latest game files before logging in.",
+    title: "Run the launcher once",
+    description: "Let it pull the latest live files before your first sign-in.",
   },
   {
-    title: "Sign in and play",
+    title: "Log in and play",
     description: "Use the same account from the portal and enter the server.",
   },
 ] as const;
 
 const quickNotes = [
-  "You can resume the download if your connection drops.",
   "The launcher auto-updates the game after install.",
+  "Linux players can stay on the same package through Wine.",
   "SHA256 is available if you want to verify the file manually.",
+] as const;
+
+const nextRoutes = [
+  {
+    title: "Create account",
+    description: "Set up your login before the first launch.",
+    href: "/register",
+    label: "Create account",
+    icon: <UserRoundPlusIcon className="size-4" />,
+  },
+  {
+    title: "First launch guide",
+    description: "See the short path from download to first successful session.",
+    href: "/getting-started",
+    label: "Open getting started",
+    icon: <ArrowRightIcon className="size-4" />,
+  },
+  {
+    title: "Live rankings",
+    description: "Check the ladder before or after you jump in.",
+    href: "/rankings",
+    label: "View rankings",
+    icon: <TrophyIcon className="size-4" />,
+  },
 ] as const;
 
 export default function DownloadsPage() {
@@ -64,8 +90,8 @@ export default function DownloadsPage() {
     <SitePageShell>
       <CmsPageHeader
         eyebrow="Downloads"
-        title="Download, install and play."
-        description="One starter pack, one launcher and one clean route into the server. Official Windows support is the main path, Linux via Wine stays supported, and a launcher that auto-updates the game after install keeps the client current."
+        title="One download between you and the server."
+        description="Grab the starter pack, open the launcher, let it patch, then step into the live world."
         actions={
           <>
             {hasStarterPackDownload ? (
@@ -89,7 +115,7 @@ export default function DownloadsPage() {
               className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
             >
               <Link href={hasStarterPackDownload ? "/downloads/client/checksum" : "/getting-started"}>
-                {hasStarterPackDownload ? "SHA256 checksum" : "Open getting started"}
+                {hasStarterPackDownload ? "Verify SHA256" : "Open getting started"}
               </Link>
             </Button>
           </>
@@ -102,33 +128,33 @@ export default function DownloadsPage() {
       </CmsPageHeader>
 
       <PublicSection
-        eyebrow="Ready to install?"
-        title={hasStarterPackDownload ? "Everything you need for the first launch" : "The download will appear here"}
+        eyebrow="Ready to launch?"
+        title={hasStarterPackDownload ? "Your launcher path starts here" : "The client will appear here"}
         description={
           hasStarterPackDownload
-            ? "Simple and player-facing: download the pack, open the launcher, let it update and get in-game."
+            ? "Clean, short and player-facing: download the pack, let the launcher sync and move on to the actual game."
             : "The layout is ready. As soon as the starter pack is configured, the main download button will go live here."
         }
-        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)]"
+        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
       >
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Starter pack</CardTitle>
+            <CardTitle className="text-xl text-white">Metin2 starter pack</CardTitle>
             <CardDescription className="text-sm leading-6 text-zinc-400">
-              No mirror maze, no split packages, no GitHub-style release wall. Just the download most players want.
+              One clear download, no split packages and no unnecessary detours. Just the starter pack players expect when they are ready to start.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-zinc-300">
             <div className="grid gap-3 md:grid-cols-3">
-              {packageHighlights.map((highlight) => (
-                <div key={highlight.title} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+              {starterPackBenefits.map((benefit) => (
+                <div key={benefit.title} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
                   <div className="flex items-center gap-2 text-white">
                     <span className="flex size-8 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                      {highlight.icon}
+                      {benefit.icon}
                     </span>
-                    <span className="font-medium">{highlight.title}</span>
+                    <span className="font-medium">{benefit.title}</span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">{highlight.description}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-400">{benefit.description}</p>
                 </div>
               ))}
             </div>
@@ -154,10 +180,10 @@ export default function DownloadsPage() {
                 <div className="rounded-[24px] border border-white/10 bg-[#07080d] px-4 py-4">
                   <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">SHA256 checksum</p>
                   <p className="mt-3 break-all font-mono text-sm text-zinc-200">
-                    {starterPackChecksum || "If you like to verify downloads manually, use the checksum file button above."}
+                    {starterPackChecksum || "Use the checksum button above if you want to verify the package manually before launch."}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-zinc-500">
-                    Optional, but useful if you want extra peace of mind before the first launch.
+                    Optional, but useful if you want one extra trust check before opening the launcher.
                   </p>
                 </div>
               </div>
@@ -171,38 +197,52 @@ export default function DownloadsPage() {
 
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Quick install</CardTitle>
+            <CardTitle className="text-xl text-white">Before you click</CardTitle>
             <CardDescription className="text-sm leading-6 text-zinc-400">
-              The short version players actually need before the first session.
+              The short version players want before the first launch.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-zinc-300">
-            {installSteps.map((step, index) => (
-              <div key={step.title} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                <div className="flex items-center gap-3 text-white">
-                  <div className="flex size-8 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-sm font-semibold text-violet-200">
-                    {index + 1}
-                  </div>
-                  <span className="font-medium">{step.title}</span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">{step.description}</p>
-              </div>
-            ))}
-
-            <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-              <div className="flex items-center gap-2 text-white">
-                <HardDriveDownloadIcon className="size-4 text-violet-300" />
-                <span className="font-medium">Good to know</span>
-              </div>
-              <div className="mt-3 space-y-2">
+            {hasStarterPackDownload ? (
+              <>
                 {quickNotes.map((note) => (
-                  <div key={note} className="flex items-start gap-2 text-zinc-400">
+                  <div key={note} className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
                     <CheckCircle2Icon className="mt-1 size-4 shrink-0 text-violet-300" />
                     <p>{note}</p>
                   </div>
                 ))}
-              </div>
-            </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                  <div className="flex items-center gap-2 text-white">
+                    <ShieldCheckIcon className="size-4 text-violet-300" />
+                    <span className="font-medium">Good fit for first launch</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-400">
+                    Download once, let the launcher catch up to the live version, then use the same portal for account access and rankings.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                  <CheckCircle2Icon className="mt-1 size-4 shrink-0 text-violet-300" />
+                  <p>The install flow page is already ready, even if the file is not published yet.</p>
+                </div>
+                <div className="flex items-start gap-3 rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                  <CheckCircle2Icon className="mt-1 size-4 shrink-0 text-violet-300" />
+                  <p>Once the package goes live, this page will expose the real download and checksum actions automatically.</p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                  <div className="flex items-center gap-2 text-white">
+                    <ShieldCheckIcon className="size-4 text-violet-300" />
+                    <span className="font-medium">Need a route right now?</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-400">
+                    Use the getting-started flow while the package is being prepared for publication.
+                  </p>
+                </div>
+              </>
+            )}
 
             <Button
               asChild
@@ -216,6 +256,62 @@ export default function DownloadsPage() {
             </Button>
           </CardContent>
         </Card>
+      </PublicSection>
+
+      <PublicSection
+        eyebrow="After the download"
+        title="What players usually do next"
+        description="Keep the path short: prepare the account, finish the first launch, then check the ladder."
+      >
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
+          <div className="grid gap-4 md:grid-cols-3">
+            {launchSteps.map((step, index) => (
+              <Card key={step.title} className="border-white/10 bg-black/20 shadow-none">
+                <CardHeader className="space-y-3">
+                  <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-sm font-semibold text-violet-200">
+                    {index + 1}
+                  </div>
+                  <div className="space-y-2">
+                    <CardTitle className="text-lg text-white">{step.title}</CardTitle>
+                    <CardDescription className="text-sm leading-6 text-zinc-400">{step.description}</CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-2">
+              <CardTitle className="text-xl text-white">Open the next route</CardTitle>
+              <CardDescription className="text-sm leading-6 text-zinc-400">
+                If you are not done after the download, these are the other pages players usually need.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {nextRoutes.map((route) => (
+                <div key={route.href} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
+                  <div className="flex items-center gap-2 text-white">
+                    <span className="flex size-8 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                      {route.icon}
+                    </span>
+                    <span className="font-medium">{route.title}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-400">{route.description}</p>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="mt-3 px-0 text-zinc-300 hover:bg-transparent hover:text-white"
+                  >
+                    <Link href={route.href}>
+                      {route.label}
+                      <ArrowRightIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </PublicSection>
     </SitePageShell>
   );

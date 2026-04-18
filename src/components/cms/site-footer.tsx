@@ -7,10 +7,9 @@ export function SiteFooter() {
     <footer className="rounded-[28px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
       <div className="flex flex-col gap-6 px-6 py-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-3">
-          <p className="text-sm font-medium text-white">Official launcher, secure account and live rankings</p>
+          <p className="text-sm font-medium text-white">Launcher, rankings and account access in one place</p>
           <p className="max-w-2xl text-sm leading-6 text-zinc-400">
-            One portal for the whole first-player journey: download the starter pack, patch through
-            the launcher, manage account security and check the live ladders.
+            Download the starter pack, patch up, create or recover your account, then jump back into the server without bouncing across disconnected pages.
           </p>
         </div>
 
@@ -33,7 +32,7 @@ export function SiteFooter() {
             </Link>
           </div>
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-            Official Windows support · Linux via Wine · Launcher auto-updates the client.
+            Official Windows support · Linux via Wine · Live ladders · Launcher auto-updates the client.
           </p>
         </div>
       </div>

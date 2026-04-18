@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRightIcon, DownloadIcon, LogInIcon, ShieldCheckIcon } from "lucide-react";
+import { ArrowRightIcon, DownloadIcon, ShieldCheckIcon, UserRoundPlusIcon } from "lucide-react";
 
 import { SiteNav } from "@/components/cms/site-nav";
 import { Badge } from "@/components/ui/badge";
@@ -18,14 +18,14 @@ export function SiteHeader() {
               Launcher-ready
             </Badge>
             <Badge variant="secondary" className="border border-violet-400/20 bg-violet-500/10 text-violet-200">
-              Windows + Wine
+              Live ladders
             </Badge>
           </div>
 
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
               <ShieldCheckIcon className="size-4 text-violet-300" />
-              <span>Official Windows support, Linux via Wine and a launcher that keeps the client updated.</span>
+              <span>Download the client, patch fast, recover access if needed and keep up with rankings from one server hub.</span>
             </div>
             <SiteNav />
           </div>
@@ -44,12 +44,16 @@ export function SiteHeader() {
           </Button>
 
           <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-            <Link href="/login">
-              <LogInIcon className="size-4" />
-              Sign in
+            <Link href="/register">
+              <UserRoundPlusIcon className="size-4" />
+              Create account
               <ArrowRightIcon className="size-4" />
             </Link>
           </Button>
+
+          <Link href="/login" className="text-sm text-zinc-400 transition-colors hover:text-white">
+            Already have an account? Sign in
+          </Link>
         </div>
       </div>
     </header>

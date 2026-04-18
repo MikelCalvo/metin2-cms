@@ -2,11 +2,11 @@ import Link from "next/link";
 import {
   ArrowRightIcon,
   DownloadIcon,
-  HardDriveDownloadIcon,
   ShieldCheckIcon,
   SparklesIcon,
   SwordsIcon,
   TrophyIcon,
+  UserRoundPlusIcon,
 } from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
@@ -15,69 +15,69 @@ import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const homeHighlights = [
+const hubHighlights = [
   {
-    title: "Launcher-ready install",
-    description: "Download once, open the launcher and let it handle the first patch before you log in.",
+    title: "One clean way in",
+    description: "Download the starter pack, let the launcher patch, then jump into the server without bouncing across old pages.",
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Official Windows support",
-    description: "Windows is the main path from the first click, with the starter pack and launcher already lined up.",
-    icon: <HardDriveDownloadIcon className="size-4" />,
+    title: "Live competitive loop",
+    description: "Rankings already connect the site to actual player and guild activity, so the portal feels alive instead of static.",
+    icon: <TrophyIcon className="size-4" />,
   },
   {
-    title: "Linux via Wine",
-    description: "Linux players stay on the same route instead of hunting for a separate community package.",
-    icon: <SparklesIcon className="size-4" />,
+    title: "Account + recovery",
+    description: "Registration, sign-in and recovery stay in the same player-facing portal when someone needs help getting back in.",
+    icon: <ShieldCheckIcon className="size-4" />,
   },
 ] as const;
 
-const quickActions = [
+const quickRoutes = [
   {
-    title: "Download",
-    description: "Grab the starter pack and get the launcher in the same download.",
+    title: "Play now",
+    description: "Go straight to the starter pack and launcher path players actually need.",
     href: "/downloads",
     label: "Open downloads",
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "Create account",
-    description: "Register now so your first login is ready when the launcher finishes.",
+    title: "Create your account",
+    description: "Get your login ready before the launcher finishes syncing the client.",
     href: "/register",
     label: "Create account",
-    icon: <ShieldCheckIcon className="size-4" />,
+    icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
-    title: "First launch",
-    description: "See the shortest path from install to entering the server.",
+    title: "First launch guide",
+    description: "Follow the short route from first click to first successful login.",
     href: "/getting-started",
-    label: "View first-login guide",
+    label: "View getting started",
     icon: <ArrowRightIcon className="size-4" />,
   },
   {
-    title: "Live rankings",
-    description: "Check the ladders before you jump in or after the grind session ends.",
+    title: "See who is leading",
+    description: "Check the live ladders before you log in or after a long grind session.",
     href: "/rankings",
     label: "View rankings",
     icon: <TrophyIcon className="size-4" />,
   },
 ] as const;
 
-const homeLoop = [
+const portalLoop = [
   {
-    title: "Download and patch",
-    description: "One launcher-first entrypoint instead of scattered mirrors and old-school hand-holding.",
-    icon: <DownloadIcon className="size-4 text-violet-300" />,
+    title: "Start fast",
+    description: "Short copy, obvious CTAs and one clear path from download to first login.",
+    icon: <SparklesIcon className="size-4 text-violet-300" />,
   },
   {
-    title: "Secure account hub",
-    description: "Register, recover and manage your access from the same player-facing portal.",
+    title: "Stay connected",
+    description: "Downloads, recovery and rankings live together so the site stays useful after day one.",
     icon: <ShieldCheckIcon className="size-4 text-violet-300" />,
   },
   {
-    title: "Competitive loop",
-    description: "Live ladders keep the site connected to the actual server instead of feeling like a dead landing page.",
+    title: "Keep climbing",
+    description: "The portal is built around the real Metin2 loop: enter, compete, recover fast if needed, repeat.",
     icon: <SwordsIcon className="size-4 text-violet-300" />,
   },
 ] as const;
@@ -87,8 +87,8 @@ export default function Home() {
     <SitePageShell>
       <CmsPageHeader
         eyebrow="Enter the shard"
-        title="Patch, login and get into the fight."
-        description="This home is the game-facing front door: one starter pack with an auto-updating launcher, official Windows support, Linux via Wine and the key player routes right where people expect them."
+        title="Patch up. Enter the server. Start climbing."
+        description="This is the main game-facing hub: download the launcher, create your account, recover access if needed and jump into the live rankings with the main player routes kept in one clear place."
         actions={
           <>
             <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
@@ -110,11 +110,11 @@ export default function Home() {
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Auto-updating launcher</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player rankings</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player + guild rankings</div>
       </CmsPageHeader>
 
       <section className="grid gap-4 md:grid-cols-3">
-        {homeHighlights.map((highlight) => (
+        {hubHighlights.map((highlight) => (
           <Card
             key={highlight.title}
             className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
@@ -125,9 +125,7 @@ export default function Home() {
               </div>
               <div className="space-y-2">
                 <CardTitle className="text-xl text-white">{highlight.title}</CardTitle>
-                <CardDescription className="text-sm leading-6 text-zinc-400">
-                  {highlight.description}
-                </CardDescription>
+                <CardDescription className="text-sm leading-6 text-zinc-400">{highlight.description}</CardDescription>
               </div>
             </CardHeader>
           </Card>
@@ -136,21 +134,19 @@ export default function Home() {
 
       <PublicSection
         eyebrow="Start here"
-        title="Everything important before the first session"
-        description="Less reading, less scrolling, more obvious next steps."
+        title="The routes players actually use"
+        description="Everything important is one click away: no documentation maze, no dead-end splash pages."
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {quickActions.map((action) => (
-            <Card key={action.href} className="border-white/10 bg-black/20 shadow-none">
+          {quickRoutes.map((route) => (
+            <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
               <CardHeader className="space-y-3">
                 <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                  {action.icon}
+                  {route.icon}
                 </div>
                 <div className="space-y-2">
-                  <CardTitle className="text-lg text-white">{action.title}</CardTitle>
-                  <CardDescription className="text-sm leading-6 text-zinc-400">
-                    {action.description}
-                  </CardDescription>
+                  <CardTitle className="text-lg text-white">{route.title}</CardTitle>
+                  <CardDescription className="text-sm leading-6 text-zinc-400">{route.description}</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -159,8 +155,8 @@ export default function Home() {
                   variant="ghost"
                   className="px-0 text-zinc-300 hover:bg-transparent hover:text-white"
                 >
-                  <Link href={action.href}>
-                    {action.label}
+                  <Link href={route.href}>
+                    {route.label}
                     <ArrowRightIcon className="size-4" />
                   </Link>
                 </Button>
@@ -170,17 +166,23 @@ export default function Home() {
         </div>
       </PublicSection>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {homeLoop.map((item) => (
-          <div key={item.title} className="rounded-[28px] border border-white/10 bg-black/20 px-5 py-5">
-            <div className="flex items-center gap-2 text-white">
-              {item.icon}
-              <span className="font-medium">{item.title}</span>
+      <PublicSection
+        eyebrow="Server loop"
+        title="Built around the real Metin2 routine"
+        description="Get people in fast, keep trust high, and make the site feel connected to the server every day."
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {portalLoop.map((item) => (
+            <div key={item.title} className="rounded-[28px] border border-white/10 bg-black/20 px-5 py-5">
+              <div className="flex items-center gap-2 text-white">
+                {item.icon}
+                <span className="font-medium">{item.title}</span>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">{item.description}</p>
             </div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">{item.description}</p>
-          </div>
-        ))}
-      </section>
+          ))}
+        </div>
+      </PublicSection>
     </SitePageShell>
   );
 }
