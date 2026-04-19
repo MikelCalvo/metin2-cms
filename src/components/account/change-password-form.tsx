@@ -9,7 +9,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { emptyAccountPasswordChangeActionState } from "@/server/account/account-settings-types";
 
 export function ChangePasswordForm() {
@@ -21,14 +20,13 @@ export function ChangePasswordForm() {
   return (
     <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
       <CardHeader className="space-y-2">
-        <CardTitle className="text-lg text-white">Password & recovery</CardTitle>
+        <CardTitle className="text-lg text-white">Password</CardTitle>
         <CardDescription className="text-zinc-400">
-          Rotate the legacy-compatible password used by the website and the game. Other active
-          sessions are revoked after a successful update.
+          Changing it closes the other sessions.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-5">
+        <form action={formAction} className="space-y-4">
           {state.message ? (
             <Alert
               variant={state.status === "error" ? "destructive" : "default"}
@@ -105,11 +103,9 @@ export function ChangePasswordForm() {
             </div>
           </div>
 
-          <Separator className="bg-white/8" />
-
           <AuthSubmitButton
-            idleLabel="Update password"
-            pendingLabel="Updating password..."
+            idleLabel="Save password"
+            pendingLabel="Saving password..."
             className="bg-violet-500 text-white hover:bg-violet-400"
           />
         </form>

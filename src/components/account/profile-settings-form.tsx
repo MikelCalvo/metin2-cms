@@ -10,7 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { emptyAccountProfileActionState } from "@/server/account/account-settings-types";
 
 type ProfileSettingsFormProps = {
@@ -38,26 +37,22 @@ export function ProfileSettingsForm({
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardTitle className="text-lg text-white">Profile settings</CardTitle>
+            <CardTitle className="text-lg text-white">Profile</CardTitle>
             <CardDescription className="text-zinc-400">
-              Manage the contact and recovery details that power sign-in across the portal and the legacy game account.
+              Email and delete code.
             </CardDescription>
           </div>
           <StatusChip tone={status === "OK" ? "success" : "attention"}>{status}</StatusChip>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Login</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{login}</p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Delete code</p>
-            <p className="mt-1 text-sm font-medium text-zinc-100">{resolvedSocialId || "—"}</p>
-          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-5">
+        <form action={formAction} className="space-y-4">
           {state.message ? (
             <Alert
               variant={state.status === "error" ? "destructive" : "default"}
@@ -107,19 +102,14 @@ export function ProfileSettingsForm({
               defaultValue={resolvedSocialId}
               className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
             />
-            <p className="text-xs text-zinc-500">
-              Legacy-compatible delete code stored in the live account table and kept editable from the player hub.
-            </p>
             {state.fieldErrors?.socialId?.[0] ? (
               <p className="text-xs text-red-300">{state.fieldErrors.socialId[0]}</p>
             ) : null}
           </div>
 
-          <Separator className="bg-white/8" />
-
           <AuthSubmitButton
-            idleLabel="Save profile"
-            pendingLabel="Saving profile..."
+            idleLabel="Save changes"
+            pendingLabel="Saving..."
             className="bg-violet-500 text-white hover:bg-violet-400"
           />
         </form>

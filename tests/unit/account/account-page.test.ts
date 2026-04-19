@@ -68,7 +68,7 @@ describe("account page", () => {
     vi.clearAllMocks();
   });
 
-  it("renders separated player-hub sections for profile, wallet, security and activity", async () => {
+  it("renders a simplified authenticated account layout without filler support cards", async () => {
     getCurrentAuthenticatedAccountMock.mockResolvedValue({
       account: {
         id: 7,
@@ -126,12 +126,17 @@ describe("account page", () => {
 
     const html = renderToStaticMarkup(await AccountPage());
 
-    expect(html).toContain("Profile and recovery");
-    expect(html).toContain("Wallet and legacy account state");
-    expect(html).toContain("Security and signed-in devices");
-    expect(html).toContain("Open downloads");
-    expect(html).toContain("View rankings");
-    expect(html).toContain("Open recovery");
-    expect(html).not.toContain("First-session guide");
+    expect(html).toContain("Account details");
+    expect(html).toContain("Game account");
+    expect(html).toContain("Security");
+    expect(html).toContain("Recent activity");
+    expect(html).toContain("Downloads");
+    expect(html).toContain("Rankings");
+    expect(html).toContain("Sign out");
+    expect(html).not.toContain("Quick access");
+    expect(html).not.toContain("Open recovery");
+    expect(html).not.toContain("Launcher-ready access");
+    expect(html).not.toContain("Security posture");
+    expect(html).not.toContain("What gets logged");
   });
 });
