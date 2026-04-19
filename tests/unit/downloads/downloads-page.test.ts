@@ -16,7 +16,7 @@ describe("downloads page", () => {
     getPublicEnvMock.mockReset();
   });
 
-  it("renders a player-friendly download surface with checksum actions when configured", async () => {
+  it("renders a trimmed next-step block with only the useful follow-up routes", async () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
       STARTER_PACK_SHA256: "abc123",
@@ -29,12 +29,23 @@ describe("downloads page", () => {
     expect(html).toContain("One download between you and the server.");
     expect(html).toContain("Download launcher");
     expect(html).toContain("Resume-friendly");
-    expect(html).toContain("What players usually do next");
-    expect(html).toContain("Other useful pages");
-    expect(launchStepCards).toHaveLength(3);
+    expect(html).toContain("If you are not done after the download, these are the other pages players usually open next.");
     expect(nextRouteRows).toHaveLength(3);
+    expect(launchStepCards).toHaveLength(0);
+    expect(html).toContain("Create account");
+    expect(html).toContain("Set up your login first.");
+    expect(html).toContain("First launch guide");
+    expect(html).toContain("Shortest path to first login.");
+    expect(html).toContain("Live rankings");
+    expect(html).toContain("Check players and guilds.");
     expect(html).toContain('href="/downloads/client"');
     expect(html).toContain('href="/downloads/client/checksum"');
+    expect(html).toContain('href="/register"');
+    expect(html).toContain('href="/getting-started"');
+    expect(html).toContain('href="/rankings"');
+    expect(html).not.toContain("What players usually do next");
+    expect(html).not.toContain("Account. First login. Ladder.");
+    expect(html).not.toContain("Other useful pages");
     expect(html).not.toContain("Ready to launch?");
     expect(html).not.toContain("Your launcher path starts here");
     expect(html).not.toContain("Open the next route");

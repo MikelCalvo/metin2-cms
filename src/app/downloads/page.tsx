@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
-import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,21 +31,6 @@ const starterPackBenefits = [
     title: "Resume-friendly",
     description: "Resume works if the connection drops.",
     icon: <HardDriveDownloadIcon className="size-4" />,
-  },
-] as const;
-
-const launchSteps = [
-  {
-    title: "Download the launcher",
-    description: "Grab the launcher package for the first install.",
-  },
-  {
-    title: "Run the launcher once",
-    description: "Let it pull the latest live files before your first sign-in.",
-  },
-  {
-    title: "Log in and play",
-    description: "Use the same account from the portal and enter the server.",
   },
 ] as const;
 
@@ -253,64 +237,33 @@ export default function DownloadsPage() {
         </Card>
       </section>
 
-      <PublicSection eyebrow="Next" title="What players usually do next" description="Account. First login. Ladder.">
-        <div className="grid gap-4 xl:items-start xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-          <Card className="border-white/10 bg-black/20 shadow-none">
-            <CardContent className="grid gap-3 px-4 py-4 md:grid-cols-3">
-              {launchSteps.map((step, index) => (
-                <div
-                  key={step.title}
-                  data-slot="launch-step"
-                  className="rounded-[24px] border border-white/10 bg-white/5 px-4 py-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[0.72rem] font-medium tracking-[0.16em] text-violet-100">
-                      0{index + 1}
-                    </span>
-                    {index < launchSteps.length - 1 ? (
-                      <ArrowRightIcon className="hidden size-4 text-zinc-500 md:block" />
-                    ) : null}
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="text-base font-medium text-white">{step.title}</div>
-                    <p className="text-sm leading-6 text-zinc-400">{step.description}</p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+      <Card className="border-white/10 bg-black/20 shadow-none">
+        <CardContent className="space-y-3 px-4 py-4">
+          <p className="text-sm leading-6 text-zinc-400">
+            If you are not done after the download, these are the other pages players usually open next.
+          </p>
 
-          <Card className="border-white/10 bg-black/20 shadow-none">
-            <CardHeader className="space-y-2">
-              <CardTitle className="text-xl text-white">Other useful pages</CardTitle>
-              <CardDescription className="text-sm leading-6 text-zinc-400">
-                If you are not done after the download, these are the other pages players usually open next.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {nextRoutes.map((route) => (
-                <Link
-                  key={route.href}
-                  href={route.href}
-                  data-slot="next-route"
-                  className="group flex items-center gap-4 rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-left transition duration-200 hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
-                >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200 transition-colors group-hover:border-violet-300/30 group-hover:bg-violet-500/20 group-hover:text-violet-100">
-                    {route.icon}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-medium text-white">{route.title}</span>
-                    <span className="block text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">
-                      {route.description}
-                    </span>
-                  </span>
-                  <ArrowRightIcon className="size-4 shrink-0 text-zinc-500 transition-transform group-hover:translate-x-1 group-hover:text-white" />
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      </PublicSection>
+          {nextRoutes.map((route) => (
+            <Link
+              key={route.href}
+              href={route.href}
+              data-slot="next-route"
+              className="group flex items-center gap-4 rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-left transition duration-200 hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200 transition-colors group-hover:border-violet-300/30 group-hover:bg-violet-500/20 group-hover:text-violet-100">
+                {route.icon}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium text-white">{route.title}</span>
+                <span className="block text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">
+                  {route.description}
+                </span>
+              </span>
+              <ArrowRightIcon className="size-4 shrink-0 text-zinc-500 transition-transform group-hover:translate-x-1 group-hover:text-white" />
+            </Link>
+          ))}
+        </CardContent>
+      </Card>
     </SitePageShell>
   );
 }
