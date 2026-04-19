@@ -16,7 +16,7 @@ describe("downloads page", () => {
     getPublicEnvMock.mockReset();
   });
 
-  it("renders large hero download actions and removes the redundant launcher detail cards", async () => {
+  it("renders the launcher CTA plus an inline checksum copy block when the starter pack is configured", async () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
       STARTER_PACK_SHA256: "abc123",
@@ -32,7 +32,7 @@ describe("downloads page", () => {
     expect(html).toContain("Download launcher");
     expect(html).toContain("Resume-friendly");
     expect(primaryActionGroups).toHaveLength(1);
-    expect(largeButtons).toHaveLength(2);
+    expect(largeButtons).toHaveLength(1);
     expect(html).toContain("h-12 justify-between rounded-2xl");
     expect(html).toContain("If you are not done after the download, these are the other pages players usually open next.");
     expect(nextRouteRows).toHaveLength(3);
@@ -44,11 +44,16 @@ describe("downloads page", () => {
     expect(html).toContain("Live rankings");
     expect(html).toContain("Check players and guilds.");
     expect(html).toContain('href="/downloads/client"');
-    expect(html).toContain('href="/downloads/client/checksum"');
+    expect(html).toContain("SHA256");
+    expect(html).toContain("abc123");
+    expect(html).toContain('data-slot="downloads-inline-checksum"');
+    expect(html).toContain('aria-label="Copy SHA256 checksum"');
     expect(html).toContain('href="/register"');
     expect(html).toContain('href="/login"');
     expect(html).toContain('href="/rankings"');
+    expect(html).not.toContain('href="/downloads/client/checksum"');
     expect(html).not.toContain('href="/getting-started"');
+    expect(html).not.toContain("Verify SHA256");
     expect(html).not.toContain("Launcher download");
     expect(html).not.toContain("Launcher package, base client and checksum in one place.");
     expect(html).not.toContain("Quick launch");

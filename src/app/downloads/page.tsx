@@ -8,6 +8,7 @@ import {
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { SitePageShell } from "@/components/cms/site-page-shell";
+import { DownloadChecksumCopyButton } from "@/components/downloads/checksum-copy-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getPublicEnv } from "@/lib/env";
@@ -39,6 +40,7 @@ const nextRoutes = [
 export default function DownloadsPage() {
   const publicEnv = getPublicEnv();
   const starterPackUrl = publicEnv.STARTER_PACK_URL;
+  const starterPackChecksum = publicEnv.STARTER_PACK_SHA256;
   const hasStarterPackDownload = Boolean(starterPackUrl);
 
   return (
@@ -72,23 +74,28 @@ export default function DownloadsPage() {
               </Link>
             </Button>
           )}
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="h-12 justify-between rounded-2xl border-white/10 bg-white/5 px-5 text-base text-zinc-100 hover:bg-white/10 sm:min-w-[220px]"
-          >
-            <Link href={hasStarterPackDownload ? "/downloads/client/checksum" : "/login"}>
-              {hasStarterPackDownload ? "Verify SHA256" : "Sign in"}
-              <ArrowRightIcon className="size-4" />
-            </Link>
-          </Button>
+          {!hasStarterPackDownload ? (
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 justify-between rounded-2xl border-white/10 bg-white/5 px-5 text-base text-zinc-100 hover:bg-white/10 sm:min-w-[220px]"
+            >
+              <Link href="/login">
+                Sign in
+                <ArrowRightIcon className="size-4" />
+              </Link>
+            </Button>
+          ) : null}
         </div>
 
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Base client included</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Resume-friendly download</div>
+        {hasStarterPackDownload && starterPackChecksum ? (
+          <DownloadChecksumCopyButton checksum={starterPackChecksum} />
+        ) : null}
       </CmsPageHeader>
 
       <Card className="border-white/10 bg-black/20 shadow-none">
