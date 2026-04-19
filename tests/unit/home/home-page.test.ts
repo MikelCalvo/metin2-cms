@@ -11,9 +11,10 @@ describe("home page", () => {
     expect(html).toContain("Start climbing.");
     expect(html).toContain("The routes that matter");
     expect(html).toContain("Four routes. No filler.");
-    expect(html).toContain("Download starter pack");
+    expect(html).toContain("Download launcher");
     expect(html).toContain("Create account");
     expect(html).toContain('href="/downloads"');
+    expect(html).not.toContain("Download starter pack");
     expect(html).toContain('href="/register"');
     expect(html).toContain('href="/rankings"');
     expect(html).not.toContain("Enter the shard");

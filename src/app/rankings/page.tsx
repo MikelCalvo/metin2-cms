@@ -20,7 +20,7 @@ const nextRoutes = [
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
-    title: "Download starter pack",
+    title: "Download launcher",
     description: "Grab the launcher and client.",
     href: "/downloads",
     label: "Open downloads",

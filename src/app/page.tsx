@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 const quickRoutes = [
   {
     title: "Play now",
-    description: "Starter pack + launcher.",
+    description: "Launcher + base client.",
     href: "/downloads",
     label: "Open downloads",
     icon: <DownloadIcon className="size-4" />,
@@ -57,7 +57,7 @@ export default function Home() {
           >
             <span className="flex items-center gap-3">
               <DownloadIcon className="size-4 text-zinc-200" />
-              Download starter pack
+              Download launcher
             </span>
             <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>

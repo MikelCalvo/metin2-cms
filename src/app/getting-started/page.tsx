@@ -24,7 +24,7 @@ const playerSteps = [
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
-    title: "Download the starter pack",
+    title: "Download the launcher",
     description: "Grab the launcher.",
     href: "/downloads",
     icon: <DownloadIcon className="size-4" />,

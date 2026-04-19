@@ -19,7 +19,7 @@ import { getPublicEnv } from "@/lib/env";
 
 const starterPackBenefits = [
   {
-    title: "Launcher included",
+    title: "Base client included",
     description: "Launcher and base client in one download.",
     icon: <DownloadIcon className="size-4" />,
   },
@@ -37,8 +37,8 @@ const starterPackBenefits = [
 
 const launchSteps = [
   {
-    title: "Download the starter pack",
-    description: "Grab the main package and keep it locally for the first install.",
+    title: "Download the launcher",
+    description: "Grab the launcher package for the first install.",
   },
   {
     title: "Run the launcher once",
@@ -91,13 +91,13 @@ export default function DownloadsPage() {
       <CmsPageHeader
         eyebrow="Downloads"
         title="One download between you and the server."
-        description="Download the starter pack, open the launcher, patch, enter."
+        description="Download the launcher, patch, enter."
         actions={
           <>
             {hasStarterPackDownload ? (
               <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
                 <Link href="/downloads/client">
-                  Download starter pack
+                  Download launcher
                   <DownloadIcon className="size-4" />
                 </Link>
               </Button>
@@ -123,25 +123,20 @@ export default function DownloadsPage() {
       >
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Launcher included</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Base client included</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Resume-friendly download</div>
       </CmsPageHeader>
 
-      <PublicSection
-        eyebrow="Ready to launch?"
-        title={hasStarterPackDownload ? "Your launcher path starts here" : "The client will appear here"}
-        description={
-          hasStarterPackDownload
-            ? "One pack. One launcher. One clear start."
-            : "As soon as the pack is configured, the button goes live here."
-        }
-        contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
-      >
+      <section className="grid gap-4 xl:items-start xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
         <Card className="border-white/10 bg-black/20 shadow-none">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-xl text-white">Metin2 starter pack</CardTitle>
+            <CardTitle className="text-xl text-white">
+              {hasStarterPackDownload ? "Launcher download" : "The client will appear here"}
+            </CardTitle>
             <CardDescription className="text-sm leading-6 text-zinc-400">
-              Starter pack, launcher and checksum in one place.
+              {hasStarterPackDownload
+                ? "Launcher package, base client and checksum in one place."
+                : "As soon as the pack is configured, the button goes live here."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-zinc-300">
@@ -164,7 +159,7 @@ export default function DownloadsPage() {
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
                     <Link href="/downloads/client">
-                      Download starter pack
+                      Download launcher
                       <DownloadIcon className="size-4" />
                     </Link>
                   </Button>
@@ -189,7 +184,7 @@ export default function DownloadsPage() {
               </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 px-4 py-4 text-zinc-400">
-                The starter pack is not published yet. Once it is configured, this same page will expose the live download and checksum actions automatically.
+                The launcher package is not published yet. Once it is configured, this same page will expose the live download and checksum actions automatically.
               </div>
             )}
           </CardContent>
@@ -256,54 +251,61 @@ export default function DownloadsPage() {
             </Button>
           </CardContent>
         </Card>
-      </PublicSection>
+      </section>
 
       <PublicSection eyebrow="Next" title="What players usually do next" description="Account. First login. Ladder.">
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
-          <div className="grid gap-4 md:grid-cols-3">
-            {launchSteps.map((step, index) => (
-              <Card key={step.title} className="border-white/10 bg-black/20 shadow-none">
-                <CardHeader className="space-y-3">
-                  <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-sm font-semibold text-violet-200">
-                    {index + 1}
+        <div className="grid gap-4 xl:items-start xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardContent className="grid gap-3 px-4 py-4 md:grid-cols-3">
+              {launchSteps.map((step, index) => (
+                <div
+                  key={step.title}
+                  data-slot="launch-step"
+                  className="rounded-[24px] border border-white/10 bg-white/5 px-4 py-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[0.72rem] font-medium tracking-[0.16em] text-violet-100">
+                      0{index + 1}
+                    </span>
+                    {index < launchSteps.length - 1 ? (
+                      <ArrowRightIcon className="hidden size-4 text-zinc-500 md:block" />
+                    ) : null}
                   </div>
-                  <div className="space-y-2">
-                    <CardTitle className="text-lg text-white">{step.title}</CardTitle>
-                    <CardDescription className="text-sm leading-6 text-zinc-400">{step.description}</CardDescription>
+                  <div className="mt-4 space-y-2">
+                    <div className="text-base font-medium text-white">{step.title}</div>
+                    <p className="text-sm leading-6 text-zinc-400">{step.description}</p>
                   </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
           <Card className="border-white/10 bg-black/20 shadow-none">
             <CardHeader className="space-y-2">
-              <CardTitle className="text-xl text-white">Open the next route</CardTitle>
+              <CardTitle className="text-xl text-white">Other useful pages</CardTitle>
               <CardDescription className="text-sm leading-6 text-zinc-400">
-                If you are not done after the download, these are the other pages players usually need.
+                If you are not done after the download, these are the other pages players usually open next.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {nextRoutes.map((route) => (
-                <div key={route.href} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-4">
-                  <div className="flex items-center gap-2 text-white">
-                    <span className="flex size-8 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                      {route.icon}
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  data-slot="next-route"
+                  className="group flex items-center gap-4 rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-left transition duration-200 hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200 transition-colors group-hover:border-violet-300/30 group-hover:bg-violet-500/20 group-hover:text-violet-100">
+                    {route.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium text-white">{route.title}</span>
+                    <span className="block text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">
+                      {route.description}
                     </span>
-                    <span className="font-medium">{route.title}</span>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">{route.description}</p>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="mt-3 px-0 text-zinc-300 hover:bg-transparent hover:text-white"
-                  >
-                    <Link href={route.href}>
-                      {route.label}
-                      <ArrowRightIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </div>
+                  </span>
+                  <ArrowRightIcon className="size-4 shrink-0 text-zinc-500 transition-transform group-hover:translate-x-1 group-hover:text-white" />
+                </Link>
               ))}
             </CardContent>
           </Card>
