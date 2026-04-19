@@ -21,6 +21,8 @@ describe("site chrome", () => {
     expect(headerCtas).toHaveLength(2);
     expect(headerHtml).toContain('href="/register"');
     expect(headerHtml).toContain('href="/login"');
+    expect(headerHtml).not.toContain("Start playing");
+    expect(headerHtml).not.toContain('href="/getting-started"');
     expect(headerHtml).not.toContain("shadow-violet-950/40");
     expect(headerHtml).not.toContain("text-sm text-zinc-400 transition-colors hover:text-white");
   });

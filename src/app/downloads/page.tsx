@@ -21,10 +21,10 @@ const nextRoutes = [
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
-    title: "First launch guide",
-    description: "Shortest path to first login.",
-    href: "/getting-started",
-    label: "Open getting started",
+    title: "Sign in",
+    description: "Use your account once the launcher is ready.",
+    href: "/login",
+    label: "Sign in",
     icon: <ArrowRightIcon className="size-4" />,
   },
   {
@@ -66,8 +66,8 @@ export default function DownloadsPage() {
               size="lg"
               className="h-12 justify-between rounded-2xl bg-violet-500 px-5 text-base text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400 sm:min-w-[240px]"
             >
-              <Link href="/getting-started">
-                View install flow
+              <Link href="/register">
+                Create account
                 <ArrowRightIcon className="size-4" />
               </Link>
             </Button>
@@ -78,8 +78,8 @@ export default function DownloadsPage() {
             size="lg"
             className="h-12 justify-between rounded-2xl border-white/10 bg-white/5 px-5 text-base text-zinc-100 hover:bg-white/10 sm:min-w-[220px]"
           >
-            <Link href={hasStarterPackDownload ? "/downloads/client/checksum" : "/getting-started"}>
-              {hasStarterPackDownload ? "Verify SHA256" : "Open getting started"}
+            <Link href={hasStarterPackDownload ? "/downloads/client/checksum" : "/login"}>
+              {hasStarterPackDownload ? "Verify SHA256" : "Sign in"}
               <ArrowRightIcon className="size-4" />
             </Link>
           </Button>

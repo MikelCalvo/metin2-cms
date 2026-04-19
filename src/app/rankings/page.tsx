@@ -27,10 +27,10 @@ const nextRoutes = [
     icon: <DownloadIcon className="size-4" />,
   },
   {
-    title: "First launch",
-    description: "Shortest path to first login.",
-    href: "/getting-started",
-    label: "View getting started",
+    title: "Sign in",
+    description: "Use your account and enter.",
+    href: "/login",
+    label: "Sign in",
     icon: <ArrowRightIcon className="size-4" />,
   },
 ] as const;
@@ -144,7 +144,7 @@ export default async function RankingsPage() {
         </>
       )}
 
-      <PublicSection eyebrow="Next" title="Ready to climb?" description="Account. Download. First launch.">
+      <PublicSection eyebrow="Next" title="Ready to climb?" description="Account. Download. Sign in.">
         <div className="grid gap-4 md:grid-cols-3">
           {nextRoutes.map((route) => (
             <Link

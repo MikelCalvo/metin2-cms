@@ -59,6 +59,9 @@ describe("rankings page", () => {
     expect(html).toContain('data-slot="route-card"');
     expect(html).toContain('href="/downloads"');
     expect(html).toContain('href="/register"');
+    expect(html).toContain('href="/login"');
+    expect(html).not.toContain('href="/getting-started"');
+    expect(html).not.toContain("First launch");
     expect(html).not.toContain("The ladder is live.");
     expect(html).not.toContain("Level, EXP and playtime decide the order.");
     expect(html).not.toContain("Ladder points lead the guild board.");

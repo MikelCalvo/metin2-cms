@@ -131,8 +131,8 @@ export default async function AccountPage() {
                   variant="outline"
                   className="w-full justify-between border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                 >
-                  <Link href="/getting-started">
-                    First-session guide
+                  <Link href="/recover">
+                    Open recovery
                     <ArrowRightIcon className="size-4" />
                   </Link>
                 </Button>

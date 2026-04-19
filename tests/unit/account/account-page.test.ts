@@ -131,5 +131,7 @@ describe("account page", () => {
     expect(html).toContain("Security and signed-in devices");
     expect(html).toContain("Open downloads");
     expect(html).toContain("View rankings");
+    expect(html).toContain("Open recovery");
+    expect(html).not.toContain("First-session guide");
   });
 });

@@ -23,13 +23,6 @@ const quickRoutes = [
     icon: <UserRoundPlusIcon className="size-4" />,
   },
   {
-    title: "First launch",
-    description: "Shortest path to first login.",
-    href: "/getting-started",
-    label: "View getting started",
-    icon: <ArrowRightIcon className="size-4" />,
-  },
-  {
     title: "Rankings",
     description: "Check players and guilds.",
     href: "/rankings",
@@ -80,8 +73,8 @@ export default function Home() {
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player + guild rankings</div>
       </CmsPageHeader>
 
-      <PublicSection eyebrow="Start here" title="The routes that matter" description="Four routes. No filler.">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <PublicSection eyebrow="Start here" title="The routes that matter" description="Three routes. No filler.">
+        <div className="grid gap-4 md:grid-cols-3">
           {quickRoutes.map((route) => (
             <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
               <CardHeader className="space-y-3">

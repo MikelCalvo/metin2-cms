@@ -39,15 +39,16 @@ describe("downloads page", () => {
     expect(launchStepCards).toHaveLength(0);
     expect(html).toContain("Create account");
     expect(html).toContain("Set up your login first.");
-    expect(html).toContain("First launch guide");
-    expect(html).toContain("Shortest path to first login.");
+    expect(html).toContain("Sign in");
+    expect(html).toContain("Use your account once the launcher is ready.");
     expect(html).toContain("Live rankings");
     expect(html).toContain("Check players and guilds.");
     expect(html).toContain('href="/downloads/client"');
     expect(html).toContain('href="/downloads/client/checksum"');
     expect(html).toContain('href="/register"');
-    expect(html).toContain('href="/getting-started"');
+    expect(html).toContain('href="/login"');
     expect(html).toContain('href="/rankings"');
+    expect(html).not.toContain('href="/getting-started"');
     expect(html).not.toContain("Launcher download");
     expect(html).not.toContain("Launcher package, base client and checksum in one place.");
     expect(html).not.toContain("Quick launch");
@@ -63,7 +64,7 @@ describe("downloads page", () => {
     expect(html).not.toContain("https://downloads.example.test/releases/starter-pack.zip");
   });
 
-  it("shows the hero fallback actions without the removed detail cards when the starter-pack URL is not configured", async () => {
+  it("shows account-focused fallback actions when the starter-pack URL is not configured", async () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: undefined,
     });
@@ -74,12 +75,12 @@ describe("downloads page", () => {
 
     expect(primaryActionGroups).toHaveLength(1);
     expect(largeButtons).toHaveLength(2);
-    expect(html).toContain("View install flow");
-    expect(html).toContain("Open getting started");
-    expect(html).not.toContain("The client will appear here");
+    expect(html).toContain("Create account");
+    expect(html).toContain("Sign in");
     expect(html).not.toContain("Launcher download");
     expect(html).not.toContain("Quick launch");
     expect(html).not.toContain('href="/downloads/client"');
     expect(html).not.toContain('href="/downloads/client/checksum"');
+    expect(html).not.toContain('href="/getting-started"');
   });
 });
