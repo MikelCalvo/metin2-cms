@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { ArrowRightIcon, DownloadIcon, UserRoundPlusIcon } from "lucide-react";
 
 import { SiteNav } from "@/components/cms/site-nav";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
   return (
@@ -26,26 +24,19 @@ export function SiteHeader() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Button
-            asChild
-            variant="outline"
-            className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+          <Link
+            href="/register"
+            data-slot="header-cta"
+            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
           >
-            <Link href="/downloads">
-              <DownloadIcon className="size-4" />
-              Downloads
-            </Link>
-          </Button>
+            Create account
+          </Link>
 
-          <Button asChild className="bg-violet-500 text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400">
-            <Link href="/register">
-              <UserRoundPlusIcon className="size-4" />
-              Create account
-              <ArrowRightIcon className="size-4" />
-            </Link>
-          </Button>
-
-          <Link href="/login" className="text-sm text-zinc-400 transition-colors hover:text-white">
+          <Link
+            href="/login"
+            data-slot="header-cta"
+            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+          >
             Sign in
           </Link>
         </div>
