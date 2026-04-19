@@ -137,7 +137,7 @@ describe("auth audit service", () => {
       },
     ]);
 
-    expect(listRecentAuthAuditEntriesForAccountMock).toHaveBeenCalledWith(7, 10);
+    expect(listRecentAuthAuditEntriesForAccountMock).toHaveBeenCalledWith(7, 10, 0);
   });
 
   it("clamps the limit and falls back to a generic description for unknown events", async () => {
@@ -166,7 +166,7 @@ describe("auth audit service", () => {
       },
     ]);
 
-    await expect(listRecentAuthActivityForAccount(7, 50)).resolves.toEqual([
+    await expect(listRecentAuthActivityForAccount(7, 50, 5)).resolves.toEqual([
       {
         id: 100,
         eventType: "account.profile_update",
@@ -193,6 +193,6 @@ describe("auth audit service", () => {
       },
     ]);
 
-    expect(listRecentAuthAuditEntriesForAccountMock).toHaveBeenCalledWith(7, 20);
+    expect(listRecentAuthAuditEntriesForAccountMock).toHaveBeenCalledWith(7, 20, 5);
   });
 });

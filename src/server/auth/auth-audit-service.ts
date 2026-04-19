@@ -28,6 +28,10 @@ function normalizeLimit(limit = DEFAULT_ACTIVITY_LIMIT) {
   return Math.min(Math.max(limit, 1), MAX_ACTIVITY_LIMIT);
 }
 
+function normalizeOffset(offset = 0) {
+  return Math.max(offset, 0);
+}
+
 function parseAuditDetail(detail: string | null) {
   const values = new Map<string, string>();
 
@@ -116,10 +120,12 @@ function describeActivity(entry: AuthAuditLogEntry, outcome: string): AuthActivi
 export async function listRecentAuthActivityForAccount(
   accountId: number,
   limit = DEFAULT_ACTIVITY_LIMIT,
+  offset = 0,
 ): Promise<AccountAuthActivityEntry[]> {
   const entries = await listRecentAuthAuditEntriesForAccount(
     accountId,
     normalizeLimit(limit),
+    normalizeOffset(offset),
   );
 
   return entries.map((entry) => {

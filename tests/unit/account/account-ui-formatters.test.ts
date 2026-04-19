@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatAccountEventTimestamp,
+  formatAccountLastPlayTimestamp,
   formatSessionIdentifier,
   summarizeUserAgent,
 } from "@/lib/account-ui-formatters";
@@ -28,6 +29,18 @@ describe("account ui formatters", () => {
     expect(formatAccountEventTimestamp("2026-04-17 23:27:43", now)).toBe(
       "Yesterday · 23:27",
     );
+  });
+
+  it("formats account last-play timestamps into human-friendly relative labels", () => {
+    const now = new Date(2026, 3, 18, 12, 0, 0);
+
+    expect(formatAccountLastPlayTimestamp("2026-04-18 10:00:00", now)).toBe(
+      "2 hours ago",
+    );
+    expect(formatAccountLastPlayTimestamp("2026-04-18 11:57:00", now)).toBe(
+      "Online",
+    );
+    expect(formatAccountLastPlayTimestamp("0000-00-00 00:00:00", now)).toBe("—");
   });
 
   it("shortens long session identifiers for compact cards", () => {

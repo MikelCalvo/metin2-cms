@@ -24,10 +24,13 @@ import { SummaryCard } from "@/components/account/summary-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatAccountLastPlayTimestamp } from "@/lib/account-ui-formatters";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
+
+const ACTIVITY_PAGE_SIZE = 3;
 
 const summaryIcons = {
   "active-sessions": <ShieldIcon className="size-4" />,
@@ -36,16 +39,85 @@ const summaryIcons = {
   "latest-account-change": <SparklesIcon className="size-4" />,
 } as const;
 
-export default async function AccountPage() {
+type AccountPageSearchParams = Record<string, string | string[] | undefined>;
+
+type AccountPageProps = {
+  searchParams?: Promise<AccountPageSearchParams>;
+};
+
+function getSingleSearchParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
+}
+
+function normalizeActivityPage(value: string | undefined) {
+  const parsed = Number.parseInt(value ?? "", 10);
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return parsed;
+}
+
+function buildActivityPageHref(
+  searchParams: AccountPageSearchParams,
+  activityPage: number,
+) {
+  const nextSearchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (key === "activityPage" || typeof value === "undefined") {
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        nextSearchParams.append(key, item);
+      }
+
+      continue;
+    }
+
+    nextSearchParams.set(key, value);
+  }
+
+  if (activityPage > 1) {
+    nextSearchParams.set("activityPage", String(activityPage));
+  }
+
+  const query = nextSearchParams.toString();
+
+  return query ? `/account?${query}` : "/account";
+}
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
   const authenticated = await getCurrentAuthenticatedAccount();
 
   if (!authenticated) {
     redirect("/login");
   }
 
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const activityPage = normalizeActivityPage(
+    getSingleSearchParam(resolvedSearchParams.activityPage),
+  );
+  const activityOffset = (activityPage - 1) * ACTIVITY_PAGE_SIZE;
   const { account, session } = authenticated;
   const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
   const recentAuthActivity = await listRecentAuthActivityForAccount(account.id);
+  const paginatedAuthActivity = await listRecentAuthActivityForAccount(
+    account.id,
+    ACTIVITY_PAGE_SIZE + 1,
+    activityOffset,
+  );
+  const hasNextActivityPage = paginatedAuthActivity.length > ACTIVITY_PAGE_SIZE;
+  const visibleAuthActivity = paginatedAuthActivity.slice(0, ACTIVITY_PAGE_SIZE);
+  const hasPreviousActivityPage = activityPage > 1;
+  const formattedLastPlay = formatAccountLastPlayTimestamp(account.lastPlay);
   const securitySummary = buildAccountSecuritySummary({
     currentSessionId: session.id,
     activeSessions,
@@ -87,7 +159,7 @@ export default async function AccountPage() {
                   {activeSessions.length} active session{activeSessions.length === 1 ? "" : "s"}
                 </div>
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                  Last play: {account.lastPlay}
+                  Last play: {formattedLastPlay}
                 </div>
               </div>
               <div data-slot="account-primary-actions" className="flex flex-wrap gap-3">
@@ -191,7 +263,9 @@ export default async function AccountPage() {
                   <SparklesIcon className="size-4" />
                   <p className="text-[0.72rem] uppercase tracking-[0.14em]">Last play</p>
                 </div>
-                <p className="mt-2 text-base font-semibold tracking-tight text-white">{account.lastPlay}</p>
+                <p className="mt-2 text-base font-semibold tracking-tight text-white">
+                  {formattedLastPlay}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -253,8 +327,8 @@ export default async function AccountPage() {
           title="Recent activity"
           contentClassName="space-y-3"
         >
-          {recentAuthActivity.length > 0 ? (
-            recentAuthActivity.map((entry) => <ActivityRow key={entry.id} entry={entry} />)
+          {visibleAuthActivity.length > 0 ? (
+            visibleAuthActivity.map((entry) => <ActivityRow key={entry.id} entry={entry} />)
           ) : (
             <Alert className="border-white/10 bg-white/[0.04] text-zinc-100">
               <SparklesIcon className="size-4" />
@@ -264,6 +338,34 @@ export default async function AccountPage() {
               </AlertDescription>
             </Alert>
           )}
+
+          {hasPreviousActivityPage || hasNextActivityPage ? (
+            <div className="flex flex-wrap gap-3 pt-2">
+              {hasPreviousActivityPage ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                >
+                  <Link href={buildActivityPageHref(resolvedSearchParams, activityPage - 1)}>
+                    Newer activity
+                  </Link>
+                </Button>
+              ) : null}
+
+              {hasNextActivityPage ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                >
+                  <Link href={buildActivityPageHref(resolvedSearchParams, activityPage + 1)}>
+                    Older activity
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </DashboardSection>
       </div>
     </main>

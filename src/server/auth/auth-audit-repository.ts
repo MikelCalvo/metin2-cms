@@ -46,11 +46,13 @@ export async function countAuthAuditEntriesSince(options: {
 export async function listRecentAuthAuditEntriesForAccount(
   accountId: number,
   limit: number,
+  offset = 0,
 ) {
   return getCmsDb()
     .select()
     .from(authAuditLog)
     .where(eq(authAuditLog.accountId, accountId))
     .orderBy(desc(authAuditLog.createdAt), desc(authAuditLog.id))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
 }
