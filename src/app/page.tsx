@@ -6,42 +6,44 @@ import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getMessagesForRequest } from "@/lib/i18n/server";
 
-const quickRoutes = [
-  {
-    title: "Play now",
-    description: "Launcher + base client.",
-    href: "/downloads",
-    label: "Open downloads",
-    icon: <DownloadIcon className="size-4" />,
-  },
-  {
-    title: "Create account",
-    description: "Get your login ready first.",
-    href: "/register",
-    label: "Create account",
-    icon: <UserRoundPlusIcon className="size-4" />,
-  },
-  {
-    title: "Rankings",
-    description: "Check players and guilds.",
-    href: "/rankings",
-    label: "View rankings",
-    icon: <TrophyIcon className="size-4" />,
-  },
-] as const;
+export default async function Home() {
+  const messages = await getMessagesForRequest();
+  const quickRoutes = [
+    {
+      title: messages.home.routes.playNowTitle,
+      description: messages.home.routes.playNowDescription,
+      href: "/downloads",
+      label: messages.home.routes.playNowLabel,
+      icon: <DownloadIcon className="size-4" />,
+    },
+    {
+      title: messages.home.routes.createAccountTitle,
+      description: messages.home.routes.createAccountDescription,
+      href: "/register",
+      label: messages.common.createAccount,
+      icon: <UserRoundPlusIcon className="size-4" />,
+    },
+    {
+      title: messages.home.routes.rankingsTitle,
+      description: messages.home.routes.rankingsDescription,
+      href: "/rankings",
+      label: messages.home.routes.rankingsLabel,
+      icon: <TrophyIcon className="size-4" />,
+    },
+  ] as const;
 
-export default function Home() {
   return (
     <SitePageShell>
       <CmsPageHeader
         title={
           <>
-            <span className="block">Enter the server.</span>
-            <span className="block">Start climbing.</span>
+            <span className="block">{messages.home.heroLineOne}</span>
+            <span className="block">{messages.home.heroLineTwo}</span>
           </>
         }
-        description="Download the launcher, create your account and jump into the ladder from one clear server hub."
+        description={messages.home.description}
       >
         <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row">
           <Link
@@ -50,7 +52,7 @@ export default function Home() {
           >
             <span className="flex items-center gap-3">
               <DownloadIcon className="size-4 text-zinc-200" />
-              Download launcher
+              {messages.common.downloadLauncher}
             </span>
             <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
@@ -61,19 +63,23 @@ export default function Home() {
           >
             <span className="flex items-center gap-3">
               <UserRoundPlusIcon className="size-4 text-zinc-300" />
-              Create account
+              {messages.common.createAccount}
             </span>
             <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Auto-updating launcher</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Live player + guild rankings</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipWindows}</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipWine}</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipLauncher}</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipRankings}</div>
       </CmsPageHeader>
 
-      <PublicSection eyebrow="Start here" title="The routes that matter" description="Three routes. No filler.">
+      <PublicSection
+        eyebrow={messages.home.sectionEyebrow}
+        title={messages.home.sectionTitle}
+        description={messages.home.sectionDescription}
+      >
         <div className="grid gap-4 md:grid-cols-3">
           {quickRoutes.map((route) => (
             <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">

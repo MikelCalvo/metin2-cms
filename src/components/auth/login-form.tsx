@@ -6,6 +6,7 @@ import { useActionState, useState } from "react";
 
 import { loginAction } from "@/app/auth/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,18 +16,19 @@ import { emptyAuthActionState } from "@/server/auth/types";
 export function LoginForm({ notice }: { notice?: string }) {
   const [state, formAction] = useActionState(loginAction, emptyAuthActionState);
   const [showPassword, setShowPassword] = useState(false);
+  const { messages } = useI18n();
 
   return (
     <Card className="w-full border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
       <CardHeader className="space-y-2">
-        <CardTitle className="text-2xl text-white">Sign in</CardTitle>
+        <CardTitle className="text-2xl text-white">{messages.login.title}</CardTitle>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-5">
           {notice ? (
             <Alert className="border-emerald-400/20 bg-emerald-500/10 text-emerald-100">
               <ShieldCheckIcon className="size-4" />
-              <AlertTitle>Password updated</AlertTitle>
+              <AlertTitle>{messages.login.noticeTitle}</AlertTitle>
               <AlertDescription className="text-emerald-100/90">{notice}</AlertDescription>
             </Alert>
           ) : null}
@@ -34,14 +36,14 @@ export function LoginForm({ notice }: { notice?: string }) {
           {state.message ? (
             <Alert variant="destructive" className="border-red-400/20 bg-red-500/10 text-red-100">
               <LogInIcon className="size-4" />
-              <AlertTitle>Unable to sign in</AlertTitle>
+              <AlertTitle>{messages.login.errorTitle}</AlertTitle>
               <AlertDescription className="text-red-100/90">{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
           <div className="space-y-2">
             <Label htmlFor="login" className="text-zinc-200">
-              Login
+              {messages.common.login}
             </Label>
             <Input
               id="login"
@@ -59,7 +61,7 @@ export function LoginForm({ notice }: { notice?: string }) {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-zinc-200">
-              Password
+              {messages.common.password}
             </Label>
             <div className="relative">
               <Input
@@ -72,7 +74,7 @@ export function LoginForm({ notice }: { notice?: string }) {
               />
               <button
                 type="button"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? messages.common.hidePassword : messages.common.showPassword}
                 aria-pressed={showPassword}
                 onClick={() => setShowPassword((current) => !current)}
                 className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-zinc-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
@@ -88,21 +90,21 @@ export function LoginForm({ notice }: { notice?: string }) {
                 href="/recover"
                 className="text-xs text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
               >
-                Forgot password?
+                {messages.common.forgotPassword}
               </Link>
             </div>
           </div>
 
           <div className="space-y-3 pt-1">
             <AuthSubmitButton
-              idleLabel="Sign in"
-              pendingLabel="Signing in..."
+              idleLabel={messages.common.signIn}
+              pendingLabel={messages.common.signInPending}
               className="w-full bg-violet-500 text-white hover:bg-violet-400"
             />
             <div className="text-center text-sm text-zinc-400">
-              Need an account?{" "}
+              {messages.login.needAccount}{" "}
               <Link href="/register" className="text-zinc-100 underline-offset-4 hover:underline">
-                Create account
+                {messages.common.createAccount}
               </Link>
             </div>
           </div>

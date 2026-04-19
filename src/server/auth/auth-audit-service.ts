@@ -1,5 +1,7 @@
 import "server-only";
 
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import type { AuthAuditLogEntry } from "@/lib/db/schema/cms";
 import { listRecentAuthAuditEntriesForAccount } from "@/server/auth/auth-audit-repository";
 
@@ -15,11 +17,13 @@ export type AccountAuthActivityEntry = {
   id: number;
   eventType: string;
   outcome: string;
+  outcomeLabel?: string;
   occurredAt: string;
   success: boolean;
   ip: string | null;
   userAgent: string | null;
   deliveryMode: string | null;
+  deliveryModeLabel?: string | null;
   title: string;
   description: string;
 };
@@ -51,32 +55,38 @@ function parseAuditDetail(detail: string | null) {
   };
 }
 
-function describeActivity(entry: AuthAuditLogEntry, outcome: string): AuthActivityDescriptor {
+function describeActivity(
+  entry: AuthAuditLogEntry,
+  outcome: string,
+  locale: Locale,
+): AuthActivityDescriptor {
+  const descriptors = getMessages(locale).activity.descriptors;
+
   if (entry.eventType === "login" && outcome === "authenticated") {
     return {
-      title: "Successful sign-in",
-      description: "The account signed in successfully.",
+      title: descriptors.successfulSignInTitle,
+      description: descriptors.successfulSignInDescription,
     };
   }
 
   if (entry.eventType === "login" && outcome === "invalid_credentials") {
     return {
-      title: "Failed sign-in",
-      description: "Someone entered an invalid password for this account.",
+      title: descriptors.failedSignInTitle,
+      description: descriptors.failedSignInDescription,
     };
   }
 
   if (entry.eventType === "login" && outcome === "account_unavailable") {
     return {
-      title: "Blocked sign-in",
-      description: "A sign-in was denied because the account is not available.",
+      title: descriptors.blockedSignInTitle,
+      description: descriptors.blockedSignInDescription,
     };
   }
 
   if (entry.eventType === "password_recovery.request" && outcome === "token_created") {
     return {
-      title: "Recovery requested",
-      description: "A password recovery link was generated for this account.",
+      title: descriptors.recoveryRequestedTitle,
+      description: descriptors.recoveryRequestedDescription,
     };
   }
 
@@ -85,35 +95,35 @@ function describeActivity(entry: AuthAuditLogEntry, outcome: string): AuthActivi
     outcome === "login_email_mismatch_or_unavailable"
   ) {
     return {
-      title: "Failed recovery request",
-      description: "A password recovery attempt did not match the account details.",
+      title: descriptors.recoveryFailedTitle,
+      description: descriptors.recoveryFailedDescription,
     };
   }
 
   if (entry.eventType === "password_recovery.reset" && outcome === "password_updated") {
     return {
-      title: "Password updated",
-      description: "The account password was changed with a recovery link.",
+      title: descriptors.recoveryPasswordUpdatedTitle,
+      description: descriptors.recoveryPasswordUpdatedDescription,
     };
   }
 
   if (entry.eventType === "account.password_change" && outcome === "password_updated") {
     return {
-      title: "Password changed",
-      description: "The account password was changed from the authenticated account area.",
+      title: descriptors.accountPasswordChangedTitle,
+      description: descriptors.accountPasswordChangedDescription,
     };
   }
 
   if (entry.eventType === "account.profile_update" && outcome === "profile_updated") {
     return {
-      title: "Profile updated",
-      description: "The account email or delete code was updated from the authenticated account area.",
+      title: descriptors.accountProfileUpdatedTitle,
+      description: descriptors.accountProfileUpdatedDescription,
     };
   }
 
   return {
-    title: "Authentication event",
-    description: `${entry.eventType} (${outcome})`,
+    title: descriptors.fallbackTitle,
+    description: descriptors.fallbackDescription(entry.eventType, outcome),
   };
 }
 
@@ -121,16 +131,32 @@ export async function listRecentAuthActivityForAccount(
   accountId: number,
   limit = DEFAULT_ACTIVITY_LIMIT,
   offset = 0,
+  locale: Locale = defaultLocale,
 ): Promise<AccountAuthActivityEntry[]> {
   const entries = await listRecentAuthAuditEntriesForAccount(
     accountId,
     normalizeLimit(limit),
     normalizeOffset(offset),
   );
+  const messages = getMessages(locale);
 
   return entries.map((entry) => {
     const detail = parseAuditDetail(entry.detail);
-    const descriptor = describeActivity(entry, detail.outcome);
+    const descriptor = describeActivity(entry, detail.outcome, locale);
+    const localizedExtras =
+      locale === defaultLocale
+        ? {}
+        : {
+            outcomeLabel:
+              messages.activity.outcomeLabels[
+                detail.outcome as keyof typeof messages.activity.outcomeLabels
+              ] ?? messages.activity.outcomeLabels.unknown,
+            deliveryModeLabel: detail.deliveryMode
+              ? messages.activity.deliveryLabels[
+                  detail.deliveryMode as keyof typeof messages.activity.deliveryLabels
+                ] ?? detail.deliveryMode
+              : null,
+          };
 
     return {
       id: entry.id,
@@ -143,6 +169,7 @@ export async function listRecentAuthActivityForAccount(
       deliveryMode: detail.deliveryMode,
       title: descriptor.title,
       description: descriptor.description,
+      ...localizedExtras,
     };
   });
 }

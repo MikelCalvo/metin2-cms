@@ -1,5 +1,7 @@
 import "server-only";
 
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import {
   hasPlayerRankingDbConfigured,
   listTopGuildRankingRows,
@@ -11,12 +13,16 @@ import type { RankingOverview } from "@/server/rankings/types";
 export const PLAYER_RANKING_LIMIT = 100;
 export const GUILD_RANKING_LIMIT = 10;
 
-export async function getRankingOverview(): Promise<RankingOverview> {
+export async function getRankingOverview(
+  locale: Locale = defaultLocale,
+): Promise<RankingOverview> {
+  const messages = getMessages(locale);
+
   if (!hasPlayerRankingDbConfigured()) {
     return {
       status: "unavailable",
       reason: "not_configured",
-      message: "Rankings are not configured yet.",
+      message: messages.serverMessages.rankingsNotConfigured,
     };
   }
 
@@ -31,7 +37,7 @@ export async function getRankingOverview(): Promise<RankingOverview> {
       players: playerRows.map((row, index) => ({
         ...row,
         rank: index + 1,
-        classLabel: formatCharacterClassLabel(row.job),
+        classLabel: formatCharacterClassLabel(row.job, locale),
       })),
       guilds: guildRows.map((row, index) => ({
         ...row,
@@ -44,7 +50,7 @@ export async function getRankingOverview(): Promise<RankingOverview> {
     return {
       status: "unavailable",
       reason: "query_failed",
-      message: "Rankings are temporarily unavailable.",
+      message: messages.serverMessages.rankingsTemporarilyUnavailable,
     };
   }
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { siteNavigationItems, type SiteNavItem } from "@/components/cms/site-nav-items";
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { cn } from "@/lib/utils";
 
 function isItemActive(pathname: string, href: string) {
@@ -14,6 +14,11 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+type SiteNavItem = {
+  href: string;
+  label: string;
+};
+
 type SiteNavProps = {
   items?: readonly SiteNavItem[];
   className?: string;
@@ -22,16 +27,27 @@ type SiteNavProps = {
 };
 
 export function SiteNav({
-  items = siteNavigationItems,
+  items,
   className,
   linkClassName,
-  ariaLabel = "Primary",
+  ariaLabel,
 }: SiteNavProps) {
   const pathname = usePathname() ?? "/";
+  const { messages } = useI18n();
+  const resolvedItems =
+    items ??
+    [
+      { href: "/", label: messages.nav.home },
+      { href: "/downloads", label: messages.nav.downloads },
+      { href: "/rankings", label: messages.nav.rankings },
+    ];
 
   return (
-    <nav className={cn("flex flex-wrap items-center gap-2", className)} aria-label={ariaLabel}>
-      {items.map((item) => {
+    <nav
+      className={cn("flex flex-wrap items-center gap-2", className)}
+      aria-label={ariaLabel ?? messages.nav.primary}
+    >
+      {resolvedItems.map((item) => {
         const active = isItemActive(pathname, item.href);
 
         return (

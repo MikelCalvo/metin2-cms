@@ -1,3 +1,5 @@
+"use client";
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { revokeSessionAction } from "@/app/account/actions";
 import { StatusChip } from "@/components/account/status-chip";
+import { useI18n } from "@/components/i18n/i18n-provider";
 
 type SessionCardProps = {
   session: {
@@ -20,7 +23,8 @@ type SessionCardProps = {
 };
 
 export function SessionCard({ session, isCurrent }: SessionCardProps) {
-  const deviceLabel = summarizeUserAgent(session.userAgent);
+  const { locale, messages } = useI18n();
+  const deviceLabel = summarizeUserAgent(session.userAgent, locale);
   const shortId = formatSessionIdentifier(session.id);
 
   return (
@@ -36,7 +40,7 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-base font-medium text-white">{deviceLabel}</p>
               <StatusChip tone={isCurrent ? "current" : "neutral"}>
-                {isCurrent ? "Current session" : "Active"}
+                {isCurrent ? messages.common.currentSession : messages.common.active}
               </StatusChip>
             </div>
             <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">{shortId}</p>
@@ -50,7 +54,7 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
                 size="sm"
                 className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
               >
-                Revoke session
+                {messages.common.revokeSession}
               </Button>
             </form>
           ) : null}
@@ -58,20 +62,20 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
 
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Last seen</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.lastSeen}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">
-              {formatAccountEventTimestamp(session.lastSeenAt)}
+              {formatAccountEventTimestamp(session.lastSeenAt, new Date(), locale)}
             </p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Created</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.created}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">
-              {formatAccountEventTimestamp(session.createdAt)}
+              {formatAccountEventTimestamp(session.createdAt, new Date(), locale)}
             </p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">IP address</p>
-            <p className="mt-1 text-sm font-medium text-zinc-100">{session.ip || "—"}</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.ipAddress}</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{session.ip || messages.common.noValue}</p>
           </div>
         </div>
 
@@ -80,17 +84,17 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
         <Accordion type="single" collapsible>
           <AccordionItem value={session.id} className="border-none">
             <AccordionTrigger className="py-0 text-sm text-zinc-300 hover:no-underline">
-              Technical details
+              {messages.common.technicalDetails}
             </AccordionTrigger>
             <AccordionContent className="pt-3">
               <dl className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
                 <div className="space-y-1">
-                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">Session ID</dt>
+                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.sessionId}</dt>
                   <dd className="break-all text-zinc-100">{session.id}</dd>
                 </div>
                 <div className="space-y-1">
-                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">User agent</dt>
-                  <dd className="break-all text-zinc-100">{session.userAgent || "—"}</dd>
+                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.userAgent}</dt>
+                  <dd className="break-all text-zinc-100">{session.userAgent || messages.common.noValue}</dd>
                 </div>
               </dl>
             </AccordionContent>

@@ -12,43 +12,44 @@ import { DownloadChecksumCopyButton } from "@/components/downloads/checksum-copy
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getPublicEnv } from "@/lib/env";
+import { getMessagesForRequest } from "@/lib/i18n/server";
 
-const nextRoutes = [
-  {
-    title: "Create account",
-    description: "Set up your login first.",
-    href: "/register",
-    label: "Create account",
-    icon: <UserRoundPlusIcon className="size-4" />,
-  },
-  {
-    title: "Sign in",
-    description: "Use your account once the launcher is ready.",
-    href: "/login",
-    label: "Sign in",
-    icon: <ArrowRightIcon className="size-4" />,
-  },
-  {
-    title: "Live rankings",
-    description: "Check players and guilds.",
-    href: "/rankings",
-    label: "View rankings",
-    icon: <TrophyIcon className="size-4" />,
-  },
-] as const;
-
-export default function DownloadsPage() {
+export default async function DownloadsPage() {
   const publicEnv = getPublicEnv();
   const starterPackUrl = publicEnv.STARTER_PACK_URL;
   const starterPackChecksum = publicEnv.STARTER_PACK_SHA256;
   const hasStarterPackDownload = Boolean(starterPackUrl);
+  const messages = await getMessagesForRequest();
+  const nextRoutes = [
+    {
+      title: messages.downloads.routes.createAccountTitle,
+      description: messages.downloads.routes.createAccountDescription,
+      href: "/register",
+      label: messages.common.createAccount,
+      icon: <UserRoundPlusIcon className="size-4" />,
+    },
+    {
+      title: messages.common.signIn,
+      description: messages.downloads.routes.signInDescription,
+      href: "/login",
+      label: messages.common.signIn,
+      icon: <ArrowRightIcon className="size-4" />,
+    },
+    {
+      title: messages.downloads.routes.liveRankingsTitle,
+      description: messages.downloads.routes.liveRankingsDescription,
+      href: "/rankings",
+      label: messages.common.viewRankings,
+      icon: <TrophyIcon className="size-4" />,
+    },
+  ] as const;
 
   return (
     <SitePageShell>
       <CmsPageHeader
-        eyebrow="Downloads"
-        title="One download between you and the server."
-        description="Download the launcher, patch, enter."
+        eyebrow={messages.downloads.eyebrow}
+        title={messages.downloads.title}
+        description={messages.downloads.description}
       >
         <div data-slot="downloads-primary-actions" className="flex w-full flex-col gap-3 pt-2 sm:flex-row">
           {hasStarterPackDownload ? (
@@ -58,7 +59,7 @@ export default function DownloadsPage() {
               className="h-12 justify-between rounded-2xl bg-violet-500 px-5 text-base text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400 sm:min-w-[240px]"
             >
               <Link href="/downloads/client">
-                Download launcher
+                {messages.common.downloadLauncher}
                 <DownloadIcon className="size-4" />
               </Link>
             </Button>
@@ -69,7 +70,7 @@ export default function DownloadsPage() {
               className="h-12 justify-between rounded-2xl bg-violet-500 px-5 text-base text-white shadow-lg shadow-violet-950/40 hover:bg-violet-400 sm:min-w-[240px]"
             >
               <Link href="/register">
-                Create account
+                {messages.common.createAccount}
                 <ArrowRightIcon className="size-4" />
               </Link>
             </Button>
@@ -82,17 +83,17 @@ export default function DownloadsPage() {
               className="h-12 justify-between rounded-2xl border-white/10 bg-white/5 px-5 text-base text-zinc-100 hover:bg-white/10 sm:min-w-[220px]"
             >
               <Link href="/login">
-                Sign in
+                {messages.common.signIn}
                 <ArrowRightIcon className="size-4" />
               </Link>
             </Button>
           ) : null}
         </div>
 
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Official Windows support</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Linux via Wine</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Base client included</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Resume-friendly download</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipWindows}</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipWine}</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipBaseClient}</div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipResume}</div>
         {hasStarterPackDownload && starterPackChecksum ? (
           <DownloadChecksumCopyButton checksum={starterPackChecksum} />
         ) : null}
@@ -101,7 +102,7 @@ export default function DownloadsPage() {
       <Card className="border-white/10 bg-black/20 shadow-none">
         <CardContent className="space-y-3 px-4 py-4">
           <p className="text-sm leading-6 text-zinc-400">
-            If you are not done after the download, these are the other pages players usually open next.
+            {messages.downloads.nextIntro}
           </p>
 
           {nextRoutes.map((route) => (

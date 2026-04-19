@@ -6,6 +6,7 @@ import { useActionState } from "react";
 
 import { resetPasswordAction } from "@/app/auth/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,16 +21,17 @@ export function ResetPasswordForm({ token }: { token: string }) {
     emptyRecoveryActionState,
   );
   const resolvedToken = state.values?.token ?? token;
+  const { messages } = useI18n();
 
   return (
     <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
       <CardHeader className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">
-          Metin2 CMS
+          {messages.resetForm.eyebrow}
         </p>
-        <CardTitle className="text-2xl text-white">Set a new password</CardTitle>
+        <CardTitle className="text-2xl text-white">{messages.resetForm.title}</CardTitle>
         <CardDescription className="text-zinc-400">
-          Choose a new legacy-compatible password for your Metin2 account.
+          {messages.resetForm.description}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -39,14 +41,14 @@ export function ResetPasswordForm({ token }: { token: string }) {
           {state.message ? (
             <Alert variant="destructive" className="border-red-400/20 bg-red-500/10 text-red-100">
               <KeyRoundIcon className="size-4" />
-              <AlertTitle>Password reset failed</AlertTitle>
+              <AlertTitle>{messages.resetForm.errorTitle}</AlertTitle>
               <AlertDescription className="text-red-100/90">{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-zinc-200">
-              New password
+              {messages.common.newPassword}
             </Label>
             <Input
               id="password"
@@ -63,7 +65,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
           <div className="space-y-2">
             <Label htmlFor="passwordConfirmation" className="text-zinc-200">
-              Confirm new password
+              {messages.common.confirmNewPassword}
             </Label>
             <Input
               id="passwordConfirmation"
@@ -85,12 +87,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <AuthSubmitButton
-              idleLabel="Update password"
-              pendingLabel="Updating..."
+              idleLabel={messages.common.updatePassword}
+              pendingLabel={messages.common.updatePasswordPending}
               className="bg-violet-500 text-white hover:bg-violet-400"
             />
             <Button asChild variant="ghost" className="justify-start px-0 text-zinc-300 hover:bg-transparent hover:text-white">
-              <Link href="/login">Back to sign in</Link>
+              <Link href="/login">{messages.common.backToSignIn}</Link>
             </Button>
           </div>
         </form>

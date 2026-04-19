@@ -1,4 +1,5 @@
-const relativeTimeFormatter = new Intl.RelativeTimeFormat("en", { numeric: "always" });
+import { defaultLocale, getIntlLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 
 function padDateSegment(value: number) {
   return `${value}`.padStart(2, "0");
@@ -102,17 +103,19 @@ export function parseMysqlDateTime(mysqlDateTime: string) {
 export function formatRelativeMysqlTimestamp(
   mysqlDateTime: string | Date | null | undefined,
   now = new Date(),
+  locale: Locale = defaultLocale,
 ) {
   const normalizedTimestamp = normalizeMysqlTimestamp(mysqlDateTime);
+  const messages = getMessages(locale);
 
   if (!normalizedTimestamp || normalizedTimestamp === "0000-00-00 00:00:00") {
-    return "—";
+    return messages.common.noValue;
   }
 
   const timestamp = parseMysqlDateTime(normalizedTimestamp);
 
   if (!timestamp) {
-    return "—";
+    return messages.common.noValue;
   }
 
   const diffMs = now.getTime() - timestamp.getTime();
@@ -120,9 +123,12 @@ export function formatRelativeMysqlTimestamp(
   const direction = diffMs < 0 ? 1 : -1;
   const earlier = diffMs < 0 ? now : timestamp;
   const later = diffMs < 0 ? timestamp : now;
+  const relativeTimeFormatter = new Intl.RelativeTimeFormat(getIntlLocale(locale), {
+    numeric: "always",
+  });
 
   if (absoluteDiffMs <= 5 * 60 * 1000) {
-    return "Online";
+    return messages.time.online;
   }
 
   const diffMinutes = Math.floor(absoluteDiffMs / (60 * 1000));
@@ -157,18 +163,20 @@ export function formatRelativeMysqlTimestamp(
 export function getCalendarTimestampLabel(
   mysqlDateTime: string,
   now = new Date(),
+  locale: Locale = defaultLocale,
 ) {
   const datePart = mysqlDateTime.slice(0, 10);
   const today = getDateKey(now);
   const yesterday = new Date(now);
+  const messages = getMessages(locale);
   yesterday.setDate(now.getDate() - 1);
 
   if (datePart === today) {
-    return `Today · ${getTimeLabel(mysqlDateTime)}`;
+    return `${messages.time.today} · ${getTimeLabel(mysqlDateTime)}`;
   }
 
   if (datePart === getDateKey(yesterday)) {
-    return `Yesterday · ${getTimeLabel(mysqlDateTime)}`;
+    return `${messages.time.yesterday} · ${getTimeLabel(mysqlDateTime)}`;
   }
 
   return `${datePart} · ${getTimeLabel(mysqlDateTime)}`;

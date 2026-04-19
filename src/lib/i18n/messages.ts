@@ -1,0 +1,1118 @@
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends (...args: infer A) => infer R
+    ? (...args: A) => R
+    : T[K] extends object
+      ? DeepPartial<T[K]>
+      : T[K];
+};
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function mergeMessages<T extends Record<string, unknown>>(
+  base: T,
+  override?: DeepPartial<T>,
+): T {
+  if (!override) {
+    return base;
+  }
+
+  const nextEntries = Object.entries(base).map(([key, value]) => {
+    const overrideValue = override[key as keyof T];
+
+    if (typeof overrideValue === "undefined") {
+      return [key, value];
+    }
+
+    if (isPlainObject(value) && isPlainObject(overrideValue)) {
+      return [key, mergeMessages(value, overrideValue as DeepPartial<typeof value>)];
+    }
+
+    return [key, overrideValue];
+  });
+
+  return Object.fromEntries(nextEntries) as T;
+}
+
+const en = {
+  localeSwitcher: {
+    label: "Language selector",
+    switchTo: (nativeName: string) => `Switch language to ${nativeName}`,
+  },
+  authShell: {
+    compatibilityChip: "Legacy-compatible auth",
+    secureSessionsChip: "SSR + secure sessions",
+    ready: "Ready",
+  },
+  nav: {
+    primary: "Primary",
+    home: "Home",
+    downloads: "Downloads",
+    rankings: "Rankings",
+  },
+  header: {
+    brand: "Metin2 Portal",
+    launcherReady: "launcher-ready",
+    liveLadders: "Live ladders",
+    createAccount: "Create account",
+    signIn: "Sign in",
+  },
+  time: {
+    online: "Online",
+    today: "Today",
+    yesterday: "Yesterday",
+  },
+  device: {
+    unknownBrowser: "Unknown browser",
+    unknownPlatform: "Unknown platform",
+    unknownDevice: "Unknown device",
+  },
+  common: {
+    createAccount: "Create account",
+    signIn: "Sign in",
+    signOut: "Sign out",
+    downloads: "Downloads",
+    rankings: "Rankings",
+    downloadLauncher: "Download launcher",
+    openDownloads: "Open downloads",
+    viewRankings: "View rankings",
+    backToSignIn: "Back to sign in",
+    goToRecovery: "Go to recovery",
+    forgotPassword: "Forgot password?",
+    login: "Login",
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm password",
+    newPassword: "New password",
+    confirmNewPassword: "Confirm new password",
+    currentPassword: "Current password",
+    deleteCode: "Delete code / social ID",
+    saveChanges: "Save changes",
+    savePassword: "Save password",
+    updatePassword: "Update password",
+    createRecoveryLink: "Create recovery link",
+    copy: "Copy",
+    copied: "Copied",
+    copyFailed: "Copy failed",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+    success: "Success",
+    attention: "Attention",
+    currentSession: "Current session",
+    active: "Active",
+    readOnly: "Read only.",
+    device: "Device",
+    ipAddress: "IP address",
+    outcome: "Outcome",
+    userAgent: "User agent",
+    delivery: "Delivery",
+    technicalDetails: "Technical details",
+    rawEventDetails: "Raw event details",
+    sessionId: "Session ID",
+    created: "Created",
+    lastSeen: "Last seen",
+    cash: "Cash",
+    mileage: "Mileage",
+    gameAccount: "Game account",
+    status: "Status",
+    lastPlay: "Last play",
+    notConfigured: "Not configured",
+    closeOtherSessions: "Close other sessions",
+    revokeSession: "Revoke session",
+    newerActivity: "Newer activity",
+    olderActivity: "Older activity",
+    createPending: "Creating...",
+    signInPending: "Signing in...",
+    savePending: "Saving...",
+    savePasswordPending: "Saving password...",
+    updatePasswordPending: "Updating...",
+    recoveryPending: "Creating link...",
+    noValue: "—",
+  },
+  validation: {
+    loginMin: (min: number) => `Login must be at least ${min} characters.`,
+    loginMax: (max: number) => `Login must be at most ${max} characters.`,
+    loginAlphanumeric: "Login must use only letters and numbers.",
+    passwordMin: (min: number) => `Password must be at least ${min} characters.`,
+    passwordMax: (max: number) => `Password must be at most ${max} characters.`,
+    passwordAlphanumeric: "Password must use only letters and numbers.",
+    socialIdMin: (min: number) => `Delete code must be at least ${min} characters.`,
+    socialIdMax: (max: number) => `Delete code must be at most ${max} characters.`,
+    socialIdAlphanumeric: "Delete code must use only letters and numbers.",
+    emailInvalid: "Email must be a valid email address.",
+    emailMax: "Email must be at most 64 characters.",
+    passwordsMustMatch: "Passwords must match.",
+    recoveryTokenLength: "Recovery token must be 64 characters.",
+    recoveryTokenFormat: "Recovery token format is invalid.",
+  },
+  serverMessages: {
+    correctLoginFields: "Please correct the highlighted login fields.",
+    correctRegisterFields: "Please correct the highlighted registration fields.",
+    correctRecoveryFields: "Please correct the highlighted recovery fields.",
+    correctResetFields: "Please correct the highlighted password reset fields.",
+    correctPasswordFields: "Please correct the highlighted password fields.",
+    correctProfileFields: "Please correct the highlighted profile fields.",
+    tooManySignInAttempts: "Too many sign-in attempts. Please wait a few minutes and try again.",
+    invalidCredentials: "Invalid login or password.",
+    accountUnavailableForLogin: "This account is not available for login.",
+    loginTaken: "That login is already in use.",
+    accountCreationFailed: "The account could not be created.",
+    accountUnavailableNow: "This account is not available right now.",
+    currentPasswordIncorrectMessage: "Please enter the current password correctly.",
+    currentPasswordIncorrectField: "Current password is incorrect.",
+    passwordUpdatedSuccess: "Password updated successfully.",
+    profileUpdatedSuccess: "Profile updated successfully.",
+    recoveryPreviewGeneric:
+      "If the login and email match an account, a reset link has been created.",
+    recoveryFileGeneric:
+      "If the login and email match an account, the recovery request has been queued for manual delivery.",
+    recoveryInvalidOrExpired: "This recovery link is invalid or has expired.",
+    recoveryPasswordUpdatedSuccess:
+      "Password updated successfully. You can now sign in with the new password.",
+    rankingsNotConfigured: "Rankings are not configured yet.",
+    rankingsTemporarilyUnavailable: "Rankings are temporarily unavailable.",
+  },
+  rankingsMeta: {
+    classes: {
+      warrior: "Warrior",
+      ninja: "Ninja",
+      sura: "Sura",
+      shaman: "Shaman",
+      lycan: "Lycan",
+      unknown: "Unknown",
+    },
+  },
+  home: {
+    heroLineOne: "Enter the server.",
+    heroLineTwo: "Start climbing.",
+    description:
+      "Download the launcher, create your account and jump into the ladder from one clear server hub.",
+    chipWindows: "Official Windows support",
+    chipWine: "Linux via Wine",
+    chipLauncher: "Auto-updating launcher",
+    chipRankings: "Live player + guild rankings",
+    sectionEyebrow: "Start here",
+    sectionTitle: "The routes that matter",
+    sectionDescription: "Three routes. No filler.",
+    routes: {
+      playNowTitle: "Play now",
+      playNowDescription: "Launcher + base client.",
+      playNowLabel: "Open downloads",
+      createAccountTitle: "Create account",
+      createAccountDescription: "Get your login ready first.",
+      rankingsTitle: "Rankings",
+      rankingsDescription: "Check players and guilds.",
+      rankingsLabel: "View rankings",
+    },
+  },
+  downloads: {
+    eyebrow: "Downloads",
+    title: "One download between you and the server.",
+    description: "Download the launcher, patch, enter.",
+    chipWindows: "Official Windows support",
+    chipWine: "Linux via Wine",
+    chipBaseClient: "Base client included",
+    chipResume: "Resume-friendly download",
+    checksumAriaLabel: "Copy SHA256 checksum",
+    nextIntro:
+      "If you are not done after the download, these are the other pages players usually open next.",
+    routes: {
+      createAccountTitle: "Create account",
+      createAccountDescription: "Set up your login first.",
+      signInTitle: "Sign in",
+      signInDescription: "Use your account once the launcher is ready.",
+      liveRankingsTitle: "Live rankings",
+      liveRankingsDescription: "Check players and guilds.",
+    },
+  },
+  rankings: {
+    eyebrow: "Rankings",
+    unavailableTitle: "Live rankings unavailable",
+    unavailableDescription: "Try again in a moment.",
+    unavailableAlertTitle: "Ranking feed unavailable",
+    characterTitle: "Character ladder",
+    characterDescription: "Top characters on the live server.",
+    noCharactersTitle: "No characters on the board yet",
+    noCharactersDescription:
+      "The feed is healthy, but there are no visible character entries right now.",
+    guildEyebrow: "Guilds",
+    guildTitle: "Guild ladder",
+    guildDescription: "Guild standings on the live server.",
+    noGuildsTitle: "No guilds on the board yet",
+    noGuildsDescription:
+      "The feed is healthy, but there are no visible guild rows right now.",
+    nextEyebrow: "Next",
+    nextTitle: "Ready to climb?",
+    nextDescription: "Account. Download. Sign in.",
+    routes: {
+      createAccountTitle: "Create account",
+      createAccountDescription: "Get your login ready.",
+      downloadTitle: "Download launcher",
+      downloadDescription: "Grab the launcher and client.",
+      signInTitle: "Sign in",
+      signInDescription: "Use your account and enter.",
+    },
+    columns: {
+      rank: "#",
+      character: "Character",
+      class: "Class",
+      level: "Level",
+      exp: "EXP",
+      playtime: "Playtime",
+      guild: "Guild",
+      lastSeen: "Last seen",
+      ladder: "Ladder",
+      record: "Record",
+    },
+  },
+  login: {
+    title: "Sign in",
+    noticeTitle: "Password updated",
+    errorTitle: "Unable to sign in",
+    needAccount: "Need an account?",
+  },
+  registerPage: {
+    eyebrow: "Account creation",
+    title: "Create a legacy-compatible Metin2 account",
+    description:
+      "Register once against the real account schema, then keep using the modern CMS for sessions, recovery and future item shop features.",
+    supportEyebrow: "What you are creating",
+    supportTitle: "A cleaner onboarding layer for the same server account",
+    supportDescription:
+      "This flow respects the legacy account contract today while giving us a better product surface for everything that comes next.",
+    items: {
+      liveSchemaTitle: "Live schema fields",
+      liveSchemaDescription:
+        "Login, email, password and delete code map directly to the legacy account table expected by the game stack.",
+      saferWebTitle: "Safer web layer",
+      saferWebDescription:
+        "Once created, sessions and future CMS-only features stay separate from the old account data model.",
+      futureReadyTitle: "Future-ready profile",
+      futureReadyDescription:
+        "This account becomes the base identity for the account center, item shop and later admin experiences.",
+    },
+    footerPrompt: "Already have an account?",
+  },
+  registerForm: {
+    eyebrow: "Metin2 CMS",
+    title: "Create account",
+    description:
+      "Register a legacy-compatible Metin2 account and start using the modern CMS.",
+    errorTitle: "Unable to create the account",
+    socialIdHint:
+      "Legacy-compatible alphanumeric delete code used by the game account.",
+  },
+  recoverPage: {
+    eyebrow: "Account recovery",
+    title: "Recover access without falling back to the old CMS",
+    description:
+      "Request a password reset using the login and email stored in the live account database, then complete the reset inside the modern web flow.",
+    supportEyebrow: "Recovery design",
+    supportTitleManual: "Temporary operator-assisted delivery",
+    supportTitleAuto: "Modern reset flow over the legacy account contract",
+    supportDescriptionManual:
+      "Until transactional email is introduced, recovery links are queued for operator handling instead of being sent automatically.",
+    supportDescriptionAuto:
+      "The recovery surface stays compatible with the legacy account records while keeping the new CMS workflow separate and auditable.",
+    items: {
+      identityTitle: "Identity verification",
+      identityDescription:
+        "The reset flow requires the same login and email pair already tied to the live Metin2 account.",
+      queueTitle: "Operator queue",
+      queueDescription:
+        "Matching recovery requests are queued on the server so an operator can deliver the reset link safely.",
+      previewTitle: "Reset link preview",
+      previewDescription:
+        "Preview mode keeps development moving without yet depending on production email infrastructure.",
+      passwordRotationTitle: "Password rotation",
+      passwordRotationDescription:
+        "Once the link is opened, the new password is written in the legacy-compatible format expected by the current stack.",
+    },
+    footerPrompt: "Remembered your credentials?",
+  },
+  recoverForm: {
+    eyebrow: "Metin2 CMS",
+    title: "Recover password",
+    description: "Enter the login and email tied to the legacy Metin2 account.",
+    successTitle: "Recovery request created",
+    errorTitle: "Recovery request failed",
+    temporaryDeliveryTitle: "Temporary delivery mode",
+    temporaryDeliveryDescription:
+      "Matching recovery requests are queued on the server for manual handling by an operator.",
+    previewTitle: "Development preview",
+    previewPrefix: "Reset link:",
+  },
+  resetPage: {
+    eyebrow: "Password reset",
+    titleWithToken: "Choose a new password for the Metin2 account",
+    titleWithoutToken: "A recovery link is required to reset the password",
+    descriptionWithToken:
+      "Finish the recovery flow inside the modern CMS and update the legacy-compatible password used by the current account stack.",
+    descriptionWithoutToken:
+      "Open the exact reset link generated by the recovery request, or create a new one if the previous token expired.",
+    supportEyebrow: "Security notes",
+    supportTitleWithToken: "Password changes stay compatible with the live server",
+    supportTitleWithoutToken: "Reset tokens are single-purpose entry points",
+    supportDescriptionWithToken:
+      "The reset flow updates the account password using the same compatibility rules required by the legacy database and game ecosystem.",
+    supportDescriptionWithoutToken:
+      "This page does not work as a standalone destination. It needs a recovery token created by the recovery workflow first.",
+    items: {
+      withTokenPrimaryTitle: "Legacy-safe password update",
+      withoutTokenPrimaryTitle: "Recovery token required",
+      withTokenPrimaryDescription:
+        "The new password is written back in the format expected by the existing server-side authentication contract.",
+      withoutTokenPrimaryDescription:
+        "Without a valid token in the URL, the CMS cannot know which account recovery request is being completed.",
+      withTokenSecondaryTitle: "Recovery-only access",
+      withoutTokenSecondaryTitle: "Request a fresh link",
+      withTokenSecondaryDescription:
+        "Reset links are only meant to finish the recovery process and should not replace normal sign-in or account settings usage.",
+      withoutTokenSecondaryDescription:
+        "If the previous link expired or was lost, go back to the recovery page and generate a new reset request.",
+      withTokenTertiaryTitle: "Post-reset sign in",
+      withoutTokenTertiaryTitle: "Sign-in remains separate",
+      withTokenTertiaryDescription:
+        "After the password is changed, return to the sign-in page and authenticate normally against the updated account record.",
+      withoutTokenTertiaryDescription:
+        "Normal access still starts from the login page. Recovery is only a controlled path back into that flow.",
+    },
+    footerPrompt: "Want to go back instead?",
+    missingTokenTitle: "Missing recovery token",
+    missingTokenDescription:
+      "Open the reset link generated by the recovery flow, or request a new one.",
+    missingTokenAlertTitle: "Recovery link required",
+    missingTokenAlertDescription:
+      "This page needs a valid reset token generated by the recovery flow.",
+  },
+  resetForm: {
+    eyebrow: "Metin2 CMS",
+    title: "Set a new password",
+    description: "Choose a new legacy-compatible password for your Metin2 account.",
+    errorTitle: "Password reset failed",
+  },
+  account: {
+    eyebrow: "Account",
+    heroDescription: "Profile, security and access. Nothing else.",
+    emailLabel: "Email",
+    activeSessions: (count: number) => `${count} active session${count === 1 ? "" : "s"}`,
+    downloadsAction: "Downloads",
+    rankingsAction: "Rankings",
+    signOutAction: "Sign out",
+    overviewBadge: "Overview",
+    securitySummaryTitle: "Security summary",
+    accountBadge: "Account",
+    accountDetailsTitle: "Account details",
+    securityBadge: "Security",
+    securityTitle: "Security",
+    activityBadge: "Activity",
+    activityTitle: "Recent activity",
+    passwordTitle: "Password",
+    passwordDescription: "Changing it closes the other sessions.",
+    sessionsTitle: "Sessions",
+    sessionsDescription: "Current first. Close the rest if needed.",
+    profileTitle: "Profile",
+    profileDescription: "Email and delete code.",
+    noOtherSessionsTitle: "No other active sessions",
+    noOtherSessionsDescription:
+      "This account is only signed in from the current device right now.",
+    noRecentActivityTitle: "No recent activity yet",
+    noRecentActivityDescription:
+      "Sign-in, recovery and account-setting events will start appearing here as soon as they are recorded.",
+    profileUpdateFailed: "Profile update failed",
+    profileUpdated: "Profile updated",
+    passwordUpdateFailed: "Password update failed",
+    passwordUpdated: "Password updated",
+    currentFirst: "Current first. Close the rest if needed.",
+    currentPasswordIncorrect: "Current password is incorrect.",
+  },
+  accountSummary: {
+    activeSessionsLabel: "Active sessions",
+    onlyCurrentSessionHelper: "Only the current browser session is active.",
+    otherSessionsHelper: (count: number) =>
+      count === 1 ? "This browser plus 1 other active session." : `This browser plus ${count} other active sessions.`,
+    lastSuccessfulSignInLabel: "Last successful sign-in",
+    noSuccessfulSignInValue: "No successful sign-in recorded yet",
+    noSuccessfulSignInHelper: "The account has no successful sign-in audit entries yet.",
+    latestSignInIssueLabel: "Latest sign-in issue",
+    noSignInIssuesValue: "No sign-in issues recorded",
+    noSignInIssuesHelper:
+      "No failed or blocked sign-in attempts were found in the recent audit log.",
+    latestAccountChangeLabel: "Latest account change",
+    noAccountChangesValue: "No account changes recorded",
+    noAccountChangesHelper:
+      "No recovery, password or profile changes were found in the recent audit log.",
+  },
+  activity: {
+    outcomeLabels: {
+      authenticated: "Authenticated",
+      invalid_credentials: "Invalid credentials",
+      account_unavailable: "Account unavailable",
+      rate_limited: "Rate limited",
+      token_created: "Link created",
+      login_email_mismatch_or_unavailable: "Login / email mismatch",
+      password_updated: "Password updated",
+      invalid_current_password: "Invalid current password",
+      profile_updated: "Profile updated",
+      unknown: "Unknown",
+    },
+    deliveryLabels: {
+      preview: "Preview",
+      file: "Manual",
+    },
+    descriptors: {
+      successfulSignInTitle: "Successful sign-in",
+      successfulSignInDescription: "The account signed in successfully.",
+      failedSignInTitle: "Failed sign-in",
+      failedSignInDescription: "Someone entered an invalid password for this account.",
+      blockedSignInTitle: "Blocked sign-in",
+      blockedSignInDescription: "A sign-in was denied because the account is not available.",
+      recoveryRequestedTitle: "Recovery requested",
+      recoveryRequestedDescription: "A password recovery link was generated for this account.",
+      recoveryFailedTitle: "Failed recovery request",
+      recoveryFailedDescription: "A password recovery attempt did not match the account details.",
+      recoveryPasswordUpdatedTitle: "Password updated",
+      recoveryPasswordUpdatedDescription: "The account password was changed with a recovery link.",
+      accountPasswordChangedTitle: "Password changed",
+      accountPasswordChangedDescription:
+        "The account password was changed from the authenticated account area.",
+      accountProfileUpdatedTitle: "Profile updated",
+      accountProfileUpdatedDescription:
+        "The account email or delete code was updated from the authenticated account area.",
+      fallbackTitle: "Authentication event",
+      fallbackDescription: (eventType: string, outcome: string) => `${eventType} (${outcome})`,
+    },
+  },
+};
+
+export type Messages = typeof en;
+
+const es: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Idioma",
+    switchTo: (nativeName) => `Cambiar idioma a ${nativeName}`,
+  },
+  nav: {
+    home: "Inicio",
+    downloads: "Descargas",
+    rankings: "Rankings",
+  },
+  header: {
+    createAccount: "Crear cuenta",
+    signIn: "Entrar",
+    liveLadders: "Rankings en vivo",
+  },
+  common: {
+    createAccount: "Crear cuenta",
+    signIn: "Entrar",
+    signOut: "Salir",
+    downloads: "Descargas",
+    rankings: "Rankings",
+    downloadLauncher: "Descargar launcher",
+    openDownloads: "Abrir descargas",
+    viewRankings: "Ver rankings",
+    backToSignIn: "Volver al acceso",
+    goToRecovery: "Ir a recuperación",
+    forgotPassword: "¿Olvidaste la contraseña?",
+    password: "Contraseña",
+    confirmPassword: "Confirmar contraseña",
+    newPassword: "Nueva contraseña",
+    confirmNewPassword: "Confirmar nueva contraseña",
+    currentPassword: "Contraseña actual",
+    deleteCode: "Código de borrado / ID social",
+    saveChanges: "Guardar cambios",
+    savePassword: "Guardar contraseña",
+    updatePassword: "Actualizar contraseña",
+    createRecoveryLink: "Crear enlace de recuperación",
+    copy: "Copiar",
+    copied: "Copiado",
+    copyFailed: "Error al copiar",
+    showPassword: "Mostrar contraseña",
+    hidePassword: "Ocultar contraseña",
+    success: "Correcto",
+    attention: "Atención",
+    currentSession: "Sesión actual",
+    active: "Activa",
+    readOnly: "Solo lectura.",
+    device: "Dispositivo",
+    ipAddress: "Dirección IP",
+    outcome: "Resultado",
+    userAgent: "User agent",
+    delivery: "Entrega",
+    technicalDetails: "Detalles técnicos",
+    rawEventDetails: "Detalles del evento",
+    sessionId: "ID de sesión",
+    created: "Creada",
+    lastSeen: "Última vez",
+    cash: "Cash",
+    mileage: "Mileage",
+    status: "Estado",
+    lastPlay: "Último juego",
+    notConfigured: "Sin configurar",
+    closeOtherSessions: "Cerrar otras sesiones",
+    revokeSession: "Revocar sesión",
+    newerActivity: "Actividad más reciente",
+    olderActivity: "Actividad más antigua",
+    createPending: "Creando...",
+    signInPending: "Entrando...",
+    savePending: "Guardando...",
+    savePasswordPending: "Guardando contraseña...",
+    updatePasswordPending: "Actualizando...",
+    recoveryPending: "Creando enlace...",
+  },
+  validation: {
+    loginMin: (min) => `El login debe tener al menos ${min} caracteres.`,
+    loginMax: (max) => `El login debe tener como máximo ${max} caracteres.`,
+    loginAlphanumeric: "El login solo puede usar letras y números.",
+    passwordMin: (min) => `La contraseña debe tener al menos ${min} caracteres.`,
+    passwordMax: (max) => `La contraseña debe tener como máximo ${max} caracteres.`,
+    passwordAlphanumeric: "La contraseña solo puede usar letras y números.",
+    socialIdMin: (min) => `El código de borrado debe tener al menos ${min} caracteres.`,
+    socialIdMax: (max) => `El código de borrado debe tener como máximo ${max} caracteres.`,
+    socialIdAlphanumeric: "El código de borrado solo puede usar letras y números.",
+    emailInvalid: "El email debe ser válido.",
+    emailMax: "El email debe tener como máximo 64 caracteres.",
+    passwordsMustMatch: "Las contraseñas deben coincidir.",
+    recoveryTokenLength: "El token de recuperación debe tener 64 caracteres.",
+    recoveryTokenFormat: "El formato del token de recuperación no es válido.",
+  },
+  serverMessages: {
+    correctLoginFields: "Corrige los campos marcados del login.",
+    correctRegisterFields: "Corrige los campos marcados del registro.",
+    correctRecoveryFields: "Corrige los campos marcados de recuperación.",
+    correctResetFields: "Corrige los campos marcados del reseteo.",
+    correctPasswordFields: "Corrige los campos marcados de contraseña.",
+    correctProfileFields: "Corrige los campos marcados del perfil.",
+    tooManySignInAttempts: "Demasiados intentos de acceso. Espera unos minutos y vuelve a probar.",
+    invalidCredentials: "Login o contraseña inválidos.",
+    accountUnavailableForLogin: "Esta cuenta no está disponible para iniciar sesión.",
+    loginTaken: "Ese login ya está en uso.",
+    accountCreationFailed: "No se pudo crear la cuenta.",
+    accountUnavailableNow: "Esta cuenta no está disponible ahora mismo.",
+    currentPasswordIncorrectMessage: "Introduce correctamente la contraseña actual.",
+    currentPasswordIncorrectField: "La contraseña actual es incorrecta.",
+    passwordUpdatedSuccess: "Contraseña actualizada correctamente.",
+    profileUpdatedSuccess: "Perfil actualizado correctamente.",
+    recoveryPreviewGeneric: "Si el login y el email coinciden con una cuenta, se ha creado un enlace de reseteo.",
+    recoveryFileGeneric:
+      "Si el login y el email coinciden con una cuenta, la solicitud de recuperación ha quedado en cola para entrega manual.",
+    recoveryInvalidOrExpired: "Este enlace de recuperación no es válido o ha caducado.",
+    recoveryPasswordUpdatedSuccess:
+      "Contraseña actualizada correctamente. Ya puedes iniciar sesión con la nueva contraseña.",
+    rankingsNotConfigured: "Los rankings aún no están configurados.",
+    rankingsTemporarilyUnavailable: "Los rankings no están disponibles temporalmente.",
+  },
+  rankingsMeta: {
+    classes: {
+      warrior: "Guerrero",
+      ninja: "Ninja",
+      sura: "Sura",
+      shaman: "Chamán",
+      lycan: "Lícan",
+      unknown: "Desconocido",
+    },
+  },
+  home: {
+    heroLineOne: "Entra al servidor.",
+    heroLineTwo: "Empieza a escalar.",
+    description:
+      "Descarga el launcher, crea tu cuenta y entra al ladder desde un único hub claro del servidor.",
+    chipWindows: "Soporte oficial para Windows",
+    chipWine: "Linux vía Wine",
+    chipLauncher: "Launcher con auto-actualización",
+    chipRankings: "Rankings de jugadores y gremios en vivo",
+    sectionEyebrow: "Empieza aquí",
+    sectionTitle: "Las rutas que importan",
+    sectionDescription: "Tres rutas. Sin relleno.",
+    routes: {
+      playNowTitle: "Jugar ahora",
+      playNowDescription: "Launcher + cliente base.",
+      playNowLabel: "Abrir descargas",
+      createAccountTitle: "Crear cuenta",
+      createAccountDescription: "Deja tu login preparado primero.",
+      rankingsTitle: "Rankings",
+      rankingsDescription: "Consulta jugadores y gremios.",
+      rankingsLabel: "Ver rankings",
+    },
+  },
+  downloads: {
+    eyebrow: "Descargas",
+    title: "Una descarga entre tú y el servidor.",
+    description: "Descarga el launcher, parchea y entra.",
+    chipWindows: "Soporte oficial para Windows",
+    chipWine: "Linux vía Wine",
+    chipBaseClient: "Cliente base incluido",
+    chipResume: "Descarga reanudable",
+    checksumAriaLabel: "Copiar checksum SHA256",
+    nextIntro:
+      "Si no has terminado tras la descarga, estas son las otras páginas que los jugadores suelen abrir después.",
+    routes: {
+      createAccountTitle: "Crear cuenta",
+      createAccountDescription: "Prepara primero tu login.",
+      signInTitle: "Entrar",
+      signInDescription: "Usa tu cuenta cuando el launcher esté listo.",
+      liveRankingsTitle: "Rankings en vivo",
+      liveRankingsDescription: "Consulta jugadores y gremios.",
+    },
+  },
+  rankings: {
+    eyebrow: "Rankings",
+    unavailableTitle: "Rankings en vivo no disponibles",
+    unavailableDescription: "Vuelve a intentarlo en un momento.",
+    unavailableAlertTitle: "Feed de rankings no disponible",
+    characterTitle: "Ladder de personajes",
+    characterDescription: "Top de personajes del servidor en vivo.",
+    noCharactersTitle: "Aún no hay personajes en la tabla",
+    noCharactersDescription:
+      "El feed funciona bien, pero ahora mismo no hay personajes visibles.",
+    guildEyebrow: "Gremios",
+    guildTitle: "Ladder de gremios",
+    guildDescription: "Clasificación de gremios del servidor en vivo.",
+    noGuildsTitle: "Aún no hay gremios en la tabla",
+    noGuildsDescription:
+      "El feed funciona bien, pero ahora mismo no hay filas de gremios visibles.",
+    nextEyebrow: "Siguiente",
+    nextTitle: "¿Listo para escalar?",
+    nextDescription: "Cuenta. Descarga. Entrar.",
+    routes: {
+      createAccountTitle: "Crear cuenta",
+      createAccountDescription: "Deja tu login listo.",
+      downloadTitle: "Descargar launcher",
+      downloadDescription: "Baja el launcher y el cliente.",
+      signInTitle: "Entrar",
+      signInDescription: "Usa tu cuenta y entra.",
+    },
+    columns: {
+      character: "Personaje",
+      class: "Clase",
+      level: "Nivel",
+      playtime: "Tiempo jugado",
+      guild: "Gremio",
+      lastSeen: "Última vez",
+      ladder: "Ladder",
+      record: "Récord",
+    },
+  },
+  login: {
+    title: "Entrar",
+    noticeTitle: "Contraseña actualizada",
+    errorTitle: "No se pudo iniciar sesión",
+    needAccount: "¿Necesitas una cuenta?",
+  },
+  account: {
+    heroDescription: "Perfil, seguridad y acceso. Nada más.",
+    emailLabel: "Email",
+    activeSessions: (count) => `${count} sesión${count === 1 ? "" : "es"} activa${count === 1 ? "" : "s"}`,
+    downloadsAction: "Descargas",
+    rankingsAction: "Rankings",
+    signOutAction: "Salir",
+    overviewBadge: "Resumen",
+    securitySummaryTitle: "Resumen de seguridad",
+    accountBadge: "Cuenta",
+    accountDetailsTitle: "Detalles de la cuenta",
+    securityBadge: "Seguridad",
+    securityTitle: "Seguridad",
+    activityBadge: "Actividad",
+    activityTitle: "Actividad reciente",
+    passwordTitle: "Contraseña",
+    passwordDescription: "Al cambiarla se cerrarán las otras sesiones.",
+    sessionsTitle: "Sesiones",
+    sessionsDescription: "Primero la actual. Cierra el resto si hace falta.",
+    profileTitle: "Perfil",
+    profileDescription: "Email y código de borrado.",
+    noOtherSessionsTitle: "No hay otras sesiones activas",
+    noOtherSessionsDescription: "Esta cuenta solo está iniciada desde el dispositivo actual.",
+    noRecentActivityTitle: "Todavía no hay actividad reciente",
+    noRecentActivityDescription:
+      "Los eventos de login, recuperación y cambios de cuenta aparecerán aquí en cuanto se registren.",
+    profileUpdateFailed: "No se pudo actualizar el perfil",
+    profileUpdated: "Perfil actualizado",
+    passwordUpdateFailed: "No se pudo actualizar la contraseña",
+    passwordUpdated: "Contraseña actualizada",
+  },
+};
+
+const de: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Sprache",
+    switchTo: (nativeName) => `Sprache zu ${nativeName} wechseln`,
+  },
+  nav: {
+    home: "Start",
+    downloads: "Downloads",
+    rankings: "Rankings",
+  },
+  header: {
+    createAccount: "Konto erstellen",
+    signIn: "Anmelden",
+    liveLadders: "Live-Ranglisten",
+  },
+  common: {
+    createAccount: "Konto erstellen",
+    signIn: "Anmelden",
+    signOut: "Abmelden",
+    downloads: "Downloads",
+    rankings: "Rankings",
+    downloadLauncher: "Launcher herunterladen",
+    openDownloads: "Downloads öffnen",
+    viewRankings: "Rankings ansehen",
+    backToSignIn: "Zurück zur Anmeldung",
+    goToRecovery: "Zur Wiederherstellung",
+    forgotPassword: "Passwort vergessen?",
+    password: "Passwort",
+    confirmPassword: "Passwort bestätigen",
+    newPassword: "Neues Passwort",
+    confirmNewPassword: "Neues Passwort bestätigen",
+    currentPassword: "Aktuelles Passwort",
+    deleteCode: "Löschcode / Social-ID",
+    saveChanges: "Änderungen speichern",
+    savePassword: "Passwort speichern",
+    updatePassword: "Passwort aktualisieren",
+    createRecoveryLink: "Wiederherstellungslink erstellen",
+    copy: "Kopieren",
+    copied: "Kopiert",
+    copyFailed: "Kopieren fehlgeschlagen",
+    showPassword: "Passwort anzeigen",
+    hidePassword: "Passwort ausblenden",
+  },
+  validation: {
+    loginMin: (min) => `Login muss mindestens ${min} Zeichen lang sein.`,
+    loginMax: (max) => `Login darf höchstens ${max} Zeichen lang sein.`,
+    loginAlphanumeric: "Login darf nur Buchstaben und Zahlen enthalten.",
+    passwordMin: (min) => `Passwort muss mindestens ${min} Zeichen lang sein.`,
+    passwordMax: (max) => `Passwort darf höchstens ${max} Zeichen lang sein.`,
+    passwordAlphanumeric: "Passwort darf nur Buchstaben und Zahlen enthalten.",
+    socialIdMin: (min) => `Der Löschcode muss mindestens ${min} Zeichen lang sein.`,
+    socialIdMax: (max) => `Der Löschcode darf höchstens ${max} Zeichen lang sein.`,
+    socialIdAlphanumeric: "Der Löschcode darf nur Buchstaben und Zahlen enthalten.",
+    emailInvalid: "E-Mail muss eine gültige E-Mail-Adresse sein.",
+    emailMax: "E-Mail darf höchstens 64 Zeichen lang sein.",
+    passwordsMustMatch: "Passwörter müssen übereinstimmen.",
+    recoveryTokenLength: "Der Recovery-Token muss 64 Zeichen lang sein.",
+    recoveryTokenFormat: "Das Format des Recovery-Tokens ist ungültig.",
+  },
+  serverMessages: {
+    correctLoginFields: "Bitte korrigiere die markierten Login-Felder.",
+    correctRegisterFields: "Bitte korrigiere die markierten Registrierungsfelder.",
+    correctRecoveryFields: "Bitte korrigiere die markierten Wiederherstellungsfelder.",
+    correctResetFields: "Bitte korrigiere die markierten Reset-Felder.",
+    correctPasswordFields: "Bitte korrigiere die markierten Passwortfelder.",
+    correctProfileFields: "Bitte korrigiere die markierten Profilfelder.",
+    tooManySignInAttempts: "Zu viele Anmeldeversuche. Bitte warte ein paar Minuten und versuche es erneut.",
+    invalidCredentials: "Login oder Passwort ungültig.",
+    accountUnavailableForLogin: "Dieses Konto ist für die Anmeldung nicht verfügbar.",
+    loginTaken: "Dieser Login wird bereits verwendet.",
+    accountCreationFailed: "Das Konto konnte nicht erstellt werden.",
+    accountUnavailableNow: "Dieses Konto ist derzeit nicht verfügbar.",
+    currentPasswordIncorrectMessage: "Bitte gib das aktuelle Passwort korrekt ein.",
+    currentPasswordIncorrectField: "Das aktuelle Passwort ist falsch.",
+    passwordUpdatedSuccess: "Passwort erfolgreich aktualisiert.",
+    profileUpdatedSuccess: "Profil erfolgreich aktualisiert.",
+    recoveryPreviewGeneric:
+      "Wenn Login und E-Mail zu einem Konto passen, wurde ein Reset-Link erstellt.",
+    recoveryFileGeneric:
+      "Wenn Login und E-Mail zu einem Konto passen, wurde die Wiederherstellungsanfrage für die manuelle Zustellung vorgemerkt.",
+    recoveryInvalidOrExpired: "Dieser Wiederherstellungslink ist ungültig oder abgelaufen.",
+    recoveryPasswordUpdatedSuccess:
+      "Passwort erfolgreich aktualisiert. Du kannst dich jetzt mit dem neuen Passwort anmelden.",
+    rankingsNotConfigured: "Rankings sind noch nicht konfiguriert.",
+    rankingsTemporarilyUnavailable: "Rankings sind vorübergehend nicht verfügbar.",
+  },
+  rankingsMeta: {
+    classes: {
+      warrior: "Krieger",
+      ninja: "Ninja",
+      sura: "Sura",
+      shaman: "Schamane",
+      lycan: "Lykaner",
+      unknown: "Unbekannt",
+    },
+  },
+  login: {
+    title: "Anmelden",
+    noticeTitle: "Passwort aktualisiert",
+    errorTitle: "Anmeldung fehlgeschlagen",
+    needAccount: "Brauchst du ein Konto?",
+  },
+};
+
+const fr: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Langue",
+    switchTo: (nativeName) => `Changer la langue vers ${nativeName}`,
+  },
+  header: {
+    createAccount: "Créer un compte",
+    signIn: "Se connecter",
+    liveLadders: "Classements en direct",
+  },
+  common: {
+    createAccount: "Créer un compte",
+    signIn: "Se connecter",
+    signOut: "Se déconnecter",
+    downloadLauncher: "Télécharger le launcher",
+    openDownloads: "Ouvrir les téléchargements",
+    viewRankings: "Voir les classements",
+    backToSignIn: "Retour à la connexion",
+    forgotPassword: "Mot de passe oublié ?",
+    copy: "Copier",
+    copied: "Copié",
+    copyFailed: "Échec de la copie",
+    showPassword: "Afficher le mot de passe",
+    hidePassword: "Masquer le mot de passe",
+  },
+  home: {
+    heroLineOne: "Entrez sur le serveur.",
+    heroLineTwo: "Commencez à grimper.",
+    sectionTitle: "Les routes qui comptent",
+    sectionDescription: "Trois routes. Aucun remplissage.",
+  },
+};
+
+const it: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Lingua",
+    switchTo: (nativeName) => `Cambia lingua in ${nativeName}`,
+  },
+  header: {
+    createAccount: "Crea account",
+    signIn: "Accedi",
+    liveLadders: "Classifiche live",
+  },
+  common: {
+    createAccount: "Crea account",
+    signIn: "Accedi",
+    signOut: "Esci",
+    downloadLauncher: "Scarica launcher",
+    openDownloads: "Apri download",
+    viewRankings: "Vedi classifiche",
+    backToSignIn: "Torna al login",
+    forgotPassword: "Password dimenticata?",
+    copy: "Copia",
+    copied: "Copiato",
+    copyFailed: "Copia fallita",
+    showPassword: "Mostra password",
+    hidePassword: "Nascondi password",
+  },
+  home: {
+    heroLineOne: "Entra nel server.",
+    heroLineTwo: "Inizia a salire.",
+    sectionTitle: "Le rotte che contano",
+    sectionDescription: "Tre rotte. Niente riempitivi.",
+  },
+};
+
+const tr: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Dil",
+    switchTo: (nativeName) => `Dili ${nativeName} olarak değiştir`,
+  },
+  header: {
+    createAccount: "Hesap oluştur",
+    signIn: "Giriş yap",
+    liveLadders: "Canlı sıralamalar",
+  },
+  common: {
+    createAccount: "Hesap oluştur",
+    signIn: "Giriş yap",
+    signOut: "Çıkış yap",
+    downloadLauncher: "Launcher indir",
+    openDownloads: "İndirmeleri aç",
+    viewRankings: "Sıralamaları görüntüle",
+    backToSignIn: "Girişe dön",
+    forgotPassword: "Şifreni mi unuttun?",
+    copy: "Kopyala",
+    copied: "Kopyalandı",
+    copyFailed: "Kopyalama başarısız",
+    showPassword: "Şifreyi göster",
+    hidePassword: "Şifreyi gizle",
+  },
+  validation: {
+    loginMin: (min) => `Giriş adı en az ${min} karakter olmalıdır.`,
+    loginMax: (max) => `Giriş adı en fazla ${max} karakter olabilir.`,
+    loginAlphanumeric: "Giriş adı yalnızca harf ve rakam içerebilir.",
+    passwordMin: (min) => `Şifre en az ${min} karakter olmalıdır.`,
+    passwordMax: (max) => `Şifre en fazla ${max} karakter olabilir.`,
+    passwordAlphanumeric: "Şifre yalnızca harf ve rakam içerebilir.",
+    socialIdMin: (min) => `Silme kodu en az ${min} karakter olmalıdır.`,
+    socialIdMax: (max) => `Silme kodu en fazla ${max} karakter olabilir.`,
+    socialIdAlphanumeric: "Silme kodu yalnızca harf ve rakam içerebilir.",
+    emailInvalid: "E-posta geçerli bir adres olmalıdır.",
+    emailMax: "E-posta en fazla 64 karakter olabilir.",
+    passwordsMustMatch: "Şifreler eşleşmelidir.",
+    recoveryTokenLength: "Kurtarma tokeni 64 karakter olmalıdır.",
+    recoveryTokenFormat: "Kurtarma tokeni biçimi geçersiz.",
+  },
+  home: {
+    heroLineOne: "Sunucuya gir.",
+    heroLineTwo: "Tırmanmaya başla.",
+    sectionTitle: "Önemli rotalar",
+    sectionDescription: "Üç rota. Gereksiz hiçbir şey yok.",
+  },
+};
+
+const pl: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Język",
+    switchTo: (nativeName) => `Zmień język na ${nativeName}`,
+  },
+  header: {
+    createAccount: "Utwórz konto",
+    signIn: "Zaloguj się",
+    liveLadders: "Rankingi na żywo",
+  },
+  common: {
+    createAccount: "Utwórz konto",
+    signIn: "Zaloguj się",
+    signOut: "Wyloguj się",
+    downloadLauncher: "Pobierz launcher",
+    openDownloads: "Otwórz pobieranie",
+    viewRankings: "Zobacz rankingi",
+    backToSignIn: "Wróć do logowania",
+    forgotPassword: "Nie pamiętasz hasła?",
+    copy: "Kopiuj",
+    copied: "Skopiowano",
+    copyFailed: "Kopiowanie nie powiodło się",
+    showPassword: "Pokaż hasło",
+    hidePassword: "Ukryj hasło",
+  },
+};
+
+const pt: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Idioma",
+    switchTo: (nativeName) => `Mudar idioma para ${nativeName}`,
+  },
+  header: {
+    createAccount: "Criar conta",
+    signIn: "Entrar",
+    liveLadders: "Rankings em direto",
+  },
+  common: {
+    createAccount: "Criar conta",
+    signIn: "Entrar",
+    signOut: "Sair",
+    downloadLauncher: "Transferir launcher",
+    openDownloads: "Abrir downloads",
+    viewRankings: "Ver rankings",
+    backToSignIn: "Voltar ao login",
+    forgotPassword: "Esqueceste-te da palavra-passe?",
+    copy: "Copiar",
+    copied: "Copiado",
+    copyFailed: "Falha ao copiar",
+    showPassword: "Mostrar palavra-passe",
+    hidePassword: "Ocultar palavra-passe",
+  },
+};
+
+const ro: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Limbă",
+    switchTo: (nativeName) => `Schimbă limba în ${nativeName}`,
+  },
+  header: {
+    createAccount: "Creează cont",
+    signIn: "Autentificare",
+    liveLadders: "Clasamente live",
+  },
+  common: {
+    createAccount: "Creează cont",
+    signIn: "Autentificare",
+    signOut: "Deconectare",
+    downloadLauncher: "Descarcă launcherul",
+    openDownloads: "Deschide descărcările",
+    viewRankings: "Vezi clasamentele",
+    backToSignIn: "Înapoi la autentificare",
+    forgotPassword: "Ai uitat parola?",
+    copy: "Copiază",
+    copied: "Copiat",
+    copyFailed: "Copiere eșuată",
+    showPassword: "Arată parola",
+    hidePassword: "Ascunde parola",
+  },
+};
+
+const cs: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Jazyk",
+    switchTo: (nativeName) => `Přepnout jazyk na ${nativeName}`,
+  },
+  header: {
+    createAccount: "Vytvořit účet",
+    signIn: "Přihlásit se",
+    liveLadders: "Živé žebříčky",
+  },
+  common: {
+    createAccount: "Vytvořit účet",
+    signIn: "Přihlásit se",
+    signOut: "Odhlásit se",
+    downloadLauncher: "Stáhnout launcher",
+    openDownloads: "Otevřít downloady",
+    viewRankings: "Zobrazit žebříčky",
+    backToSignIn: "Zpět na přihlášení",
+    forgotPassword: "Zapomněli jste heslo?",
+    copy: "Kopírovat",
+    copied: "Zkopírováno",
+    copyFailed: "Kopírování selhalo",
+    showPassword: "Zobrazit heslo",
+    hidePassword: "Skrýt heslo",
+  },
+};
+
+const hu: DeepPartial<Messages> = {
+  localeSwitcher: {
+    label: "Nyelv",
+    switchTo: (nativeName) => `Nyelv váltása erre: ${nativeName}`,
+  },
+  header: {
+    createAccount: "Fiók létrehozása",
+    signIn: "Bejelentkezés",
+    liveLadders: "Élő ranglisták",
+  },
+  common: {
+    createAccount: "Fiók létrehozása",
+    signIn: "Bejelentkezés",
+    signOut: "Kijelentkezés",
+    downloadLauncher: "Launcher letöltése",
+    openDownloads: "Letöltések megnyitása",
+    viewRankings: "Ranglisták megtekintése",
+    backToSignIn: "Vissza a bejelentkezéshez",
+    forgotPassword: "Elfelejtetted a jelszót?",
+    copy: "Másolás",
+    copied: "Kimásolva",
+    copyFailed: "Másolás sikertelen",
+    showPassword: "Jelszó megjelenítése",
+    hidePassword: "Jelszó elrejtése",
+  },
+};
+
+const overrides: Record<Locale, DeepPartial<Messages> | undefined> = {
+  en: undefined,
+  de,
+  es,
+  fr,
+  it,
+  tr,
+  pl,
+  pt,
+  ro,
+  cs,
+  hu,
+};
+
+const cache = new Map<Locale, Messages>();
+
+export function getMessages(locale: Locale = defaultLocale) {
+  const cached = cache.get(locale);
+
+  if (cached) {
+    return cached;
+  }
+
+  const nextMessages = mergeMessages(en, overrides[locale]);
+  cache.set(locale, nextMessages);
+  return nextMessages;
+}

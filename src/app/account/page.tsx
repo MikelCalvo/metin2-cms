@@ -25,6 +25,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAccountLastPlayTimestamp } from "@/lib/account-ui-formatters";
+import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
+import { defaultLocale } from "@/lib/i18n/config";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
@@ -101,6 +103,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     redirect("/login");
   }
 
+  const locale = await getCurrentLocale();
+  const messages = await getMessagesForRequest();
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const activityPage = normalizeActivityPage(
     getSingleSearchParam(resolvedSearchParams.activityPage),
@@ -108,20 +112,35 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   const activityOffset = (activityPage - 1) * ACTIVITY_PAGE_SIZE;
   const { account, session } = authenticated;
   const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
-  const recentAuthActivity = await listRecentAuthActivityForAccount(account.id);
-  const paginatedAuthActivity = await listRecentAuthActivityForAccount(
-    account.id,
-    ACTIVITY_PAGE_SIZE + 1,
-    activityOffset,
-  );
+  const recentAuthActivity =
+    locale === defaultLocale
+      ? await listRecentAuthActivityForAccount(account.id)
+      : await listRecentAuthActivityForAccount(account.id, undefined, undefined, locale);
+  const paginatedAuthActivity =
+    locale === defaultLocale
+      ? await listRecentAuthActivityForAccount(
+          account.id,
+          ACTIVITY_PAGE_SIZE + 1,
+          activityOffset,
+        )
+      : await listRecentAuthActivityForAccount(
+          account.id,
+          ACTIVITY_PAGE_SIZE + 1,
+          activityOffset,
+          locale,
+        );
   const hasNextActivityPage = paginatedAuthActivity.length > ACTIVITY_PAGE_SIZE;
   const visibleAuthActivity = paginatedAuthActivity.slice(0, ACTIVITY_PAGE_SIZE);
   const hasPreviousActivityPage = activityPage > 1;
-  const formattedLastPlay = formatAccountLastPlayTimestamp(account.lastPlay);
+  const formattedLastPlay =
+    locale === defaultLocale
+      ? formatAccountLastPlayTimestamp(account.lastPlay)
+      : formatAccountLastPlayTimestamp(account.lastPlay, new Date(), locale);
   const securitySummary = buildAccountSecuritySummary({
     currentSessionId: session.id,
     activeSessions,
     recentAuthActivity,
+    locale,
   });
   const currentActiveSession =
     activeSessions.find((activeSession) => activeSession.id === session.id) ?? activeSessions[0] ?? null;
@@ -137,7 +156,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             <div className="max-w-3xl space-y-5">
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
-                  Account
+                  {messages.account.eyebrow}
                 </p>
                 <StatusChip tone={account.status === "OK" ? "success" : "attention"}>
                   {account.status}
@@ -148,18 +167,18 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   {account.login}
                 </h1>
                 <p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
-                  Profile, security and access. Nothing else.
+                  {messages.account.heroDescription}
                 </p>
               </div>
               <div className="flex flex-wrap gap-3 text-sm text-zinc-400">
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                  Email: {account.email || "Not configured"}
+                  {messages.account.emailLabel}: {account.email || messages.common.notConfigured}
                 </div>
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                  {activeSessions.length} active session{activeSessions.length === 1 ? "" : "s"}
+                  {messages.account.activeSessions(activeSessions.length)}
                 </div>
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                  Last play: {formattedLastPlay}
+                  {messages.common.lastPlay}: {formattedLastPlay}
                 </div>
               </div>
               <div data-slot="account-primary-actions" className="flex flex-wrap gap-3">
@@ -169,7 +188,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   className="h-11 justify-between bg-violet-500 px-5 text-white hover:bg-violet-400"
                 >
                   <Link href="/downloads">
-                    Downloads
+                    {messages.account.downloadsAction}
                     <DownloadIcon className="size-4" />
                   </Link>
                 </Button>
@@ -180,7 +199,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   className="h-11 justify-between border-white/10 bg-white/5 px-5 text-zinc-100 hover:bg-white/10"
                 >
                   <Link href="/rankings">
-                    Rankings
+                    {messages.account.rankingsAction}
                     <TrophyIcon className="size-4" />
                   </Link>
                 </Button>
@@ -191,7 +210,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                     variant="outline"
                     className="h-11 justify-between border-white/10 bg-white/5 px-5 text-zinc-100 hover:bg-white/10"
                   >
-                    Sign out
+                    {messages.account.signOutAction}
                     <LogOutIcon className="size-4" />
                   </Button>
                 </form>
@@ -201,8 +220,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </section>
 
         <DashboardSection
-          badge="Overview"
-          title="Security summary"
+          badge={messages.account.overviewBadge}
+          title={messages.account.securitySummaryTitle}
           contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
         >
           {securitySummary.map((item) => (
@@ -218,8 +237,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge="Account"
-          title="Account details"
+          badge={messages.account.accountBadge}
+          title={messages.account.accountDetailsTitle}
           contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]"
         >
           <ProfileSettingsForm
@@ -231,37 +250,37 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
 
           <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-xl text-white">Game account</CardTitle>
+              <CardTitle className="text-xl text-white">{messages.common.gameAccount}</CardTitle>
               <CardDescription className="text-sm leading-6 text-zinc-400">
-                Read only.
+                {messages.common.readOnly}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <WalletIcon className="size-4" />
-                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">Cash</p>
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.cash}</p>
                 </div>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.cash}</p>
               </div>
               <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <CoinsIcon className="size-4" />
-                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">Mileage</p>
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.mileage}</p>
                 </div>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.mileage}</p>
               </div>
               <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <ShieldCheckIcon className="size-4" />
-                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">Status</p>
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.status}</p>
                 </div>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.status}</p>
               </div>
               <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <SparklesIcon className="size-4" />
-                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">Last play</p>
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.lastPlay}</p>
                 </div>
                 <p className="mt-2 text-base font-semibold tracking-tight text-white">
                   {formattedLastPlay}
@@ -272,8 +291,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge="Security"
-          title="Security"
+          badge={messages.account.securityBadge}
+          title={messages.account.securityTitle}
           contentClassName="grid gap-4 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]"
         >
           <ChangePasswordForm />
@@ -282,9 +301,9 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1">
-                  <CardTitle className="text-xl text-white">Sessions</CardTitle>
+                  <CardTitle className="text-xl text-white">{messages.account.sessionsTitle}</CardTitle>
                   <CardDescription className="text-sm leading-6 text-zinc-400">
-                    Current first. Close the rest if needed.
+                    {messages.account.sessionsDescription}
                   </CardDescription>
                 </div>
                 {otherActiveSessions.length > 0 ? (
@@ -294,7 +313,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                       variant="outline"
                       className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                     >
-                      Close other sessions
+                      {messages.common.closeOtherSessions}
                     </Button>
                   </form>
                 ) : null}
@@ -312,9 +331,9 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
               ) : (
                 <Alert className="border-white/10 bg-black/20 text-zinc-100">
                   <ShieldCheckIcon className="size-4" />
-                  <AlertTitle>No other active sessions</AlertTitle>
+                  <AlertTitle>{messages.account.noOtherSessionsTitle}</AlertTitle>
                   <AlertDescription className="text-zinc-400">
-                    This account is only signed in from the current device right now.
+                    {messages.account.noOtherSessionsDescription}
                   </AlertDescription>
                 </Alert>
               )}
@@ -323,8 +342,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge="Activity"
-          title="Recent activity"
+          badge={messages.account.activityBadge}
+          title={messages.account.activityTitle}
           contentClassName="space-y-3"
         >
           {visibleAuthActivity.length > 0 ? (
@@ -332,9 +351,9 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           ) : (
             <Alert className="border-white/10 bg-white/[0.04] text-zinc-100">
               <SparklesIcon className="size-4" />
-              <AlertTitle>No recent activity yet</AlertTitle>
+              <AlertTitle>{messages.account.noRecentActivityTitle}</AlertTitle>
               <AlertDescription className="text-zinc-400">
-                Sign-in, recovery and account-setting events will start appearing here as soon as they are recorded.
+                {messages.account.noRecentActivityDescription}
               </AlertDescription>
             </Alert>
           )}
@@ -348,7 +367,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                 >
                   <Link href={buildActivityPageHref(resolvedSearchParams, activityPage - 1)}>
-                    Newer activity
+                    {messages.common.newerActivity}
                   </Link>
                 </Button>
               ) : null}
@@ -360,7 +379,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                 >
                   <Link href={buildActivityPageHref(resolvedSearchParams, activityPage + 1)}>
-                    Older activity
+                    {messages.common.olderActivity}
                   </Link>
                 </Button>
               ) : null}

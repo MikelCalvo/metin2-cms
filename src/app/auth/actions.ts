@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 
+import { defaultLocale } from "@/lib/i18n/config";
+import { getCurrentLocale } from "@/lib/i18n/server";
 import {
   authenticateLegacyAccount,
   registerLegacyCompatibleAccount,
@@ -13,7 +15,10 @@ import {
   parseLoginFormData,
   parseRegisterFormData,
 } from "@/server/auth/validation";
-import { createRecoveryErrorState, createRecoverySuccessState } from "@/server/recovery/action-state";
+import {
+  createRecoveryErrorState,
+  createRecoverySuccessState,
+} from "@/server/recovery/action-state";
 import {
   requestPasswordRecovery,
   resetPasswordWithRecoveryToken,
@@ -27,17 +32,23 @@ import {
   clearAuthenticatedSession,
   issueAuthenticatedSession,
 } from "@/server/session/session-service";
+import { getMessages } from "@/lib/i18n/messages";
 
 export async function loginAction(
   _previousState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  const locale = await getCurrentLocale();
+  const messages = getMessages(locale);
   const metadata = await getRequestMetadata();
-  const parsed = parseLoginFormData(formData, metadata);
+  const parsed =
+    locale === defaultLocale
+      ? parseLoginFormData(formData, metadata)
+      : parseLoginFormData(formData, metadata, locale);
 
   if (!parsed.success) {
     return createAuthErrorState({
-      message: "Please correct the highlighted login fields.",
+      message: messages.serverMessages.correctLoginFields,
       fieldErrors: parsed.error.flatten().fieldErrors,
       values: {
         login:
@@ -48,7 +59,10 @@ export async function loginAction(
     });
   }
 
-  const result = await authenticateLegacyAccount(parsed.data);
+  const result =
+    locale === defaultLocale
+      ? await authenticateLegacyAccount(parsed.data)
+      : await authenticateLegacyAccount(parsed.data, locale);
 
   if (!result.ok) {
     return createAuthErrorState({
@@ -73,12 +87,17 @@ export async function registerAction(
   _previousState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  const locale = await getCurrentLocale();
+  const messages = getMessages(locale);
   const metadata = await getRequestMetadata();
-  const parsed = parseRegisterFormData(formData, metadata);
+  const parsed =
+    locale === defaultLocale
+      ? parseRegisterFormData(formData, metadata)
+      : parseRegisterFormData(formData, metadata, locale);
 
   if (!parsed.success) {
     return createAuthErrorState({
-      message: "Please correct the highlighted registration fields.",
+      message: messages.serverMessages.correctRegisterFields,
       fieldErrors: parsed.error.flatten().fieldErrors,
       values: {
         login:
@@ -97,7 +116,10 @@ export async function registerAction(
     });
   }
 
-  const result = await registerLegacyCompatibleAccount(parsed.data);
+  const result =
+    locale === defaultLocale
+      ? await registerLegacyCompatibleAccount(parsed.data)
+      : await registerLegacyCompatibleAccount(parsed.data, locale);
 
   if (!result.ok) {
     return createAuthErrorState({
@@ -125,12 +147,17 @@ export async function requestRecoveryAction(
   _previousState: RecoveryActionState,
   formData: FormData,
 ): Promise<RecoveryActionState> {
+  const locale = await getCurrentLocale();
+  const messages = getMessages(locale);
   const metadata = await getRequestMetadata();
-  const parsed = parseRecoveryRequestFormData(formData, metadata);
+  const parsed =
+    locale === defaultLocale
+      ? parseRecoveryRequestFormData(formData, metadata)
+      : parseRecoveryRequestFormData(formData, metadata, locale);
 
   if (!parsed.success) {
     return createRecoveryErrorState({
-      message: "Please correct the highlighted recovery fields.",
+      message: messages.serverMessages.correctRecoveryFields,
       fieldErrors: parsed.error.flatten().fieldErrors,
       values: {
         login:
@@ -145,7 +172,10 @@ export async function requestRecoveryAction(
     });
   }
 
-  const result = await requestPasswordRecovery(parsed.data);
+  const result =
+    locale === defaultLocale
+      ? await requestPasswordRecovery(parsed.data)
+      : await requestPasswordRecovery(parsed.data, locale);
 
   return createRecoverySuccessState({
     message: result.message,
@@ -161,11 +191,16 @@ export async function resetPasswordAction(
   _previousState: RecoveryActionState,
   formData: FormData,
 ): Promise<RecoveryActionState> {
-  const parsed = parseResetPasswordFormData(formData);
+  const locale = await getCurrentLocale();
+  const messages = getMessages(locale);
+  const parsed =
+    locale === defaultLocale
+      ? parseResetPasswordFormData(formData)
+      : parseResetPasswordFormData(formData, locale);
 
   if (!parsed.success) {
     return createRecoveryErrorState({
-      message: "Please correct the highlighted password reset fields.",
+      message: messages.serverMessages.correctResetFields,
       fieldErrors: parsed.error.flatten().fieldErrors,
       values: {
         token:
@@ -176,7 +211,10 @@ export async function resetPasswordAction(
     });
   }
 
-  const result = await resetPasswordWithRecoveryToken(parsed.data);
+  const result =
+    locale === defaultLocale
+      ? await resetPasswordWithRecoveryToken(parsed.data)
+      : await resetPasswordWithRecoveryToken(parsed.data, locale);
 
   if (!result.ok) {
     return createRecoveryErrorState({

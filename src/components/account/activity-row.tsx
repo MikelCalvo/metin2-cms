@@ -1,3 +1,5 @@
+"use client";
+
 import { ActivityIcon, AlertTriangleIcon, KeyRoundIcon, ShieldCheckIcon, UserIcon } from "lucide-react";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -8,6 +10,7 @@ import { cn } from "@/lib/utils";
 import type { AccountAuthActivityEntry } from "@/server/auth/auth-audit-service";
 
 import { StatusChip } from "@/components/account/status-chip";
+import { useI18n } from "@/components/i18n/i18n-provider";
 
 function renderActivityIcon(entry: AccountAuthActivityEntry) {
   if (entry.eventType === "login" && entry.success) {
@@ -33,7 +36,8 @@ function renderActivityIcon(entry: AccountAuthActivityEntry) {
 }
 
 export function ActivityRow({ entry }: { entry: AccountAuthActivityEntry }) {
-  const deviceLabel = summarizeUserAgent(entry.userAgent);
+  const { locale, messages } = useI18n();
+  const deviceLabel = summarizeUserAgent(entry.userAgent, locale);
 
   return (
     <Card className="border-white/10 bg-white/[0.04] shadow-xl shadow-black/20 backdrop-blur-xl">
@@ -54,29 +58,29 @@ export function ActivityRow({ entry }: { entry: AccountAuthActivityEntry }) {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-base font-medium text-white">{entry.title}</p>
                 <StatusChip tone={entry.success ? "success" : "attention"}>
-                  {entry.success ? "Success" : "Attention"}
+                  {entry.success ? messages.common.success : messages.common.attention}
                 </StatusChip>
               </div>
               <p className="max-w-2xl text-sm leading-6 text-zinc-400">{entry.description}</p>
             </div>
           </div>
           <p className="text-sm font-medium text-zinc-300">
-            {formatAccountEventTimestamp(entry.occurredAt)}
+            {formatAccountEventTimestamp(entry.occurredAt, new Date(), locale)}
           </p>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Device</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.device}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{deviceLabel}</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">IP address</p>
-            <p className="mt-1 text-sm font-medium text-zinc-100">{entry.ip || "—"}</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.ipAddress}</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{entry.ip || messages.common.noValue}</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Outcome</p>
-            <p className="mt-1 text-sm font-medium text-zinc-100">{entry.outcome}</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.outcome}</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{entry.outcomeLabel || entry.outcome}</p>
           </div>
         </div>
 
@@ -85,17 +89,19 @@ export function ActivityRow({ entry }: { entry: AccountAuthActivityEntry }) {
         <Accordion type="single" collapsible>
           <AccordionItem value={String(entry.id)} className="border-none">
             <AccordionTrigger className="py-0 text-sm text-zinc-300 hover:no-underline">
-              Raw event details
+              {messages.common.rawEventDetails}
             </AccordionTrigger>
             <AccordionContent className="pt-3">
               <dl className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
                 <div className="space-y-1">
-                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">User agent</dt>
-                  <dd className="break-all text-zinc-100">{entry.userAgent || "—"}</dd>
+                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.userAgent}</dt>
+                  <dd className="break-all text-zinc-100">{entry.userAgent || messages.common.noValue}</dd>
                 </div>
                 <div className="space-y-1">
-                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">Delivery</dt>
-                  <dd className="text-zinc-100">{entry.deliveryMode || "—"}</dd>
+                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.delivery}</dt>
+                  <dd className="text-zinc-100">
+                    {entry.deliveryModeLabel ?? entry.deliveryMode ?? messages.common.noValue}
+                  </dd>
                 </div>
               </dl>
             </AccordionContent>

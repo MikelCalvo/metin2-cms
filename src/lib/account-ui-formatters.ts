@@ -1,9 +1,11 @@
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import {
   formatRelativeMysqlTimestamp,
   getCalendarTimestampLabel,
 } from "@/lib/time/mysql-timestamps";
 
-function detectBrowser(userAgent: string) {
+function detectBrowser(userAgent: string, locale: Locale) {
   const browserMatchers = [
     { regex: /OPR\/(\d+)/, label: "Opera" },
     { regex: /Edg\/(\d+)/, label: "Edge" },
@@ -20,10 +22,10 @@ function detectBrowser(userAgent: string) {
     }
   }
 
-  return "Unknown browser";
+  return getMessages(locale).device.unknownBrowser;
 }
 
-function detectPlatform(userAgent: string) {
+function detectPlatform(userAgent: string, locale: Locale) {
   if (/Mac OS X|Macintosh/.test(userAgent)) {
     return "macOS";
   }
@@ -44,29 +46,34 @@ function detectPlatform(userAgent: string) {
     return "Linux";
   }
 
-  return "Unknown platform";
+  return getMessages(locale).device.unknownPlatform;
 }
 
-export function summarizeUserAgent(userAgent: string | null | undefined) {
+export function summarizeUserAgent(
+  userAgent: string | null | undefined,
+  locale: Locale = defaultLocale,
+) {
   if (!userAgent) {
-    return "Unknown device";
+    return getMessages(locale).device.unknownDevice;
   }
 
-  return `${detectBrowser(userAgent)} · ${detectPlatform(userAgent)}`;
+  return `${detectBrowser(userAgent, locale)} · ${detectPlatform(userAgent, locale)}`;
 }
 
 export function formatAccountEventTimestamp(
   mysqlDateTime: string,
   now = new Date(),
+  locale: Locale = defaultLocale,
 ) {
-  return getCalendarTimestampLabel(mysqlDateTime, now);
+  return getCalendarTimestampLabel(mysqlDateTime, now, locale);
 }
 
 export function formatAccountLastPlayTimestamp(
   mysqlDateTime: string | null | undefined,
   now = new Date(),
+  locale: Locale = defaultLocale,
 ) {
-  return formatRelativeMysqlTimestamp(mysqlDateTime, now);
+  return formatRelativeMysqlTimestamp(mysqlDateTime, now, locale);
 }
 
 export function formatSessionIdentifier(sessionId: string) {

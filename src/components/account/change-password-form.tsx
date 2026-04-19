@@ -5,6 +5,7 @@ import { useActionState } from "react";
 
 import { changePasswordAction } from "@/app/account/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,13 +17,14 @@ export function ChangePasswordForm() {
     changePasswordAction,
     emptyAccountPasswordChangeActionState,
   );
+  const { messages } = useI18n();
 
   return (
     <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
       <CardHeader className="space-y-2">
-        <CardTitle className="text-lg text-white">Password</CardTitle>
+        <CardTitle className="text-lg text-white">{messages.account.passwordTitle}</CardTitle>
         <CardDescription className="text-zinc-400">
-          Changing it closes the other sessions.
+          {messages.account.passwordDescription}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -42,7 +44,9 @@ export function ChangePasswordForm() {
                 <KeyRoundIcon className="size-4" />
               )}
               <AlertTitle>
-                {state.status === "error" ? "Password update failed" : "Password updated"}
+                {state.status === "error"
+                  ? messages.account.passwordUpdateFailed
+                  : messages.account.passwordUpdated}
               </AlertTitle>
               <AlertDescription className={state.status === "error" ? "text-red-100/90" : "text-emerald-100/90"}>
                 {state.message}
@@ -52,7 +56,7 @@ export function ChangePasswordForm() {
 
           <div className="space-y-2">
             <Label htmlFor="currentPassword" className="text-zinc-200">
-              Current password
+              {messages.common.currentPassword}
             </Label>
             <Input
               id="currentPassword"
@@ -70,7 +74,7 @@ export function ChangePasswordForm() {
           <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="newPassword" className="text-zinc-200">
-                New password
+                {messages.common.newPassword}
               </Label>
               <Input
                 id="newPassword"
@@ -87,7 +91,7 @@ export function ChangePasswordForm() {
 
             <div className="space-y-2">
               <Label htmlFor="newPasswordConfirmation" className="text-zinc-200">
-                Confirm new password
+                {messages.common.confirmNewPassword}
               </Label>
               <Input
                 id="newPasswordConfirmation"
@@ -104,8 +108,8 @@ export function ChangePasswordForm() {
           </div>
 
           <AuthSubmitButton
-            idleLabel="Save password"
-            pendingLabel="Saving password..."
+            idleLabel={messages.common.savePassword}
+            pendingLabel={messages.common.savePasswordPending}
             className="bg-violet-500 text-white hover:bg-violet-400"
           />
         </form>

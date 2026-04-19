@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { CmsPageHeader, CmsPageShell } from "@/components/cms/page-shell";
@@ -33,6 +36,8 @@ export function AuthPageShell({
   footer,
   children,
 }: AuthPageShellProps) {
+  const { messages } = useI18n();
+
   return (
     <CmsPageShell containerClassName="justify-center">
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.85fr)] xl:items-stretch">
@@ -45,10 +50,10 @@ export function AuthPageShell({
               className="border-none bg-transparent p-0 shadow-none"
             >
               <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                Legacy-compatible auth
+                {messages.authShell.compatibilityChip}
               </div>
               <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                SSR + secure sessions
+                {messages.authShell.secureSessionsChip}
               </div>
             </CmsPageHeader>
 
@@ -88,7 +93,7 @@ export function AuthPageShell({
                             variant="secondary"
                             className="border border-white/10 bg-white/5 text-zinc-300"
                           >
-                            Ready
+                            {messages.authShell.ready}
                           </Badge>
                         </div>
                         <p className="text-sm leading-6 text-zinc-400">{item.description}</p>

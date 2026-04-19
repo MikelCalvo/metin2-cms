@@ -1,5 +1,7 @@
 import "server-only";
 
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import type { NewLegacyAccount } from "@/lib/db/schema/account";
 import {
   createLegacyAccount,
@@ -34,6 +36,7 @@ function buildLoginAuditDetail(outcome: string) {
 
 export async function authenticateLegacyAccount(
   input: LoginInput,
+  locale: Locale = defaultLocale,
 ): Promise<AuthenticateLegacyAccountResult> {
   const attemptedAt = new Date();
   const createdAt = toMysqlDateTime(attemptedAt);
@@ -46,6 +49,7 @@ export async function authenticateLegacyAccount(
     since: recentFailureWindowStartedAt,
     success: 0,
   });
+  const serverMessages = getMessages(locale).serverMessages;
 
   if (recentFailedAttempts >= LOGIN_RATE_LIMIT_MAX_FAILURES) {
     await createAuthAuditLogEntry({
@@ -62,7 +66,7 @@ export async function authenticateLegacyAccount(
     return {
       ok: false,
       code: "rate_limited",
-      message: "Too many sign-in attempts. Please wait a few minutes and try again.",
+      message: serverMessages.tooManySignInAttempts,
     };
   }
 
@@ -83,7 +87,7 @@ export async function authenticateLegacyAccount(
     return {
       ok: false,
       code: "invalid_credentials",
-      message: "Invalid login or password.",
+      message: serverMessages.invalidCredentials,
     };
   }
 
@@ -104,7 +108,7 @@ export async function authenticateLegacyAccount(
     return {
       ok: false,
       code: "invalid_credentials",
-      message: "Invalid login or password.",
+      message: serverMessages.invalidCredentials,
     };
   }
 
@@ -123,7 +127,7 @@ export async function authenticateLegacyAccount(
     return {
       ok: false,
       code: "account_unavailable",
-      message: "This account is not available for login.",
+      message: serverMessages.accountUnavailableForLogin,
     };
   }
 
@@ -146,16 +150,18 @@ export async function authenticateLegacyAccount(
 
 export async function registerLegacyCompatibleAccount(
   input: RegisterInput,
+  locale: Locale = defaultLocale,
 ): Promise<RegisterLegacyCompatibleAccountResult> {
   const existingAccount = await findAccountByLogin(input.login);
+  const serverMessages = getMessages(locale).serverMessages;
 
   if (existingAccount) {
     return {
       ok: false,
       code: "login_taken",
-      message: "That login is already in use.",
+      message: serverMessages.loginTaken,
       fieldErrors: {
-        login: ["That login is already in use."],
+        login: [serverMessages.loginTaken],
       },
     };
   }
@@ -183,9 +189,9 @@ export async function registerLegacyCompatibleAccount(
       return {
         ok: false,
         code: "login_taken",
-        message: "That login is already in use.",
+        message: serverMessages.loginTaken,
         fieldErrors: {
-          login: ["That login is already in use."],
+          login: [serverMessages.loginTaken],
         },
       };
     }
@@ -199,7 +205,7 @@ export async function registerLegacyCompatibleAccount(
     return {
       ok: false,
       code: "registration_failed",
-      message: "The account could not be created.",
+      message: serverMessages.accountCreationFailed,
     };
   }
 

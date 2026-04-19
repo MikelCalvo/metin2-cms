@@ -3,12 +3,14 @@
 import { AlertCircleIcon, CheckIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";
 
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Button } from "@/components/ui/button";
 
 type CopyState = "idle" | "copied" | "error";
 
 export function DownloadChecksumCopyButton({ checksum }: { checksum: string }) {
   const [copyState, setCopyState] = useState<CopyState>("idle");
+  const { messages } = useI18n();
 
   async function handleCopy() {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
@@ -51,7 +53,7 @@ export function DownloadChecksumCopyButton({ checksum }: { checksum: string }) {
         type="button"
         variant="outline"
         size="sm"
-        aria-label="Copy SHA256 checksum"
+        aria-label={messages.downloads.checksumAriaLabel}
         onClick={handleCopy}
         className="shrink-0 border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
       >
@@ -63,10 +65,10 @@ export function DownloadChecksumCopyButton({ checksum }: { checksum: string }) {
           <CopyIcon className="size-4" />
         )}
         {copyState === "copied"
-          ? "Copied"
+          ? messages.common.copied
           : copyState === "error"
-            ? "Copy failed"
-            : "Copy"}
+            ? messages.common.copyFailed
+            : messages.common.copy}
       </Button>
     </div>
   );

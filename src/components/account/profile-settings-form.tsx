@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { updateProfileAction } from "@/app/account/actions";
 import { StatusChip } from "@/components/account/status-chip";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,22 +32,23 @@ export function ProfileSettingsForm({
   );
   const resolvedEmail = state.values?.email ?? email;
   const resolvedSocialId = state.values?.socialId ?? socialId;
+  const { messages } = useI18n();
 
   return (
     <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardTitle className="text-lg text-white">Profile</CardTitle>
+            <CardTitle className="text-lg text-white">{messages.account.profileTitle}</CardTitle>
             <CardDescription className="text-zinc-400">
-              Email and delete code.
+              {messages.account.profileDescription}
             </CardDescription>
           </div>
           <StatusChip tone={status === "OK" ? "success" : "attention"}>{status}</StatusChip>
         </div>
         <div className="grid gap-3">
           <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">Login</p>
+            <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.login}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{login}</p>
           </div>
         </div>
@@ -63,7 +65,11 @@ export function ProfileSettingsForm({
               }
             >
               {state.status === "error" ? <ShieldIcon className="size-4" /> : <MailIcon className="size-4" />}
-              <AlertTitle>{state.status === "error" ? "Profile update failed" : "Profile updated"}</AlertTitle>
+              <AlertTitle>
+                {state.status === "error"
+                  ? messages.account.profileUpdateFailed
+                  : messages.account.profileUpdated}
+              </AlertTitle>
               <AlertDescription className={state.status === "error" ? "text-red-100/90" : "text-emerald-100/90"}>
                 {state.message}
               </AlertDescription>
@@ -72,7 +78,7 @@ export function ProfileSettingsForm({
 
           <div className="space-y-2">
             <Label htmlFor="email" className="text-zinc-200">
-              Email
+              {messages.common.email}
             </Label>
             <Input
               id="email"
@@ -90,7 +96,7 @@ export function ProfileSettingsForm({
 
           <div className="space-y-2">
             <Label htmlFor="socialId" className="text-zinc-200">
-              Delete code / social ID
+              {messages.common.deleteCode}
             </Label>
             <Input
               id="socialId"
@@ -108,8 +114,8 @@ export function ProfileSettingsForm({
           </div>
 
           <AuthSubmitButton
-            idleLabel="Save changes"
-            pendingLabel="Saving..."
+            idleLabel={messages.common.saveChanges}
+            pendingLabel={messages.common.savePending}
             className="bg-violet-500 text-white hover:bg-violet-400"
           />
         </form>

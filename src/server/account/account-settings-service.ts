@@ -1,5 +1,7 @@
 import "server-only";
 
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import {
   findAccountById,
   updateLegacyAccountPassword,
@@ -32,14 +34,16 @@ function buildAccountProfileUpdateAuditDetail(outcome: string) {
 
 export async function changeAuthenticatedAccountPassword(
   input: ChangeAuthenticatedAccountPasswordInput,
+  locale: Locale = defaultLocale,
 ): Promise<ChangeAuthenticatedAccountPasswordResult> {
   const account = await findAccountById(input.accountId);
+  const serverMessages = getMessages(locale).serverMessages;
 
   if (!account || account.status !== "OK") {
     return {
       ok: false,
       code: "account_unavailable",
-      message: "This account is not available right now.",
+      message: serverMessages.accountUnavailableNow,
     };
   }
 
@@ -64,9 +68,9 @@ export async function changeAuthenticatedAccountPassword(
     return {
       ok: false,
       code: "invalid_current_password",
-      message: "Please enter the current password correctly.",
+      message: serverMessages.currentPasswordIncorrectMessage,
       fieldErrors: {
-        currentPassword: ["Current password is incorrect."],
+        currentPassword: [serverMessages.currentPasswordIncorrectField],
       },
     };
   }
@@ -88,20 +92,22 @@ export async function changeAuthenticatedAccountPassword(
 
   return {
     ok: true,
-    message: "Password updated successfully.",
+    message: serverMessages.passwordUpdatedSuccess,
   };
 }
 
 export async function updateAuthenticatedAccountProfile(
   input: UpdateAuthenticatedAccountProfileInput,
+  locale: Locale = defaultLocale,
 ): Promise<UpdateAuthenticatedAccountProfileResult> {
   const account = await findAccountById(input.accountId);
+  const serverMessages = getMessages(locale).serverMessages;
 
   if (!account || account.status !== "OK") {
     return {
       ok: false,
       code: "account_unavailable",
-      message: "This account is not available right now.",
+      message: serverMessages.accountUnavailableNow,
     };
   }
 
@@ -124,6 +130,6 @@ export async function updateAuthenticatedAccountProfile(
 
   return {
     ok: true,
-    message: "Profile updated successfully.",
+    message: serverMessages.profileUpdatedSuccess,
   };
 }

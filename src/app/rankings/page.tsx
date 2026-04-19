@@ -4,75 +4,83 @@ import { AlertTriangleIcon, ArrowRightIcon, DownloadIcon, ShieldCheckIcon, UserR
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 import { getRankingOverview } from "@/server/rankings/rankings-service";
 
 export const dynamic = "force-dynamic";
 
-const integerFormatter = new Intl.NumberFormat("en-US");
-
-const nextRoutes = [
-  {
-    title: "Create account",
-    description: "Get your login ready.",
-    href: "/register",
-    label: "Create account",
-    icon: <UserRoundPlusIcon className="size-4" />,
-  },
-  {
-    title: "Download launcher",
-    description: "Grab the launcher and client.",
-    href: "/downloads",
-    label: "Open downloads",
-    icon: <DownloadIcon className="size-4" />,
-  },
-  {
-    title: "Sign in",
-    description: "Use your account and enter.",
-    href: "/login",
-    label: "Sign in",
-    icon: <ArrowRightIcon className="size-4" />,
-  },
-] as const;
-
-function formatInteger(value: number | null) {
+function formatInteger(value: number | null, locale: string) {
   if (value === null) {
     return "—";
   }
 
-  return integerFormatter.format(value);
+  return new Intl.NumberFormat(locale).format(value);
 }
 
 export default async function RankingsPage() {
-  const rankingOverview = await getRankingOverview();
+  const locale = await getCurrentLocale();
+  const messages = await getMessagesForRequest();
+  const rankingOverview = await getRankingOverview(locale);
+  const nextRoutes = [
+    {
+      title: messages.rankings.routes.createAccountTitle,
+      description: messages.rankings.routes.createAccountDescription,
+      href: "/register",
+      label: messages.common.createAccount,
+      icon: <UserRoundPlusIcon className="size-4" />,
+    },
+    {
+      title: messages.rankings.routes.downloadTitle,
+      description: messages.rankings.routes.downloadDescription,
+      href: "/downloads",
+      label: messages.common.openDownloads,
+      icon: <DownloadIcon className="size-4" />,
+    },
+    {
+      title: messages.rankings.routes.signInTitle,
+      description: messages.rankings.routes.signInDescription,
+      href: "/login",
+      label: messages.common.signIn,
+      icon: <ArrowRightIcon className="size-4" />,
+    },
+  ] as const;
 
   return (
     <SitePageShell>
       {rankingOverview.status === "unavailable" ? (
-        <PublicSection eyebrow="Rankings" title="Live rankings unavailable" description="Try again in a moment.">
+        <PublicSection
+          eyebrow={messages.rankings.eyebrow}
+          title={messages.rankings.unavailableTitle}
+          description={messages.rankings.unavailableDescription}
+        >
           <Alert className="border-white/10 bg-black/20 text-zinc-100">
             <AlertTriangleIcon className="size-4" />
-            <AlertTitle>Ranking feed unavailable</AlertTitle>
+            <AlertTitle>{messages.rankings.unavailableAlertTitle}</AlertTitle>
             <AlertDescription className="text-zinc-400">{rankingOverview.message}</AlertDescription>
           </Alert>
         </PublicSection>
       ) : (
         <>
-          <PublicSection eyebrow="Rankings" title="Character ladder" description="Top characters on the live server.">
+          <PublicSection
+            eyebrow={messages.rankings.eyebrow}
+            title={messages.rankings.characterTitle}
+            description={messages.rankings.characterDescription}
+          >
             {rankingOverview.players.length > 0 ? (
               <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-white/10 text-left text-sm text-zinc-300">
                     <thead className="bg-white/5 text-xs uppercase tracking-[0.16em] text-zinc-500">
                       <tr>
-                        <th className="px-4 py-3 font-medium">#</th>
-                        <th className="px-4 py-3 font-medium">Character</th>
-                        <th className="px-4 py-3 font-medium">Class</th>
-                        <th className="px-4 py-3 font-medium">Level</th>
-                        <th className="px-4 py-3 font-medium">EXP</th>
-                        <th className="px-4 py-3 font-medium">Playtime</th>
-                        <th className="px-4 py-3 font-medium">Guild</th>
-                        <th className="px-4 py-3 font-medium">Last seen</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.rank}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.character}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.class}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.level}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.exp}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.playtime}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.guild}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.lastSeen}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/8">
@@ -81,11 +89,11 @@ export default async function RankingsPage() {
                           <td className="px-4 py-3 align-top text-zinc-500">{player.rank}</td>
                           <td className="px-4 py-3 align-top font-medium text-white">{player.name}</td>
                           <td className="px-4 py-3 align-top">{player.classLabel}</td>
-                          <td className="px-4 py-3 align-top">{formatInteger(player.level)}</td>
-                          <td className="px-4 py-3 align-top">{formatInteger(player.exp)}</td>
-                          <td className="px-4 py-3 align-top">{formatInteger(player.playtime)}</td>
+                          <td className="px-4 py-3 align-top">{formatInteger(player.level, locale)}</td>
+                          <td className="px-4 py-3 align-top">{formatInteger(player.exp, locale)}</td>
+                          <td className="px-4 py-3 align-top">{formatInteger(player.playtime, locale)}</td>
                           <td className="px-4 py-3 align-top">{player.guildName || "—"}</td>
-                          <td className="px-4 py-3 align-top">{formatRankingTimestamp(player.lastPlay)}</td>
+                          <td className="px-4 py-3 align-top">{formatRankingTimestamp(player.lastPlay, new Date(), locale)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -95,26 +103,30 @@ export default async function RankingsPage() {
             ) : (
               <Alert className="border-white/10 bg-black/20 text-zinc-100">
                 <ShieldCheckIcon className="size-4" />
-                <AlertTitle>No characters on the board yet</AlertTitle>
+                <AlertTitle>{messages.rankings.noCharactersTitle}</AlertTitle>
                 <AlertDescription className="text-zinc-400">
-                  The feed is healthy, but there are no visible character entries right now.
+                  {messages.rankings.noCharactersDescription}
                 </AlertDescription>
               </Alert>
             )}
           </PublicSection>
 
-          <PublicSection eyebrow="Guilds" title="Guild ladder" description="Guild standings on the live server.">
+          <PublicSection
+            eyebrow={messages.rankings.guildEyebrow}
+            title={messages.rankings.guildTitle}
+            description={messages.rankings.guildDescription}
+          >
             {rankingOverview.guilds.length > 0 ? (
               <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-white/10 text-left text-sm text-zinc-300">
                     <thead className="bg-white/5 text-xs uppercase tracking-[0.16em] text-zinc-500">
                       <tr>
-                        <th className="px-4 py-3 font-medium">#</th>
-                        <th className="px-4 py-3 font-medium">Guild</th>
-                        <th className="px-4 py-3 font-medium">Ladder</th>
-                        <th className="px-4 py-3 font-medium">Level</th>
-                        <th className="px-4 py-3 font-medium">Record</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.rank}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.guild}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.ladder}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.level}</th>
+                        <th className="px-4 py-3 font-medium">{messages.rankings.columns.record}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/8">
@@ -122,9 +134,9 @@ export default async function RankingsPage() {
                         <tr key={guild.id} className="bg-transparent transition-colors hover:bg-white/[0.03]">
                           <td className="px-4 py-3 align-top text-zinc-500">{guild.rank}</td>
                           <td className="px-4 py-3 align-top font-medium text-white">{guild.name}</td>
-                          <td className="px-4 py-3 align-top">{formatInteger(guild.ladderPoint)}</td>
-                          <td className="px-4 py-3 align-top">{formatInteger(guild.level)}</td>
-                          <td className="px-4 py-3 align-top">{`${formatInteger(guild.win)}-${formatInteger(guild.draw)}-${formatInteger(guild.loss)}`}</td>
+                          <td className="px-4 py-3 align-top">{formatInteger(guild.ladderPoint, locale)}</td>
+                          <td className="px-4 py-3 align-top">{formatInteger(guild.level, locale)}</td>
+                          <td className="px-4 py-3 align-top">{`${formatInteger(guild.win, locale)}-${formatInteger(guild.draw, locale)}-${formatInteger(guild.loss, locale)}`}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -134,9 +146,9 @@ export default async function RankingsPage() {
             ) : (
               <Alert className="border-white/10 bg-black/20 text-zinc-100">
                 <ShieldCheckIcon className="size-4" />
-                <AlertTitle>No guilds on the board yet</AlertTitle>
+                <AlertTitle>{messages.rankings.noGuildsTitle}</AlertTitle>
                 <AlertDescription className="text-zinc-400">
-                  The feed is healthy, but there are no visible guild rows right now.
+                  {messages.rankings.noGuildsDescription}
                 </AlertDescription>
               </Alert>
             )}
@@ -144,7 +156,11 @@ export default async function RankingsPage() {
         </>
       )}
 
-      <PublicSection eyebrow="Next" title="Ready to climb?" description="Account. Download. Sign in.">
+      <PublicSection
+        eyebrow={messages.rankings.nextEyebrow}
+        title={messages.rankings.nextTitle}
+        description={messages.rankings.nextDescription}
+      >
         <div className="grid gap-4 md:grid-cols-3">
           {nextRoutes.map((route) => (
             <Link

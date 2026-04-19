@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { defaultLocale } from "@/lib/i18n/config";
+import { getCurrentLocale } from "@/lib/i18n/server";
+import { getMessages } from "@/lib/i18n/messages";
 import {
   changeAuthenticatedAccountPassword,
   updateAuthenticatedAccountProfile,
@@ -67,26 +70,45 @@ export async function changePasswordAction(
     redirect("/login");
   }
 
+  const locale = await getCurrentLocale();
+  const messages = getMessages(locale);
   const metadata = await getRequestMetadata();
-  const parsed = parseAccountPasswordChangeFormData(formData, metadata);
+  const parsed =
+    locale === defaultLocale
+      ? parseAccountPasswordChangeFormData(formData, metadata)
+      : parseAccountPasswordChangeFormData(formData, metadata, locale);
 
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please correct the highlighted password fields.",
+      message: messages.serverMessages.correctPasswordFields,
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
 
-  const result = await changeAuthenticatedAccountPassword({
-    accountId: authenticated.account.id,
-    login: authenticated.account.login,
-    currentSessionId: authenticated.session.id,
-    currentPassword: parsed.data.currentPassword,
-    newPassword: parsed.data.newPassword,
-    ip: parsed.data.ip,
-    userAgent: parsed.data.userAgent,
-  });
+  const result =
+    locale === defaultLocale
+      ? await changeAuthenticatedAccountPassword({
+          accountId: authenticated.account.id,
+          login: authenticated.account.login,
+          currentSessionId: authenticated.session.id,
+          currentPassword: parsed.data.currentPassword,
+          newPassword: parsed.data.newPassword,
+          ip: parsed.data.ip,
+          userAgent: parsed.data.userAgent,
+        })
+      : await changeAuthenticatedAccountPassword(
+          {
+            accountId: authenticated.account.id,
+            login: authenticated.account.login,
+            currentSessionId: authenticated.session.id,
+            currentPassword: parsed.data.currentPassword,
+            newPassword: parsed.data.newPassword,
+            ip: parsed.data.ip,
+            userAgent: parsed.data.userAgent,
+          },
+          locale,
+        );
 
   if (!result.ok) {
     return {
@@ -114,13 +136,18 @@ export async function updateProfileAction(
     redirect("/login");
   }
 
+  const locale = await getCurrentLocale();
+  const messages = getMessages(locale);
   const metadata = await getRequestMetadata();
-  const parsed = parseAccountProfileFormData(formData, metadata);
+  const parsed =
+    locale === defaultLocale
+      ? parseAccountProfileFormData(formData, metadata)
+      : parseAccountProfileFormData(formData, metadata, locale);
 
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Please correct the highlighted profile fields.",
+      message: messages.serverMessages.correctProfileFields,
       fieldErrors: parsed.error.flatten().fieldErrors,
       values: {
         email:
@@ -135,14 +162,27 @@ export async function updateProfileAction(
     };
   }
 
-  const result = await updateAuthenticatedAccountProfile({
-    accountId: authenticated.account.id,
-    login: authenticated.account.login,
-    email: parsed.data.email,
-    socialId: parsed.data.socialId,
-    ip: parsed.data.ip,
-    userAgent: parsed.data.userAgent,
-  });
+  const result =
+    locale === defaultLocale
+      ? await updateAuthenticatedAccountProfile({
+          accountId: authenticated.account.id,
+          login: authenticated.account.login,
+          email: parsed.data.email,
+          socialId: parsed.data.socialId,
+          ip: parsed.data.ip,
+          userAgent: parsed.data.userAgent,
+        })
+      : await updateAuthenticatedAccountProfile(
+          {
+            accountId: authenticated.account.id,
+            login: authenticated.account.login,
+            email: parsed.data.email,
+            socialId: parsed.data.socialId,
+            ip: parsed.data.ip,
+            userAgent: parsed.data.userAgent,
+          },
+          locale,
+        );
 
   if (!result.ok) {
     return {

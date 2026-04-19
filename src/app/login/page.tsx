@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
 import { CmsPageShell } from "@/components/cms/page-shell";
+import { getMessagesForRequest } from "@/lib/i18n/server";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
 
 export default async function LoginPage({
@@ -15,11 +16,12 @@ export default async function LoginPage({
     redirect("/account");
   }
 
+  const messages = await getMessagesForRequest();
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const recoveryStatus = resolvedSearchParams.recovery;
   const notice =
     recoveryStatus === "success"
-      ? "Password updated successfully. You can now sign in with the new password."
+      ? messages.serverMessages.recoveryPasswordUpdatedSuccess
       : undefined;
 
   return (

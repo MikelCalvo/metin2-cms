@@ -6,6 +6,7 @@ import { useActionState } from "react";
 
 import { registerAction } from "@/app/auth/actions";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { useI18n } from "@/components/i18n/i18n-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,16 +17,17 @@ import { emptyAuthActionState } from "@/server/auth/types";
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(registerAction, emptyAuthActionState);
+  const { messages } = useI18n();
 
   return (
     <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
       <CardHeader className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">
-          Metin2 CMS
+          {messages.registerForm.eyebrow}
         </p>
-        <CardTitle className="text-2xl text-white">Create account</CardTitle>
+        <CardTitle className="text-2xl text-white">{messages.registerForm.title}</CardTitle>
         <CardDescription className="text-zinc-400">
-          Register a legacy-compatible Metin2 account and start using the modern CMS.
+          {messages.registerForm.description}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -33,7 +35,7 @@ export function RegisterForm() {
           {state.message ? (
             <Alert variant="destructive" className="border-red-400/20 bg-red-500/10 text-red-100">
               <UserPlusIcon className="size-4" />
-              <AlertTitle>Unable to create the account</AlertTitle>
+              <AlertTitle>{messages.registerForm.errorTitle}</AlertTitle>
               <AlertDescription className="text-red-100/90">{state.message}</AlertDescription>
             </Alert>
           ) : null}
@@ -41,7 +43,7 @@ export function RegisterForm() {
           <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="login" className="text-zinc-200">
-                Login
+                {messages.common.login}
               </Label>
               <Input
                 id="login"
@@ -59,7 +61,7 @@ export function RegisterForm() {
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-zinc-200">
-                Email
+                {messages.common.email}
               </Label>
               <Input
                 id="email"
@@ -77,7 +79,7 @@ export function RegisterForm() {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-zinc-200">
-                Password
+                {messages.common.password}
               </Label>
               <Input
                 id="password"
@@ -94,7 +96,7 @@ export function RegisterForm() {
 
             <div className="space-y-2">
               <Label htmlFor="passwordConfirmation" className="text-zinc-200">
-                Confirm password
+                {messages.common.confirmPassword}
               </Label>
               <Input
                 id="passwordConfirmation"
@@ -112,7 +114,7 @@ export function RegisterForm() {
 
           <div className="space-y-2">
             <Label htmlFor="socialId" className="text-zinc-200">
-              Delete code / social ID
+              {messages.common.deleteCode}
             </Label>
             <Input
               id="socialId"
@@ -125,7 +127,7 @@ export function RegisterForm() {
               className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
             />
             <p className="text-xs text-zinc-500">
-              Legacy-compatible alphanumeric delete code used by the game account.
+              {messages.registerForm.socialIdHint}
             </p>
             {state.fieldErrors?.socialId?.[0] ? (
               <p className="text-xs text-red-300">{state.fieldErrors.socialId[0]}</p>
@@ -136,12 +138,12 @@ export function RegisterForm() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <AuthSubmitButton
-              idleLabel="Create account"
-              pendingLabel="Creating..."
+              idleLabel={messages.common.createAccount}
+              pendingLabel={messages.common.createPending}
               className="bg-violet-500 text-white hover:bg-violet-400"
             />
             <Button asChild variant="ghost" className="justify-start px-0 text-zinc-300 hover:bg-transparent hover:text-white">
-              <Link href="/login">Back to sign in</Link>
+              <Link href="/login">{messages.common.backToSignIn}</Link>
             </Button>
           </div>
         </form>

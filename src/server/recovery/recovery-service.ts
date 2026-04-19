@@ -2,6 +2,8 @@ import "server-only";
 
 import { createHash, randomBytes } from "node:crypto";
 
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import { getEnv } from "@/lib/env";
 import {
   findAccountByLogin,
@@ -30,17 +32,22 @@ import type {
 import { revokeSessionsForAccount } from "@/server/session/session-service";
 
 const PASSWORD_RECOVERY_TOKEN_TTL_MS = 60 * 60 * 1000;
-const PASSWORD_RECOVERY_REQUEST_WINDOW_MS = 15 * 60 * 1000;
+const PASSWORD_RECOVERY_REQUEST_WINDOW_MS = 30 * 60 * 1000;
 const PASSWORD_RECOVERY_REQUEST_MAX_ATTEMPTS = 3;
 const PASSWORD_RECOVERY_REQUEST_EVENT_TYPE = "password_recovery.request";
 const PASSWORD_RECOVERY_RESET_EVENT_TYPE = "password_recovery.reset";
 
-function getGenericRecoveryMessage(mode: "preview" | "file") {
+function getGenericRecoveryMessage(
+  mode: "preview" | "file",
+  locale: Locale = defaultLocale,
+) {
+  const serverMessages = getMessages(locale).serverMessages;
+
   if (mode === "file") {
-    return "If the login and email match an account, the recovery request has been queued for manual delivery.";
+    return serverMessages.recoveryFileGeneric;
   }
 
-  return "If the login and email match an account, a reset link has been created.";
+  return serverMessages.recoveryPreviewGeneric;
 }
 
 function toMysqlDateTime(date: Date) {
@@ -73,9 +80,10 @@ export function hashPasswordRecoveryToken(token: string) {
 
 export async function requestPasswordRecovery(
   input: RecoveryRequestInput,
+  locale: Locale = defaultLocale,
 ): Promise<RequestPasswordRecoveryResult> {
   const deliveryConfig = getRecoveryDeliveryConfig();
-  const genericMessage = getGenericRecoveryMessage(deliveryConfig.mode);
+  const genericMessage = getGenericRecoveryMessage(deliveryConfig.mode, locale);
   const now = new Date();
   const createdAt = toMysqlDateTime(now);
   const windowStartedAt = toMysqlDateTime(
@@ -182,6 +190,7 @@ export async function requestPasswordRecovery(
 
 export async function resetPasswordWithRecoveryToken(
   input: PasswordResetInput,
+  locale: Locale = defaultLocale,
 ): Promise<ResetPasswordWithRecoveryTokenResult> {
   const resetAttemptedAt = toMysqlDateTime(new Date());
   const tokenHash = hashPasswordRecoveryToken(input.token);
@@ -189,6 +198,7 @@ export async function resetPasswordWithRecoveryToken(
     tokenHash,
     resetAttemptedAt,
   );
+  const serverMessages = getMessages(locale).serverMessages;
 
   if (!recoveryToken) {
     await createAuthAuditLogEntry({
@@ -207,9 +217,9 @@ export async function resetPasswordWithRecoveryToken(
     return {
       ok: false,
       code: "invalid_or_expired_token",
-      message: "This recovery link is invalid or has expired.",
+      message: serverMessages.recoveryInvalidOrExpired,
       fieldErrors: {
-        token: ["This recovery link is invalid or has expired."],
+        token: [serverMessages.recoveryInvalidOrExpired],
       },
     };
   }
@@ -235,6 +245,6 @@ export async function resetPasswordWithRecoveryToken(
 
   return {
     ok: true,
-    message: "Password updated successfully. You can now sign in with the new password.",
+    message: serverMessages.recoveryPasswordUpdatedSuccess,
   };
 }
