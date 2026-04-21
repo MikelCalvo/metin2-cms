@@ -15,6 +15,7 @@ import { redirect } from "next/navigation";
 import { closeOtherSessionsAction } from "@/app/account/actions";
 import { logoutAction } from "@/app/auth/actions";
 import { ActivityRow } from "@/components/account/activity-row";
+import { AccountCharacterCard } from "@/components/account/account-character-card";
 import { ChangePasswordForm } from "@/components/account/change-password-form";
 import { DashboardSection } from "@/components/account/dashboard-section";
 import { ProfileSettingsForm } from "@/components/account/profile-settings-form";
@@ -27,6 +28,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { formatAccountLastPlayTimestamp } from "@/lib/account-ui-formatters";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { defaultLocale } from "@/lib/i18n/config";
+import { getAccountCharactersOverview } from "@/server/account/account-characters-service";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
@@ -112,6 +114,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   const activityOffset = (activityPage - 1) * ACTIVITY_PAGE_SIZE;
   const { account, session } = authenticated;
   const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
+  const accountCharactersOverview = await getAccountCharactersOverview(account.id, locale);
   const recentAuthActivity =
     locale === defaultLocale
       ? await listRecentAuthActivityForAccount(account.id)
@@ -288,6 +291,35 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
               </div>
             </CardContent>
           </Card>
+        </DashboardSection>
+
+        <DashboardSection
+          badge={messages.account.charactersBadge}
+          title={messages.account.charactersTitle}
+          description={messages.account.charactersDescription}
+          contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+        >
+          {accountCharactersOverview.status === "unavailable" ? (
+            <Alert className="border-white/10 bg-black/20 text-zinc-100 md:col-span-2 xl:col-span-3">
+              <ShieldAlertIcon className="size-4" />
+              <AlertTitle>{messages.account.charactersUnavailableTitle}</AlertTitle>
+              <AlertDescription className="text-zinc-400">
+                {accountCharactersOverview.message}
+              </AlertDescription>
+            </Alert>
+          ) : accountCharactersOverview.characters.length > 0 ? (
+            accountCharactersOverview.characters.map((character) => (
+              <AccountCharacterCard key={character.id} character={character} locale={locale} />
+            ))
+          ) : (
+            <Alert className="border-white/10 bg-black/20 text-zinc-100 md:col-span-2 xl:col-span-3">
+              <ShieldCheckIcon className="size-4" />
+              <AlertTitle>{messages.account.noCharactersTitle}</AlertTitle>
+              <AlertDescription className="text-zinc-400">
+                {messages.account.noCharactersDescription}
+              </AlertDescription>
+            </Alert>
+          )}
         </DashboardSection>
 
         <DashboardSection

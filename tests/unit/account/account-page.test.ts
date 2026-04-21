@@ -6,6 +6,7 @@ const {
   getCurrentAuthenticatedAccountMock,
   listAuthenticatedSessionsForAccountMock,
   listRecentAuthActivityForAccountMock,
+  getAccountCharactersOverviewMock,
   buildAccountSecuritySummaryMock,
   formatAccountLastPlayTimestampMock,
   redirectMock,
@@ -13,6 +14,7 @@ const {
   getCurrentAuthenticatedAccountMock: vi.fn(),
   listAuthenticatedSessionsForAccountMock: vi.fn(),
   listRecentAuthActivityForAccountMock: vi.fn(),
+  getAccountCharactersOverviewMock: vi.fn(),
   buildAccountSecuritySummaryMock: vi.fn(),
   formatAccountLastPlayTimestampMock: vi.fn(),
   redirectMock: vi.fn(),
@@ -32,6 +34,10 @@ vi.mock("@/server/session/session-service", () => ({
 
 vi.mock("@/server/auth/auth-audit-service", () => ({
   listRecentAuthActivityForAccount: listRecentAuthActivityForAccountMock,
+}));
+
+vi.mock("@/server/account/account-characters-service", () => ({
+  getAccountCharactersOverview: getAccountCharactersOverviewMock,
 }));
 
 vi.mock("@/server/account/account-security-summary", () => ({
@@ -58,6 +64,11 @@ vi.mock("@/components/account/change-password-form", () => ({
   ChangePasswordForm: () => createElement("div", null, "change-password-form"),
 }));
 
+vi.mock("@/components/account/account-character-card", () => ({
+  AccountCharacterCard: ({ character }: { character: { name: string } }) =>
+    createElement("div", null, `character-card:${character.name}`),
+}));
+
 vi.mock("@/components/account/session-card", () => ({
   SessionCard: ({ isCurrent }: { isCurrent: boolean }) =>
     createElement("div", null, isCurrent ? "current-session-card" : "session-card"),
@@ -76,7 +87,7 @@ describe("account page", () => {
     formatAccountLastPlayTimestampMock.mockReturnValue("2 hours ago");
   });
 
-  it("renders the simplified account layout with human-friendly last play and activity pagination", async () => {
+  it("renders the simplified account layout with characters, human-friendly last play, and activity pagination", async () => {
     getCurrentAuthenticatedAccountMock.mockResolvedValue({
       account: {
         id: 7,
@@ -109,6 +120,34 @@ describe("account page", () => {
         userAgent: "Firefox",
       },
     ]);
+
+    getAccountCharactersOverviewMock.mockResolvedValue({
+      status: "available",
+      characters: [
+        {
+          id: 3,
+          name: "mk",
+          job: 7,
+          classLabel: "Shaman",
+          level: 99,
+          exp: 0,
+          playtime: 2,
+          lastPlay: "2026-04-18 05:45:44",
+          guildName: null,
+        },
+        {
+          id: 9,
+          name: "WarBoss",
+          job: 0,
+          classLabel: "Warrior",
+          level: 75,
+          exp: 12345,
+          playtime: 77,
+          lastPlay: "2026-04-17 05:45:44",
+          guildName: "[GM-TEAM]",
+        },
+      ],
+    });
 
     listRecentAuthActivityForAccountMock
       .mockResolvedValueOnce([
@@ -211,12 +250,15 @@ describe("account page", () => {
 
     expect(html).toContain("Account details");
     expect(html).toContain("Game account");
+    expect(html).toContain("My characters");
     expect(html).toContain("Security");
     expect(html).toContain("Recent activity");
     expect(html).toContain("Downloads");
     expect(html).toContain("Rankings");
     expect(html).toContain("Sign out");
     expect(html).toContain("Last play: 2 hours ago");
+    expect(html).toContain("character-card:mk");
+    expect(html).toContain("character-card:WarBoss");
     expect(html).toContain("activity-row:Successful sign-in");
     expect(html).toContain("activity-row:Profile updated");
     expect(html).toContain("activity-row:Password changed");
@@ -230,6 +272,7 @@ describe("account page", () => {
     expect(html).not.toContain("Security posture");
     expect(html).not.toContain("What gets logged");
     expect(formatAccountLastPlayTimestampMock).toHaveBeenCalledWith("2026-04-19 01:30:43");
+    expect(getAccountCharactersOverviewMock).toHaveBeenCalledWith(7, expect.any(String));
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(1, 7);
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(2, 7, 4, 0);
   });
@@ -260,6 +303,11 @@ describe("account page", () => {
         userAgent: "Chrome",
       },
     ]);
+
+    getAccountCharactersOverviewMock.mockResolvedValue({
+      status: "available",
+      characters: [],
+    });
 
     listRecentAuthActivityForAccountMock
       .mockResolvedValueOnce([
@@ -308,5 +356,42 @@ describe("account page", () => {
     expect(html).not.toContain('href="/account?activityPage=3"');
     expect(html).toContain("activity-row:Password changed");
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(2, 7, 4, 3);
+  });
+
+  it("shows a graceful unavailable state when the player character feed cannot be loaded", async () => {
+    getCurrentAuthenticatedAccountMock.mockResolvedValue({
+      account: {
+        id: 7,
+        login: "mk",
+        status: "OK",
+        email: "mk@example.test",
+        socialId: "1234567",
+        cash: 1200,
+        mileage: 340,
+        lastPlay: "2026-04-19 01:30:43",
+      },
+      session: {
+        id: "current-session",
+      },
+    });
+
+    listAuthenticatedSessionsForAccountMock.mockResolvedValue([]);
+    getAccountCharactersOverviewMock.mockResolvedValue({
+      status: "unavailable",
+      reason: "query_failed",
+      message: "Characters are temporarily unavailable.",
+    });
+    listRecentAuthActivityForAccountMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+    buildAccountSecuritySummaryMock.mockReturnValue([
+      { id: "active-sessions", label: "Active sessions", value: "0", helper: "No sessions", tone: "neutral" },
+      { id: "last-successful-sign-in", label: "Last successful sign-in", value: "None", helper: "No activity", tone: "neutral" },
+      { id: "latest-sign-in-issue", label: "Latest sign-in issue", value: "None", helper: "No activity", tone: "neutral" },
+      { id: "latest-account-change", label: "Latest account change", value: "None", helper: "No activity", tone: "neutral" },
+    ]);
+
+    const html = renderToStaticMarkup(await AccountPage({}));
+
+    expect(html).toContain("Character feed unavailable");
+    expect(html).toContain("Characters are temporarily unavailable.");
   });
 });

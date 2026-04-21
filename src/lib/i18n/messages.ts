@@ -174,6 +174,8 @@ const en = {
       "Password updated successfully. You can now sign in with the new password.",
     rankingsNotConfigured: "Rankings are not configured yet.",
     rankingsTemporarilyUnavailable: "Rankings are temporarily unavailable.",
+    accountCharactersNotConfigured: "Characters are not configured yet.",
+    accountCharactersTemporarilyUnavailable: "Characters are temporarily unavailable.",
   },
   rankingsMeta: {
     classes: {
@@ -406,6 +408,12 @@ const en = {
     securitySummaryTitle: "Security summary",
     accountBadge: "Account",
     accountDetailsTitle: "Account details",
+    charactersBadge: "Characters",
+    charactersTitle: "My characters",
+    charactersDescription: "Live characters tied to this account.",
+    noCharactersTitle: "No characters yet",
+    noCharactersDescription: "Create a character in-game and it will appear here.",
+    charactersUnavailableTitle: "Character feed unavailable",
     securityBadge: "Security",
     securityTitle: "Security",
     activityBadge: "Activity",
@@ -604,6 +612,8 @@ const es: DeepPartial<Messages> = {
       "Contraseña actualizada correctamente. Ya puedes iniciar sesión con la nueva contraseña.",
     rankingsNotConfigured: "Los rankings aún no están configurados.",
     rankingsTemporarilyUnavailable: "Los rankings no están disponibles temporalmente.",
+    accountCharactersNotConfigured: "Los personajes aún no están configurados.",
+    accountCharactersTemporarilyUnavailable: "Los personajes no están disponibles temporalmente.",
   },
   rankingsMeta: {
     classes: {
@@ -713,6 +723,12 @@ const es: DeepPartial<Messages> = {
     securitySummaryTitle: "Resumen de seguridad",
     accountBadge: "Cuenta",
     accountDetailsTitle: "Detalles de la cuenta",
+    charactersBadge: "Personajes",
+    charactersTitle: "Mis personajes",
+    charactersDescription: "Personajes en vivo vinculados a esta cuenta.",
+    noCharactersTitle: "Todavía no hay personajes",
+    noCharactersDescription: "Crea un personaje dentro del juego y aparecerá aquí.",
+    charactersUnavailableTitle: "Feed de personajes no disponible",
     securityBadge: "Seguridad",
     securityTitle: "Seguridad",
     activityBadge: "Actividad",
