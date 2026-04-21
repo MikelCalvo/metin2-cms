@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getIntlLocale, type Locale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
-import { formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
+import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 
 import type { AccountCharacter } from "@/server/account/account-characters-types";
 
@@ -49,7 +49,7 @@ export function AccountCharacterCard({
             {messages.rankings.columns.playtime}
           </p>
           <p className="mt-1 text-sm font-medium text-zinc-100">
-            {formatInteger(character.playtime, locale)}
+            {formatPlaytimeDuration(character.playtime, locale)}
           </p>
         </div>
         <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">

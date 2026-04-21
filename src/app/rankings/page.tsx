@@ -5,7 +5,7 @@ import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
-import { formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
+import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 import { getRankingOverview } from "@/server/rankings/rankings-service";
 
 export const dynamic = "force-dynamic";
@@ -95,7 +95,7 @@ export default async function RankingsPage() {
                           <td className="px-4 py-3 align-top">{player.classLabel}</td>
                           <td className="px-4 py-3 align-top">{formatInteger(player.level, locale)}</td>
                           <td className="px-4 py-3 align-top">{formatInteger(player.exp, locale)}</td>
-                          <td className="px-4 py-3 align-top">{formatInteger(player.playtime, locale)}</td>
+                          <td className="px-4 py-3 align-top">{formatPlaytimeDuration(player.playtime, locale)}</td>
                           <td className="px-4 py-3 align-top">{player.guildName || "—"}</td>
                           <td className="px-4 py-3 align-top">{formatRankingTimestamp(player.lastPlay, new Date(), locale)}</td>
                         </tr>

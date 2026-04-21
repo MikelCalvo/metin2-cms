@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { formatCharacterClassLabel, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
+import {
+  formatCharacterClassLabel,
+  formatPlaytimeDuration,
+  formatRankingTimestamp,
+} from "@/server/rankings/rankings-formatters";
 
 describe("rankings formatters", () => {
   it("maps known Metin2 character jobs to class labels", () => {
@@ -17,6 +21,12 @@ describe("rankings formatters", () => {
 
   it("falls back to an unknown label for unsupported jobs", () => {
     expect(formatCharacterClassLabel(99)).toBe("Unknown");
+  });
+
+  it("formats playtime minutes with visible hour/minute units", () => {
+    expect(formatPlaytimeDuration(5)).toBe("5m");
+    expect(formatPlaytimeDuration(60)).toBe("1h");
+    expect(formatPlaytimeDuration(2720)).toBe("45h 20m");
   });
 
   it("formats timestamps into natural public-facing relative labels", () => {

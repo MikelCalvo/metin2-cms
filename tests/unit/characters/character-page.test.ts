@@ -34,7 +34,7 @@ describe("character detail page", () => {
         classLabel: "Sura",
         level: 99,
         exp: 0,
-        playtime: 22,
+        playtime: 2720,
         gold: 0,
         alignment: 15,
         lastPlay: new Date(2026, 3, 19, 0, 27, 14),
@@ -78,6 +78,7 @@ describe("character detail page", () => {
     expect(html).toContain("Level");
     expect(html).toContain("EXP");
     expect(html).toContain("Playtime");
+    expect(html).toContain("45h 20m");
     expect(html).toContain("Alignment");
     expect(html).toContain("Map");
     expect(html).toContain("Position");

@@ -26,5 +26,6 @@ describe("account character card", () => {
     expect(html).toContain('href="/characters/3"');
     expect(html).toContain("mk");
     expect(html).toContain("Sura");
+    expect(html).toContain("22m");
   });
 });

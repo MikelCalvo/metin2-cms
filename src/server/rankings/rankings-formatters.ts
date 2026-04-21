@@ -29,6 +29,22 @@ export function formatCharacterClassLabel(job: number, locale: Locale = defaultL
   return classes.unknown;
 }
 
+export function formatPlaytimeDuration(playtimeMinutes: number, locale = defaultLocale) {
+  const numberFormat = new Intl.NumberFormat(locale);
+  const hours = Math.floor(playtimeMinutes / 60);
+  const minutes = playtimeMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return `${numberFormat.format(hours)}h ${numberFormat.format(minutes)}m`;
+  }
+
+  if (hours > 0) {
+    return `${numberFormat.format(hours)}h`;
+  }
+
+  return `${numberFormat.format(minutes)}m`;
+}
+
 export function formatRankingTimestamp(
   mysqlDateTime: RankingTimestamp | undefined,
   now = new Date(),

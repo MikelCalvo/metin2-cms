@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { getCharacterDetail } from "@/server/characters/character-detail-service";
-import { formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
+import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 
 export const dynamic = "force-dynamic";
 
@@ -32,22 +32,6 @@ function parseCharacterId(rawValue: string) {
 
 function formatInteger(value: number, locale: string) {
   return new Intl.NumberFormat(locale).format(value);
-}
-
-function formatPlaytimeMinutes(value: number, locale: string) {
-  const numberFormat = new Intl.NumberFormat(locale);
-  const hours = Math.floor(value / 60);
-  const minutes = value % 60;
-
-  if (hours > 0 && minutes > 0) {
-    return `${numberFormat.format(hours)}h ${numberFormat.format(minutes)}m`;
-  }
-
-  if (hours > 0) {
-    return `${numberFormat.format(hours)}h`;
-  }
-
-  return `${numberFormat.format(minutes)}m`;
 }
 
 function formatPosition(x: number, y: number, locale: string) {
@@ -103,7 +87,7 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
   const progressionMetrics = [
     { label: messages.rankings.columns.level, value: formatInteger(character.level, intlLocale) },
     { label: messages.rankings.columns.exp, value: formatInteger(character.exp, intlLocale) },
-    { label: messages.rankings.columns.playtime, value: formatPlaytimeMinutes(character.playtime, intlLocale) },
+    { label: messages.rankings.columns.playtime, value: formatPlaytimeDuration(character.playtime, intlLocale) },
     { label: messages.characterDetail.fields.yang, value: formatInteger(character.gold, intlLocale) },
     { label: messages.characterDetail.fields.alignment, value: formatInteger(character.alignment, intlLocale) },
   ] as const;

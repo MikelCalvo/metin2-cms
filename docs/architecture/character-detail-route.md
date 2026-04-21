@@ -62,7 +62,7 @@ For a valid character, the route shows:
 - class
 - level
 - EXP
-- playtime
+- playtime (formatted from stored minutes into visible units like `45h 20m`)
 - Yang
 - alignment
 - HP / MP

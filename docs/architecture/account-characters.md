@@ -48,7 +48,7 @@ ORDER BY p.level DESC, p.exp DESC, p.playtime DESC, p.id ASC
 - character name
 - class label
 - level
-- playtime
+- playtime formatted from stored minutes into visible units like `22m` or `45h 20m`
 - guild
 - last seen
 
