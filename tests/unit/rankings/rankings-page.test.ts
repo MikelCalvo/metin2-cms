@@ -56,6 +56,7 @@ describe("rankings page", () => {
     expect(html).toContain("mk");
     expect(html).toContain("Sura");
     expect(html).toContain("[GM-TEAM]");
+    expect(html).toContain('href="/characters/1"');
     expect(html).toContain('data-slot="route-card"');
     expect(html).toContain('href="/downloads"');
     expect(html).toContain('href="/register"');

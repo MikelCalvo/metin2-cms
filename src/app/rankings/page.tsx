@@ -87,7 +87,11 @@ export default async function RankingsPage() {
                       {rankingOverview.players.map((player) => (
                         <tr key={player.id} className="bg-transparent transition-colors hover:bg-white/[0.03]">
                           <td className="px-4 py-3 align-top text-zinc-500">{player.rank}</td>
-                          <td className="px-4 py-3 align-top font-medium text-white">{player.name}</td>
+                          <td className="px-4 py-3 align-top font-medium text-white">
+                            <Link href={`/characters/${player.id}`} className="transition-colors hover:text-violet-200">
+                              {player.name}
+                            </Link>
+                          </td>
                           <td className="px-4 py-3 align-top">{player.classLabel}</td>
                           <td className="px-4 py-3 align-top">{formatInteger(player.level, locale)}</td>
                           <td className="px-4 py-3 align-top">{formatInteger(player.exp, locale)}</td>

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getIntlLocale, type Locale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
@@ -24,7 +26,11 @@ export function AccountCharacterCard({
       className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
     >
       <CardHeader className="space-y-1">
-        <CardTitle className="text-xl text-white">{character.name}</CardTitle>
+        <CardTitle className="text-xl text-white">
+          <Link href={`/characters/${character.id}`} className="transition-colors hover:text-violet-200">
+            {character.name}
+          </Link>
+        </CardTitle>
         <CardDescription className="text-sm leading-6 text-zinc-400">
           {character.classLabel}
         </CardDescription>

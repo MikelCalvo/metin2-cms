@@ -80,6 +80,7 @@ Environment note:
 - live rankings runtime additionally requires `PLAYER_DATABASE_URL`
 - `PLAYER_DATABASE_URL` should point to a read-only MariaDB user for the `player` schema, not to the auth or CMS write credentials
 - the authenticated `/account` character panel also uses `PLAYER_DATABASE_URL` in read-only mode to load the live characters owned by the signed-in account
+- the public `/characters/[id]` detail route also uses `PLAYER_DATABASE_URL` in read-only mode to load a single live character profile
 - private starter-pack delivery can be enabled with `STARTER_PACK_URL`
 - protected starter-pack relay can additionally use `STARTER_PACK_USERNAME` + `STARTER_PACK_PASSWORD`
 - the download surface can optionally expose the visible hash with `STARTER_PACK_SHA256`
@@ -110,6 +111,7 @@ Main routes after this auth slice:
 - `/recover`
 - `/reset-password`
 - `/account`
+- `/characters/[id]`
 
 Main commands:
 
@@ -193,9 +195,11 @@ Current phase:
 - `/rankings` now reads live character and guild ladder data from the `player` schema through a dedicated read-only database connection
 - ranking ordering is now documented in `docs/architecture/rankings.md`
 - account character query and failure behavior are documented in `docs/architecture/account-characters.md`
+- public character detail query and fallback behavior are documented in `docs/architecture/character-detail-route.md`
 - `git push-deploy origin main` from the production working tree now pushes first and then rebuilds/restarts `metin2_cms`
 - `/account` now surfaces a security summary with active session count plus the latest successful sign-in, sign-in issue and latest account change
 - `/account` now shows the live characters owned by the authenticated account via the read-only `player` schema connection
+- `/characters/[id]` now shows a full public live character profile and is linked from rankings plus the authenticated account character cards
 - `/account` now lets the authenticated user change the legacy-compatible password and revokes the other CMS sessions after a successful update
 - `/account` now lets the authenticated user update the legacy account email and delete code from the protected area
 - the current CMS session now refreshes `last_seen_at` when protected areas load
