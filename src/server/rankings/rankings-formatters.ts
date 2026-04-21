@@ -29,7 +29,7 @@ export function formatCharacterClassLabel(job: number, locale: Locale = defaultL
   return classes.unknown;
 }
 
-export function formatPlaytimeDuration(playtimeMinutes: number, locale = defaultLocale) {
+export function formatPlaytimeDuration(playtimeMinutes: number, locale: string = defaultLocale) {
   const numberFormat = new Intl.NumberFormat(locale);
   const hours = Math.floor(playtimeMinutes / 60);
   const minutes = playtimeMinutes % 60;
