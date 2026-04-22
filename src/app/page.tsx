@@ -1,15 +1,25 @@
 import Link from "next/link";
-import { ArrowRightIcon, DownloadIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
+import { ActivityIcon, ArrowRightIcon, DownloadIcon, ShieldIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
 
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getMessagesForRequest } from "@/lib/i18n/server";
+import { getIntlLocale, type Locale } from "@/lib/i18n/config";
+import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
+import { getRankingOverview } from "@/server/rankings/rankings-service";
+
+function formatInteger(value: number, locale: Locale) {
+  return new Intl.NumberFormat(getIntlLocale(locale)).format(value);
+}
 
 export default async function Home() {
+  const locale = await getCurrentLocale();
   const messages = await getMessagesForRequest();
+  const rankingOverview = await getRankingOverview(locale);
+  const topPlayers = rankingOverview.status === "available" ? rankingOverview.players.slice(0, 3) : [];
+  const championGuild = rankingOverview.status === "available" ? rankingOverview.guilds[0] ?? null : null;
   const quickRoutes = [
     {
       title: messages.home.routes.playNowTitle,
@@ -74,6 +84,100 @@ export default async function Home() {
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipLauncher}</div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipRankings}</div>
       </CmsPageHeader>
+
+      <PublicSection
+        eyebrow={messages.home.liveEyebrow}
+        title={messages.home.liveTitle}
+        description={messages.home.liveDescription}
+      >
+        {rankingOverview.status === "available" ? (
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <Card className="border-white/10 bg-black/20 shadow-none">
+              <CardHeader className="space-y-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-200">
+                  <ActivityIcon className="size-4" />
+                </div>
+                <div className="space-y-2">
+                  <CardTitle className="text-lg text-white">{messages.home.liveBoardTitle}</CardTitle>
+                  <CardDescription className="text-sm leading-6 text-zinc-400">
+                    {messages.home.liveBoardDescription}
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-zinc-300">
+                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                  {messages.home.visiblePlayersCount(topPlayers.length)}
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                  {messages.home.visibleGuildsCount(rankingOverview.guilds.length)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-black/20 shadow-none">
+              <CardHeader className="space-y-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                  <TrophyIcon className="size-4" />
+                </div>
+                <div className="space-y-2">
+                  <CardTitle className="text-lg text-white">{messages.home.topPlayersTitle}</CardTitle>
+                  <CardDescription className="text-sm leading-6 text-zinc-400">
+                    {messages.home.topPlayersDescription}
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {topPlayers.map((player) => (
+                  <div
+                    key={player.id}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/5 px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 text-sm font-medium text-white">
+                        <span className="text-zinc-500">#{player.rank}</span>
+                        <span className="truncate">{player.name}</span>
+                      </div>
+                      <p className="text-sm text-zinc-400">{player.classLabel}</p>
+                    </div>
+                    <div className="text-right text-sm text-zinc-300">Lv {formatInteger(player.level, locale)}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-black/20 shadow-none">
+              <CardHeader className="space-y-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-500/10 text-amber-200">
+                  <ShieldIcon className="size-4" />
+                </div>
+                <div className="space-y-2">
+                  <CardTitle className="text-lg text-white">{messages.home.championGuildTitle}</CardTitle>
+                  <CardDescription className="text-sm leading-6 text-zinc-400">
+                    {messages.home.championGuildDescription}
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {championGuild ? (
+                  <div className="space-y-3 rounded-2xl border border-white/8 bg-white/5 px-4 py-4">
+                    <div className="text-lg font-semibold text-white">{championGuild.name}</div>
+                    <div className="text-sm text-zinc-300">
+                      {formatInteger(championGuild.ladderPoint, locale)} ladder
+                    </div>
+                    <div className="text-sm text-zinc-400">
+                      {championGuild.win}-{championGuild.draw}-{championGuild.loss}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4 text-sm text-zinc-400">
+                    {messages.home.championGuildEmpty}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
+      </PublicSection>
 
       <PublicSection
         eyebrow={messages.home.sectionEyebrow}
