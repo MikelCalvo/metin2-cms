@@ -248,6 +248,8 @@ describe("account page", () => {
 
     const html = renderToStaticMarkup(await AccountPage({}));
 
+    expect(html).toContain("Character spotlight");
+    expect(html).toContain("Ready for the next login");
     expect(html).toContain("Account details");
     expect(html).toContain("Game account");
     expect(html).toContain("My characters");
@@ -255,6 +257,7 @@ describe("account page", () => {
     expect(html).toContain("Recent activity");
     expect(html).toContain("Downloads");
     expect(html).toContain("Rankings");
+    expect(html).toContain('href="/characters/3"');
     expect(html).toContain("Sign out");
     expect(html).toContain("Last play: 2 hours ago");
     expect(html).toContain("character-card:mk");

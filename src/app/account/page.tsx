@@ -32,6 +32,7 @@ import { getAccountCharactersOverview } from "@/server/account/account-character
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
+import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
 
 const ACTIVITY_PAGE_SIZE = 3;
@@ -145,6 +146,16 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     recentAuthActivity,
     locale,
   });
+  const featuredCharacter =
+    accountCharactersOverview.status === "available"
+      ? [...accountCharactersOverview.characters].sort((left, right) => {
+          if (right.level !== left.level) {
+            return right.level - left.level;
+          }
+
+          return right.playtime - left.playtime;
+        })[0] ?? null
+      : null;
   const currentActiveSession =
     activeSessions.find((activeSession) => activeSession.id === session.id) ?? activeSessions[0] ?? null;
   const otherActiveSessions = activeSessions.filter(
@@ -180,6 +191,11 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
                   {messages.account.activeSessions(activeSessions.length)}
                 </div>
+                {accountCharactersOverview.status === "available" ? (
+                  <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                    {messages.account.charactersReady(accountCharactersOverview.characters.length)}
+                  </div>
+                ) : null}
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
                   {messages.common.lastPlay}: {formattedLastPlay}
                 </div>
@@ -221,6 +237,130 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             </div>
           </div>
         </section>
+
+        <DashboardSection
+          badge={messages.account.playerHubBadge}
+          title={messages.account.playerHubTitle}
+          description={messages.account.playerHubDescription}
+          contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
+        >
+          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-xl text-white">{messages.account.featuredCharacterTitle}</CardTitle>
+              <CardDescription className="text-sm leading-6 text-zinc-400">
+                {messages.account.featuredCharacterDescription}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {featuredCharacter ? (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <Link
+                        href={`/characters/${featuredCharacter.id}`}
+                        className="text-2xl font-semibold tracking-tight text-white transition-colors hover:text-violet-200"
+                      >
+                        {featuredCharacter.name}
+                      </Link>
+                      <p className="mt-1 text-sm text-zinc-400">{featuredCharacter.classLabel}</p>
+                    </div>
+                    <Button asChild variant="outline" className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10">
+                      <Link href={`/characters/${featuredCharacter.id}`}>{messages.account.openCharacterProfile}</Link>
+                    </Button>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                      <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                        {messages.rankings.columns.level}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-zinc-100">{featuredCharacter.level}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                      <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                        {messages.rankings.columns.playtime}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-zinc-100">
+                        {formatPlaytimeDuration(featuredCharacter.playtime, locale)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                      <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                        {messages.rankings.columns.guild}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-zinc-100">
+                        {featuredCharacter.guildName || messages.common.noValue}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                      <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                        {messages.rankings.columns.lastSeen}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-zinc-100">
+                        {formatRankingTimestamp(featuredCharacter.lastPlay, new Date(), locale)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Alert className="border-white/10 bg-black/20 text-zinc-100">
+                  <ShieldAlertIcon className="size-4" />
+                  <AlertTitle>{messages.account.noCharactersTitle}</AlertTitle>
+                  <AlertDescription className="text-zinc-400">
+                    {messages.account.noCharactersDescription}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-xl text-white">{messages.account.readyTitle}</CardTitle>
+              <CardDescription className="text-sm leading-6 text-zinc-400">
+                {messages.account.readyDescription}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                    {messages.account.charactersTitle}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-zinc-100">
+                    {accountCharactersOverview.status === "available"
+                      ? accountCharactersOverview.characters.length
+                      : messages.common.noValue}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                    {messages.common.lastPlay}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-zinc-100">{formattedLastPlay}</p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                    {messages.account.sessionsTitle}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-zinc-100">{activeSessions.length}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild className="bg-violet-500 text-white hover:bg-violet-400">
+                  <Link href="/downloads">{messages.account.downloadsAction}</Link>
+                </Button>
+                <Button asChild variant="outline" className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10">
+                  <Link href="/rankings">{messages.account.rankingsAction}</Link>
+                </Button>
+                {featuredCharacter ? (
+                  <Button asChild variant="outline" className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10">
+                    <Link href={`/characters/${featuredCharacter.id}`}>{messages.account.openCharacterProfile}</Link>
+                  </Button>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+        </DashboardSection>
 
         <DashboardSection
           badge={messages.account.overviewBadge}
