@@ -1,14 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { UserIcon } from "lucide-react";
 
 import { SiteNav } from "@/components/cms/site-nav";
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { useI18n } from "@/components/i18n/i18n-provider";
 import { Badge } from "@/components/ui/badge";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  isAuthenticated?: boolean;
+  accountLogin?: string | null;
+};
+
+export function SiteHeader({ isAuthenticated = false, accountLogin }: SiteHeaderProps) {
   const { messages } = useI18n();
+  const accountLabel = accountLogin && accountLogin.trim().length > 0 ? accountLogin : messages.account.eyebrow;
 
   return (
     <header
@@ -38,21 +45,35 @@ export function SiteHeader() {
         >
           <LocaleSwitcher />
 
-          <Link
-            href="/register"
-            data-slot="header-cta"
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
-          >
-            {messages.header.createAccount}
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/account"
+              data-slot="header-cta"
+              data-account-link="true"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+            >
+              <UserIcon className="size-4" aria-hidden="true" />
+              <span className="max-w-[10rem] truncate">{accountLabel}</span>
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/register"
+                data-slot="header-cta"
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                {messages.header.createAccount}
+              </Link>
 
-          <Link
-            href="/login"
-            data-slot="header-cta"
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
-          >
-            {messages.header.signIn}
-          </Link>
+              <Link
+                href="/login"
+                data-slot="header-cta"
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                {messages.header.signIn}
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

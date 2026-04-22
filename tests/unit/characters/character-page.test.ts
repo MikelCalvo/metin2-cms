@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -16,6 +17,10 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/server/characters/character-detail-service", () => ({
   getCharacterDetail: getCharacterDetailMock,
+}));
+
+vi.mock("@/components/cms/site-page-shell", () => ({
+  SitePageShell: ({ children }: { children: ReactNode }) => children,
 }));
 
 import CharacterDetailPage from "@/app/characters/[id]/page";

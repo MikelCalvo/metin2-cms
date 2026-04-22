@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -15,6 +16,10 @@ vi.mock("@/lib/env", () => ({
 
 vi.mock("@/server/downloads/starter-pack-metadata", () => ({
   getStarterPackReleaseMetadata: getStarterPackReleaseMetadataMock,
+}));
+
+vi.mock("@/components/cms/site-page-shell", () => ({
+  SitePageShell: ({ children }: { children: ReactNode }) => children,
 }));
 
 import DownloadsPage from "@/app/downloads/page";

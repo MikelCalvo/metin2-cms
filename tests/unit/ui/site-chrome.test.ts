@@ -40,4 +40,29 @@ describe("site chrome", () => {
     expect(headerHtml).not.toContain("shadow-violet-950/40");
     expect(headerHtml).not.toContain("text-sm text-zinc-400 transition-colors hover:text-white");
   });
+
+  it("replaces guest auth links with a user icon plus the account login when the visitor is already signed in", () => {
+    const headerHtml = renderToStaticMarkup(createElement(SiteHeader, { isAuthenticated: true, accountLogin: "admin" }));
+    const headerCtas = headerHtml.match(/data-slot="header-cta"/g) ?? [];
+
+    expect(headerHtml).toContain("admin");
+    expect(headerHtml).toContain('href="/account"');
+    expect(headerHtml).toContain('data-account-link="true"');
+    expect(headerHtml).toContain("lucide-user");
+    expect(headerCtas).toHaveLength(1);
+    expect(headerHtml).not.toContain("My account");
+    expect(headerHtml).not.toContain("Create account");
+    expect(headerHtml).not.toContain("Sign in");
+    expect(headerHtml).not.toContain('href="/register"');
+    expect(headerHtml).not.toContain('href="/login"');
+  });
+
+  it("keeps the account shortcut visible even if the authenticated login is unavailable", () => {
+    const headerHtml = renderToStaticMarkup(createElement(SiteHeader, { isAuthenticated: true, accountLogin: "" }));
+
+    expect(headerHtml).toContain('href="/account"');
+    expect(headerHtml).toContain("Account");
+    expect(headerHtml).not.toContain("Create account");
+    expect(headerHtml).not.toContain("Sign in");
+  });
 });

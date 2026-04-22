@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +8,10 @@ const { getRankingOverviewMock } = vi.hoisted(() => ({
 
 vi.mock("@/server/rankings/rankings-service", () => ({
   getRankingOverview: getRankingOverviewMock,
+}));
+
+vi.mock("@/components/cms/site-page-shell", () => ({
+  SitePageShell: ({ children }: { children: ReactNode }) => children,
 }));
 
 import Home from "@/app/page";
