@@ -247,6 +247,9 @@ describe("account page", () => {
     ]);
 
     const html = renderToStaticMarkup(await AccountPage({}));
+    const downloadsActions = html.match(/>Downloads</g) ?? [];
+    const rankingsActions = html.match(/>Rankings</g) ?? [];
+    const openCharacterProfileActions = html.match(/Open character profile/g) ?? [];
 
     expect(html).toContain("Character spotlight");
     expect(html).toContain("Ready for the next login");
@@ -257,6 +260,9 @@ describe("account page", () => {
     expect(html).toContain("Recent activity");
     expect(html).toContain("Downloads");
     expect(html).toContain("Rankings");
+    expect(downloadsActions).toHaveLength(1);
+    expect(rankingsActions).toHaveLength(1);
+    expect(openCharacterProfileActions).toHaveLength(1);
     expect(html).toContain('href="/characters/3"');
     expect(html).toContain("Sign out");
     expect(html).toContain("Last play: 2 hours ago");

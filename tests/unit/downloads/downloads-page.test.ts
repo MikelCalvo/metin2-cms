@@ -48,6 +48,7 @@ describe("downloads page", () => {
     const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
     const primaryActionGroups = html.match(/data-slot=\"downloads-primary-actions\"/g) ?? [];
     const largeButtons = html.match(/data-size=\"lg\"/g) ?? [];
+    const platformChips = html.match(/data-slot=\"platform-chip\"/g) ?? [];
 
     expect(html).toContain("One download between you and the server.");
     expect(html).toContain("Download launcher");
@@ -60,7 +61,16 @@ describe("downloads page", () => {
     expect(html).toContain("Size");
     expect(html).toContain("512 MB");
     expect(html).toContain("After download: account, sign in, rankings.");
-    expect(html).toContain("Resume-friendly");
+    expect(html).toContain('data-platform-chip="windows"');
+    expect(html).toContain('data-platform-chip="linux"');
+    expect(platformChips).toHaveLength(2);
+    expect(html).toContain("Windows");
+    expect(html).toContain("Linux");
+    expect(html).toContain("Wine");
+    expect(html).not.toContain("Official Windows support");
+    expect(html).not.toContain("Linux via Wine");
+    expect(html).not.toContain("Base client included");
+    expect(html).not.toContain("Resume-friendly download");
     expect(primaryActionGroups).toHaveLength(1);
     expect(largeButtons).toHaveLength(1);
     expect(html).toContain("h-12 justify-between rounded-2xl");

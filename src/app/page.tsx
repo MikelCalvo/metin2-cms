@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ActivityIcon, ArrowRightIcon, DownloadIcon, ShieldIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
 
+import { PlatformChip } from "@/components/cms/platform-chip";
 import { PublicActionTile } from "@/components/cms/public-action-tile";
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
@@ -86,10 +87,8 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipWindows}</div>
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipWine}</div>
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipLauncher}</div>
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipRankings}</div>
+        <PlatformChip platform="windows" label={messages.common.windows} />
+        <PlatformChip platform="linux" label={messages.common.linux} note={messages.common.wine} />
       </CmsPageHeader>
 
       <PublicSection
@@ -262,7 +261,7 @@ export default async function Home() {
                 </p>
               </div>
               <div className="site-inset rounded-2xl px-4 py-3 text-sm text-zinc-300">
-                {messages.home.chipLauncher}
+                {messages.home.identityBossRunsStatus}
               </div>
             </CardContent>
           </Card>

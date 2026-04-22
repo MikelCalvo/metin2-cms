@@ -338,27 +338,6 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   <p className="mt-1 text-sm font-medium text-zinc-100">{activeSessions.length}</p>
                 </div>
               </div>
-              <div className="grid gap-3 sm:flex sm:flex-wrap">
-                <Button asChild className="w-full bg-violet-500 text-white hover:bg-violet-400 sm:w-auto">
-                  <Link href="/downloads">{messages.account.downloadsAction}</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
-                >
-                  <Link href="/rankings">{messages.account.rankingsAction}</Link>
-                </Button>
-                {featuredCharacter ? (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
-                  >
-                    <Link href={`/characters/${featuredCharacter.id}`}>{messages.account.openCharacterProfile}</Link>
-                  </Button>
-                ) : null}
-              </div>
             </CardContent>
           </Card>
         </DashboardSection>

@@ -79,6 +79,7 @@ describe("home page", () => {
 
     const html = renderToStaticMarkup(await Home());
     const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
+    const platformChips = html.match(/data-slot=\"platform-chip\"/g) ?? [];
 
     expect(html).toContain("Enter the server.");
     expect(html).toContain("Start climbing.");
@@ -102,6 +103,16 @@ describe("home page", () => {
     expect(html).toContain("The routes that matter");
     expect(html).toContain("Three routes. No filler.");
     expect(html).toContain("Download launcher");
+    expect(html).toContain('data-platform-chip="windows"');
+    expect(html).toContain('data-platform-chip="linux"');
+    expect(platformChips).toHaveLength(2);
+    expect(html).toContain("Windows");
+    expect(html).toContain("Linux");
+    expect(html).toContain("Wine");
+    expect(html).not.toContain("Official Windows support");
+    expect(html).not.toContain("Linux via Wine");
+    expect(html).not.toContain("Auto-updating launcher");
+    expect(html).not.toContain("Live player + guild rankings");
     expect(html).toContain("Create account");
     expect(html).toContain('href="/downloads"');
     expect(html).not.toContain("Download starter pack");

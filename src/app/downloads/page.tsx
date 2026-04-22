@@ -8,6 +8,7 @@ import {
 
 import { PublicActionTile } from "@/components/cms/public-action-tile";
 import { CmsPageHeader } from "@/components/cms/page-shell";
+import { PlatformChip } from "@/components/cms/platform-chip";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { DownloadChecksumCopyButton } from "@/components/downloads/checksum-copy-button";
 import { Button } from "@/components/ui/button";
@@ -153,10 +154,8 @@ export default async function DownloadsPage() {
           ) : null}
         </div>
 
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipWindows}</div>
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipWine}</div>
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipBaseClient}</div>
-        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipResume}</div>
+        <PlatformChip platform="windows" label={messages.common.windows} />
+        <PlatformChip platform="linux" label={messages.common.linux} note={messages.common.wine} />
         {hasStarterPackDownload && starterPackChecksum ? (
           <DownloadChecksumCopyButton checksum={starterPackChecksum} />
         ) : null}
