@@ -5,8 +5,16 @@ const { getPublicEnvMock } = vi.hoisted(() => ({
   getPublicEnvMock: vi.fn(),
 }));
 
+const { getStarterPackReleaseMetadataMock } = vi.hoisted(() => ({
+  getStarterPackReleaseMetadataMock: vi.fn(),
+}));
+
 vi.mock("@/lib/env", () => ({
   getPublicEnv: getPublicEnvMock,
+}));
+
+vi.mock("@/server/downloads/starter-pack-metadata", () => ({
+  getStarterPackReleaseMetadata: getStarterPackReleaseMetadataMock,
 }));
 
 import DownloadsPage from "@/app/downloads/page";
@@ -14,12 +22,19 @@ import DownloadsPage from "@/app/downloads/page";
 describe("downloads page", () => {
   beforeEach(() => {
     getPublicEnvMock.mockReset();
+    getStarterPackReleaseMetadataMock.mockReset();
   });
 
   it("renders the launcher CTA plus an inline checksum copy block when the starter pack is configured", async () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: "https://downloads.example.test/releases/starter-pack.zip",
       STARTER_PACK_SHA256: "abc123",
+    });
+    getStarterPackReleaseMetadataMock.mockResolvedValue({
+      filename: "Metin2-Starter-Pack.zip",
+      buildTag: "release-2026-04-22",
+      fileSizeBytes: 536870912,
+      updatedAt: "Wed, 22 Apr 2026 03:00:00 GMT",
     });
 
     const html = renderToStaticMarkup(await DownloadsPage());
@@ -30,6 +45,20 @@ describe("downloads page", () => {
 
     expect(html).toContain("One download between you and the server.");
     expect(html).toContain("Download launcher");
+    expect(html).toContain("Release snapshot");
+    expect(html).toContain("Archive");
+    expect(html).toContain("Metin2-Starter-Pack.zip");
+    expect(html).toContain("Build tag");
+    expect(html).toContain("release-2026-04-22");
+    expect(html).toContain("Updated");
+    expect(html).toContain("Size");
+    expect(html).toContain("512 MB");
+    expect(html).toContain("What is inside");
+    expect(html).toContain("Auto-updating launcher");
+    expect(html).toContain("Base client included");
+    expect(html).toContain("Resume-friendly archive");
+    expect(html).toContain("Current release notes");
+    expect(html).toContain("One launcher path. One account path. Live ladder after patch.");
     expect(html).toContain("Resume-friendly");
     expect(primaryActionGroups).toHaveLength(1);
     expect(largeButtons).toHaveLength(1);
@@ -73,6 +102,7 @@ describe("downloads page", () => {
     getPublicEnvMock.mockReturnValue({
       STARTER_PACK_URL: undefined,
     });
+    getStarterPackReleaseMetadataMock.mockResolvedValue(null);
 
     const html = renderToStaticMarkup(await DownloadsPage());
     const primaryActionGroups = html.match(/data-slot=\"downloads-primary-actions\"/g) ?? [];
@@ -82,6 +112,7 @@ describe("downloads page", () => {
     expect(largeButtons).toHaveLength(2);
     expect(html).toContain("Create account");
     expect(html).toContain("Sign in");
+    expect(html).not.toContain("Release snapshot");
     expect(html).not.toContain("Launcher download");
     expect(html).not.toContain("Quick launch");
     expect(html).not.toContain('href="/downloads/client"');

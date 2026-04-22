@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowRightIcon,
   DownloadIcon,
+  ShieldCheckIcon,
   TrophyIcon,
   UserRoundPlusIcon,
 } from "lucide-react";
@@ -10,16 +11,88 @@ import { CmsPageHeader } from "@/components/cms/page-shell";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { DownloadChecksumCopyButton } from "@/components/downloads/checksum-copy-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getIntlLocale, type Locale } from "@/lib/i18n/config";
 import { getPublicEnv } from "@/lib/env";
-import { getMessagesForRequest } from "@/lib/i18n/server";
+import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
+import { getStarterPackReleaseMetadata } from "@/server/downloads/starter-pack-metadata";
+
+function formatReleaseSize(fileSizeBytes: number | null, locale: Locale) {
+  if (fileSizeBytes === null) {
+    return null;
+  }
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = fileSizeBytes;
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  const formatter = new Intl.NumberFormat(getIntlLocale(locale), {
+    maximumFractionDigits: value >= 100 || unitIndex === 0 ? 0 : 1,
+  });
+
+  return `${formatter.format(value)} ${units[unitIndex]}`;
+}
+
+function formatReleaseUpdatedAt(updatedAt: string | null, locale: Locale) {
+  if (!updatedAt) {
+    return null;
+  }
+
+  const parsed = new Date(updatedAt);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat(getIntlLocale(locale), {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(parsed);
+}
 
 export default async function DownloadsPage() {
+  const locale = await getCurrentLocale();
   const publicEnv = getPublicEnv();
   const starterPackUrl = publicEnv.STARTER_PACK_URL;
   const starterPackChecksum = publicEnv.STARTER_PACK_SHA256;
   const hasStarterPackDownload = Boolean(starterPackUrl);
   const messages = await getMessagesForRequest();
+  const releaseMetadata = hasStarterPackDownload ? await getStarterPackReleaseMetadata() : null;
+  const releaseSnapshotItems = releaseMetadata
+    ? [
+        {
+          label: messages.downloads.releaseArchiveLabel,
+          value: releaseMetadata.filename,
+        },
+        {
+          label: messages.downloads.releaseBuildTagLabel,
+          value: releaseMetadata.buildTag ?? messages.common.noValue,
+        },
+        {
+          label: messages.downloads.releaseUpdatedLabel,
+          value: formatReleaseUpdatedAt(releaseMetadata.updatedAt, locale) ?? messages.common.noValue,
+        },
+        {
+          label: messages.downloads.releaseSizeLabel,
+          value: formatReleaseSize(releaseMetadata.fileSizeBytes, locale) ?? messages.common.noValue,
+        },
+      ]
+    : [];
+  const releaseContents = [
+    messages.downloads.contentsLauncher,
+    messages.downloads.contentsBaseClient,
+    messages.downloads.contentsResume,
+  ];
+  const releaseNotes = [
+    messages.downloads.releaseNotePrimary,
+    messages.downloads.releaseNoteSecondary,
+    messages.downloads.releaseNoteTertiary,
+  ];
   const nextRoutes = [
     {
       title: messages.downloads.routes.createAccountTitle,
@@ -98,6 +171,65 @@ export default async function DownloadsPage() {
           <DownloadChecksumCopyButton checksum={starterPackChecksum} />
         ) : null}
       </CmsPageHeader>
+
+      {releaseMetadata ? (
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                <DownloadIcon className="size-4" />
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-lg text-white">{messages.downloads.releaseSnapshotTitle}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              {releaseSnapshotItems.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                  <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{item.label}</p>
+                  <p className="mt-2 text-sm font-medium text-zinc-100">{item.value}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-200">
+                <ShieldCheckIcon className="size-4" />
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-lg text-white">{messages.downloads.contentsTitle}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {releaseContents.map((item) => (
+                <div key={item} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-zinc-100">
+                  {item}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-500/10 text-amber-200">
+                <ArrowRightIcon className="size-4" />
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-lg text-white">{messages.downloads.releaseNotesTitle}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {releaseNotes.map((item) => (
+                <div key={item} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-zinc-100">
+                  {item}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
 
       <Card className="border-white/10 bg-black/20 shadow-none">
         <CardContent className="space-y-3 px-4 py-4">
