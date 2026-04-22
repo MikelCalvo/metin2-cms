@@ -363,11 +363,9 @@ const en = {
   registerForm: {
     eyebrow: "Metin2 CMS",
     title: "Create account",
-    description:
-      "Register a legacy-compatible Metin2 account and start using the modern CMS.",
+    description: "Create the account you will use in-game.",
     errorTitle: "Unable to create the account",
-    socialIdHint:
-      "Legacy-compatible alphanumeric delete code used by the game account.",
+    socialIdHint: "Delete code used by the game client.",
   },
   recoverPage: {
     eyebrow: "Account recovery",
@@ -400,12 +398,12 @@ const en = {
   recoverForm: {
     eyebrow: "Metin2 CMS",
     title: "Recover password",
-    description: "Enter the login and email tied to the legacy Metin2 account.",
+    description: "Enter the login and email tied to your account.",
     successTitle: "Recovery request created",
     errorTitle: "Recovery request failed",
-    temporaryDeliveryTitle: "Temporary delivery mode",
+    temporaryDeliveryTitle: "Manual delivery",
     temporaryDeliveryDescription:
-      "Matching recovery requests are queued on the server for manual handling by an operator.",
+      "If the login and email match, the reset link will be handled manually for now.",
     previewTitle: "Development preview",
     previewPrefix: "Reset link:",
   },
