@@ -20,6 +20,13 @@ export default async function Home() {
   const rankingOverview = await getRankingOverview(locale);
   const topPlayers = rankingOverview.status === "available" ? rankingOverview.players.slice(0, 3) : [];
   const championGuild = rankingOverview.status === "available" ? rankingOverview.guilds[0] ?? null : null;
+  const classChips = [
+    messages.rankingsMeta.classes.warrior,
+    messages.rankingsMeta.classes.ninja,
+    messages.rankingsMeta.classes.sura,
+    messages.rankingsMeta.classes.shaman,
+    messages.rankingsMeta.classes.lycan,
+  ];
   const quickRoutes = [
     {
       title: messages.home.routes.playNowTitle,
@@ -177,6 +184,66 @@ export default async function Home() {
             </Card>
           </div>
         ) : null}
+      </PublicSection>
+
+      <PublicSection
+        eyebrow={messages.home.identityEyebrow}
+        title={messages.home.identityTitle}
+        description={messages.home.identityDescription}
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-100">
+                <ShieldIcon className="size-4" />
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-lg text-white">{messages.home.identityClassesTitle}</CardTitle>
+                <CardDescription className="text-sm leading-6 text-zinc-400">
+                  {messages.home.identityClassesDescription}
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              {classChips.map((className) => (
+                <span
+                  key={className}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100"
+                >
+                  {className}
+                </span>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                <TrophyIcon className="size-4" />
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-lg text-white">{messages.home.identityGuildWarsTitle}</CardTitle>
+                <CardDescription className="text-sm leading-6 text-zinc-400">
+                  {messages.home.identityGuildWarsDescription}
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-white/10 bg-black/20 shadow-none">
+            <CardHeader className="space-y-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-500/10 text-amber-200">
+                <ActivityIcon className="size-4" />
+              </div>
+              <div className="space-y-2">
+                <CardTitle className="text-lg text-white">{messages.home.identityBossRunsTitle}</CardTitle>
+                <CardDescription className="text-sm leading-6 text-zinc-400">
+                  {messages.home.identityBossRunsDescription}
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+        </div>
       </PublicSection>
 
       <PublicSection

@@ -80,6 +80,14 @@ describe("home page", () => {
     expect(html).toContain("Live board");
     expect(html).toContain("Top 3 players");
     expect(html).toContain("Champion guild");
+    expect(html).toContain("Built for guild wars, boss runs and class mains.");
+    expect(html).toContain("Guild wars");
+    expect(html).toContain("Boss runs");
+    expect(html).toContain("Warrior");
+    expect(html).toContain("Ninja");
+    expect(html).toContain("Sura");
+    expect(html).toContain("Shaman");
+    expect(html).toContain("Lycan");
     expect(html).toContain("mk");
     expect(html).toContain("WarBoss");
     expect(html).toContain("ShinsooQueen");

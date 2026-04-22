@@ -37,6 +37,7 @@ describe("home page locale", () => {
     expect(html).toContain("Entra al servidor.");
     expect(html).toContain("Empieza a escalar.");
     expect(html).toContain("Vida del servidor, ahora mismo");
+    expect(html).toContain("Clases, guerras de gremios y cacerías de boss.");
     expect(html).toContain("Las rutas que importan");
     expect(html).toContain("Descargar launcher");
     expect(html).not.toContain("Enter the server.");
