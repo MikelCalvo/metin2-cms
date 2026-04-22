@@ -51,6 +51,8 @@ describe("rankings page", () => {
     const html = renderToStaticMarkup(await RankingsPage());
 
     expect(html).toContain("Character ladder");
+    expect(html).toContain("Top 3 right now");
+    expect(html).toContain("Guild champion");
     expect(html).toContain("Guild ladder");
     expect(html).toContain("Ready to climb?");
     expect(html).toContain("mk");
@@ -58,6 +60,7 @@ describe("rankings page", () => {
     expect(html).toContain("[GM-TEAM]");
     expect(html).toContain("2m");
     expect(html).toContain('href="/characters/1"');
+    expect(html).toContain('data-slot="ranking-highlight-card"');
     expect(html).toContain('data-slot="route-card"');
     expect(html).toContain('href="/downloads"');
     expect(html).toContain('href="/register"');

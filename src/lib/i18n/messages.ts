@@ -275,12 +275,14 @@ const en = {
     unavailableAlertTitle: "Ranking feed unavailable",
     characterTitle: "Character ladder",
     characterDescription: "Top characters on the live server.",
+    highlightsTitle: "Top 3 right now",
     noCharactersTitle: "No characters on the board yet",
     noCharactersDescription:
       "The feed is healthy, but there are no visible character entries right now.",
     guildEyebrow: "Guilds",
     guildTitle: "Guild ladder",
     guildDescription: "Guild standings on the live server.",
+    guildChampionTitle: "Guild champion",
     noGuildsTitle: "No guilds on the board yet",
     noGuildsDescription:
       "The feed is healthy, but there are no visible guild rows right now.",
@@ -809,12 +811,14 @@ const es: DeepPartial<Messages> = {
     unavailableAlertTitle: "Feed de rankings no disponible",
     characterTitle: "Ladder de personajes",
     characterDescription: "Top de personajes del servidor en vivo.",
+    highlightsTitle: "Top 3 ahora mismo",
     noCharactersTitle: "Aún no hay personajes en la tabla",
     noCharactersDescription:
       "El feed funciona bien, pero ahora mismo no hay personajes visibles.",
     guildEyebrow: "Gremios",
     guildTitle: "Ladder de gremios",
     guildDescription: "Clasificación de gremios del servidor en vivo.",
+    guildChampionTitle: "Gremio campeón",
     noGuildsTitle: "Aún no hay gremios en la tabla",
     noGuildsDescription:
       "El feed funciona bien, pero ahora mismo no hay filas de gremios visibles.",
