@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRightIcon,
   DownloadIcon,
-  ShieldCheckIcon,
   TrophyIcon,
   UserRoundPlusIcon,
 } from "lucide-react";
@@ -83,16 +82,6 @@ export default async function DownloadsPage() {
         },
       ]
     : [];
-  const releaseContents = [
-    messages.downloads.contentsLauncher,
-    messages.downloads.contentsBaseClient,
-    messages.downloads.contentsResume,
-  ];
-  const releaseNotes = [
-    messages.downloads.releaseNotePrimary,
-    messages.downloads.releaseNoteSecondary,
-    messages.downloads.releaseNoteTertiary,
-  ];
   const nextRoutes = [
     {
       title: messages.downloads.routes.createAccountTitle,
@@ -173,62 +162,24 @@ export default async function DownloadsPage() {
       </CmsPageHeader>
 
       {releaseMetadata ? (
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
-          <Card className="border-white/10 bg-black/20 shadow-none">
-            <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                <DownloadIcon className="size-4" />
+        <Card className="border-white/10 bg-black/20 shadow-none">
+          <CardHeader className="space-y-3">
+            <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+              <DownloadIcon className="size-4" />
+            </div>
+            <div className="space-y-2">
+              <CardTitle className="text-lg text-white">{messages.downloads.releaseSnapshotTitle}</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {releaseSnapshotItems.map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{item.label}</p>
+                <p className="mt-2 text-sm font-medium text-zinc-100">{item.value}</p>
               </div>
-              <div className="space-y-2">
-                <CardTitle className="text-lg text-white">{messages.downloads.releaseSnapshotTitle}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="grid gap-3 sm:grid-cols-2">
-              {releaseSnapshotItems.map((item) => (
-                <div key={item.label} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-                  <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{item.label}</p>
-                  <p className="mt-2 text-sm font-medium text-zinc-100">{item.value}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-white/10 bg-black/20 shadow-none">
-            <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-200">
-                <ShieldCheckIcon className="size-4" />
-              </div>
-              <div className="space-y-2">
-                <CardTitle className="text-lg text-white">{messages.downloads.contentsTitle}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {releaseContents.map((item) => (
-                <div key={item} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-zinc-100">
-                  {item}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-white/10 bg-black/20 shadow-none">
-            <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-500/10 text-amber-200">
-                <ArrowRightIcon className="size-4" />
-              </div>
-              <div className="space-y-2">
-                <CardTitle className="text-lg text-white">{messages.downloads.releaseNotesTitle}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {releaseNotes.map((item) => (
-                <div key={item} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-zinc-100">
-                  {item}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+            ))}
+          </CardContent>
+        </Card>
       ) : null}
 
       <Card className="border-white/10 bg-black/20 shadow-none">

@@ -154,7 +154,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <CmsPageHeader
         eyebrow={messages.characterDetail.eyebrow}
         title={character.name}
-        description={messages.characterDetail.heroDescription}
         actions={
           <>
             <Button
@@ -198,7 +197,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <PublicSection
         eyebrow={messages.characterDetail.progressionEyebrow}
         title={messages.characterDetail.progressionTitle}
-        description={messages.characterDetail.progressionDescription}
         contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-5"
       >
         {progressionMetrics.map((metric) => (
@@ -209,7 +207,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <PublicSection
         eyebrow={messages.characterDetail.combatEyebrow}
         title={messages.characterDetail.combatTitle}
-        description={messages.characterDetail.combatDescription}
         contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
       >
         {combatMetrics.map((metric) => (
@@ -220,7 +217,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <PublicSection
         eyebrow={messages.characterDetail.worldEyebrow}
         title={messages.characterDetail.worldTitle}
-        description={messages.characterDetail.worldDescription}
         contentClassName="grid gap-4 md:grid-cols-3"
       >
         {worldMetrics.map((metric) => (
@@ -231,7 +227,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <PublicSection
         eyebrow={messages.characterDetail.guildEyebrow}
         title={messages.characterDetail.guildTitle}
-        description={messages.characterDetail.guildDescription}
         contentClassName="grid gap-4 md:grid-cols-2"
       >
         {guildMetrics.map((metric) => (
@@ -242,7 +237,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <PublicSection
         eyebrow={messages.characterDetail.mountEyebrow}
         title={messages.characterDetail.mountTitle}
-        description={messages.characterDetail.mountDescription}
         contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
       >
         {mountMetrics.map((metric) => (
@@ -253,7 +247,6 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
       <PublicSection
         eyebrow={messages.characterDetail.nextEyebrow}
         title={messages.characterDetail.nextTitle}
-        description={messages.characterDetail.nextDescription}
         contentClassName="grid gap-4 md:grid-cols-2"
       >
         <Link

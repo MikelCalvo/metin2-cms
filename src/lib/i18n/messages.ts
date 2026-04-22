@@ -257,8 +257,7 @@ const en = {
     releaseNotePrimary: "One launcher path. One account path. Live ladder after patch.",
     releaseNoteSecondary: "Launcher-first start with the base client already packed.",
     releaseNoteTertiary: "SHA256 stays visible on the page before you install.",
-    nextIntro:
-      "If you are not done after the download, these are the other pages players usually open next.",
+    nextIntro: "After download: account, sign in, rankings.",
     routes: {
       createAccountTitle: "Create account",
       createAccountDescription: "Set up your login first.",
@@ -802,8 +801,7 @@ const es: DeepPartial<Messages> = {
     releaseNotePrimary: "Un camino de launcher. Un camino de cuenta. Ladder en vivo tras parchear.",
     releaseNoteSecondary: "Inicio centrado en launcher con el cliente base ya empaquetado.",
     releaseNoteTertiary: "El SHA256 sigue visible en la página antes de instalar.",
-    nextIntro:
-      "Si no has terminado tras la descarga, estas son las otras páginas que los jugadores suelen abrir después.",
+    nextIntro: "Después de descargar: cuenta, login y rankings.",
     routes: {
       createAccountTitle: "Crear cuenta",
       createAccountDescription: "Prepara primero tu login.",

@@ -70,6 +70,9 @@ describe("rankings page", () => {
     expect(html).not.toContain("The ladder is live.");
     expect(html).not.toContain("Level, EXP and playtime decide the order.");
     expect(html).not.toContain("Ladder points lead the guild board.");
+    expect(html).not.toContain("Top characters on the live server.");
+    expect(html).not.toContain("Guild standings on the live server.");
+    expect(html).not.toContain("Account. Download. Sign in.");
     expect(html).not.toContain("Straight from the current player database.");
     expect(html).not.toContain("What this board shows");
   });

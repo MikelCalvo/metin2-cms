@@ -87,6 +87,13 @@ describe("character detail page", () => {
     expect(html).toContain("Horse");
     expect(html).toContain('href="/rankings"');
     expect(html).toContain('href="/downloads"');
+    expect(html).not.toContain("Live profile pulled directly from the current player schema.");
+    expect(html).not.toContain("Level, EXP, time played and core economy state.");
+    expect(html).not.toContain("Core combat values and base attributes.");
+    expect(html).not.toContain("Latest visible world position and recent activity.");
+    expect(html).not.toContain("Guild membership on the live server.");
+    expect(html).not.toContain("Horse progression plus remaining skill-related points.");
+    expect(html).not.toContain("Rankings or downloads. Nothing else.");
     expect(getCharacterDetailMock).toHaveBeenCalledWith(3, expect.any(String));
   });
 

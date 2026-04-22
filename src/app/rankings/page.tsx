@@ -68,7 +68,6 @@ export default async function RankingsPage() {
           <PublicSection
             eyebrow={messages.rankings.eyebrow}
             title={messages.rankings.characterTitle}
-            description={messages.rankings.characterDescription}
           >
             {rankingOverview.players.length > 0 ? (
               <div className="space-y-4">
@@ -173,7 +172,6 @@ export default async function RankingsPage() {
           <PublicSection
             eyebrow={messages.rankings.guildEyebrow}
             title={messages.rankings.guildTitle}
-            description={messages.rankings.guildDescription}
           >
             {rankingOverview.guilds.length > 0 ? (
               <div className="space-y-4">
@@ -257,7 +255,6 @@ export default async function RankingsPage() {
       <PublicSection
         eyebrow={messages.rankings.nextEyebrow}
         title={messages.rankings.nextTitle}
-        description={messages.rankings.nextDescription}
       >
         <div className="grid gap-4 md:grid-cols-3">
           {nextRoutes.map((route) => (
