@@ -20,7 +20,7 @@ export function SiteHeader({ isAuthenticated = false, accountLogin }: SiteHeader
   return (
     <header
       data-slot="header-card"
-      className="relative z-20 overflow-visible rounded-[28px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
+      className="site-surface relative z-20 overflow-visible rounded-[28px] shadow-2xl shadow-black/20 backdrop-blur-xl"
     >
       <div className="flex flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="space-y-3">
@@ -28,10 +28,10 @@ export function SiteHeader({ isAuthenticated = false, accountLogin }: SiteHeader
             <Link href="/" className="text-sm font-semibold tracking-[0.18em] text-white uppercase">
               {messages.header.brand}
             </Link>
-            <Badge variant="secondary" className="border border-white/10 bg-white/5 text-zinc-300">
+            <Badge variant="secondary" className="site-pill text-zinc-300">
               {messages.header.launcherReady}
             </Badge>
-            <Badge variant="secondary" className="border border-violet-400/20 bg-violet-500/10 text-violet-200">
+            <Badge variant="secondary" className="site-pill text-violet-200">
               {messages.header.liveLadders}
             </Badge>
           </div>
@@ -50,7 +50,7 @@ export function SiteHeader({ isAuthenticated = false, accountLogin }: SiteHeader
               href="/account"
               data-slot="header-cta"
               data-account-link="true"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              className="site-pill inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
             >
               <UserIcon className="size-4" aria-hidden="true" />
               <span className="max-w-[10rem] truncate">{accountLabel}</span>
@@ -60,7 +60,7 @@ export function SiteHeader({ isAuthenticated = false, accountLogin }: SiteHeader
               <Link
                 href="/register"
                 data-slot="header-cta"
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                className="site-pill rounded-full px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
                 {messages.header.createAccount}
               </Link>
@@ -68,7 +68,7 @@ export function SiteHeader({ isAuthenticated = false, accountLogin }: SiteHeader
               <Link
                 href="/login"
                 data-slot="header-cta"
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                className="site-pill rounded-full px-3 py-1.5 text-sm text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
                 {messages.header.signIn}
               </Link>

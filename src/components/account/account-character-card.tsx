@@ -23,7 +23,7 @@ export function AccountCharacterCard({
   return (
     <Card
       data-slot="account-character-card"
-      className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
+      className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0"
     >
       <CardHeader className="space-y-1">
         <CardTitle className="text-xl text-white">
@@ -36,7 +36,7 @@ export function AccountCharacterCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+        <div className="site-inset rounded-2xl px-4 py-3">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
             {messages.rankings.columns.level}
           </p>
@@ -44,7 +44,7 @@ export function AccountCharacterCard({
             {formatInteger(character.level, locale)}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+        <div className="site-inset rounded-2xl px-4 py-3">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
             {messages.rankings.columns.playtime}
           </p>
@@ -52,7 +52,7 @@ export function AccountCharacterCard({
             {formatPlaytimeDuration(character.playtime, locale)}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+        <div className="site-inset rounded-2xl px-4 py-3">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
             {messages.rankings.columns.guild}
           </p>
@@ -60,7 +60,7 @@ export function AccountCharacterCard({
             {character.guildName || messages.common.noValue}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+        <div className="site-inset rounded-2xl px-4 py-3">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
             {messages.rankings.columns.lastSeen}
           </p>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DownloadIcon, ShieldAlertIcon, TrophyIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 
+import { PublicActionTile } from "@/components/cms/public-action-tile";
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
@@ -41,7 +42,7 @@ function formatPosition(x: number, y: number, locale: string) {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-black/20 px-4 py-4">
+    <div className="site-inset rounded-[24px] px-4 py-4">
       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{label}</p>
       <p className="mt-2 text-base font-semibold tracking-tight text-white">{value}</p>
     </div>
@@ -180,16 +181,16 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
           </>
         }
       >
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+        <div className="site-pill rounded-full px-3 py-1.5">
           {character.classLabel}
         </div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+        <div className="site-pill rounded-full px-3 py-1.5">
           {messages.rankings.columns.level}: {formatInteger(character.level, intlLocale)}
         </div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+        <div className="site-pill rounded-full px-3 py-1.5">
           {messages.rankings.columns.guild}: {character.guildName || messages.common.noValue}
         </div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+        <div className="site-pill rounded-full px-3 py-1.5">
           {messages.rankings.columns.lastSeen}: {formatRankingTimestamp(character.lastPlay, new Date(), locale)}
         </div>
       </CmsPageHeader>
@@ -249,34 +250,20 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
         title={messages.characterDetail.nextTitle}
         contentClassName="grid gap-4 md:grid-cols-2"
       >
-        <Link
+        <PublicActionTile
           href="/rankings"
-          className="group flex items-center gap-4 rounded-[24px] border border-white/10 bg-black/20 px-5 py-5 text-left transition duration-200 hover:border-white/20 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
-        >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-            <TrophyIcon className="size-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-medium text-white">{messages.characterDetail.routes.rankingsTitle}</span>
-            <span className="block text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">
-              {messages.characterDetail.routes.rankingsDescription}
-            </span>
-          </span>
-        </Link>
-        <Link
+          title={messages.characterDetail.routes.rankingsTitle}
+          description={messages.characterDetail.routes.rankingsDescription}
+          label={messages.common.viewRankings}
+          icon={<TrophyIcon className="size-4" />}
+        />
+        <PublicActionTile
           href="/downloads"
-          className="group flex items-center gap-4 rounded-[24px] border border-white/10 bg-black/20 px-5 py-5 text-left transition duration-200 hover:border-white/20 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
-        >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-            <DownloadIcon className="size-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-medium text-white">{messages.characterDetail.routes.downloadsTitle}</span>
-            <span className="block text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">
-              {messages.characterDetail.routes.downloadsDescription}
-            </span>
-          </span>
-        </Link>
+          title={messages.characterDetail.routes.downloadsTitle}
+          description={messages.characterDetail.routes.downloadsDescription}
+          label={messages.common.openDownloads}
+          icon={<DownloadIcon className="size-4" />}
+        />
       </PublicSection>
     </SitePageShell>
   );

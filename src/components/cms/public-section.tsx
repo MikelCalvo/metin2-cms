@@ -24,7 +24,7 @@ export function PublicSection({
   return (
     <section
       className={cn(
-        "rounded-[24px] border border-white/10 bg-white/[0.04] px-5 py-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:px-6 sm:py-6",
+        "site-surface rounded-[24px] px-5 py-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:px-6 sm:py-6",
         className,
       )}
     >

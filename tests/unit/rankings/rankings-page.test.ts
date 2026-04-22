@@ -54,6 +54,8 @@ describe("rankings page", () => {
     });
 
     const html = renderToStaticMarkup(await RankingsPage());
+    const publicDataTables = html.match(/data-slot=\"public-data-table\"/g) ?? [];
+    const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
 
     expect(html).toContain("Character ladder");
     expect(html).toContain("Top 3 right now");
@@ -67,6 +69,8 @@ describe("rankings page", () => {
     expect(html).toContain('href="/characters/1"');
     expect(html).toContain('data-slot="ranking-highlight-card"');
     expect(html).toContain('data-slot="route-card"');
+    expect(publicDataTables).toHaveLength(2);
+    expect(publicActionTiles).toHaveLength(3);
     expect(html).toContain('href="/downloads"');
     expect(html).toContain('href="/register"');
     expect(html).toContain('href="/login"');

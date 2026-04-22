@@ -56,10 +56,10 @@ export function SiteNav({
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-full border px-3 py-1.5 text-sm transition-colors",
+              "site-pill rounded-full px-3 py-1.5 text-sm transition-colors",
               active
-                ? "border-violet-400/30 bg-violet-500/10 text-violet-100"
-                : "border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:bg-white/10 hover:text-white",
+                ? "border-violet-400/30 bg-violet-500/12 text-violet-100 shadow-[0_0_0_1px_rgba(168,85,247,0.15)]"
+                : "text-zinc-300 hover:border-white/20 hover:bg-white/10 hover:text-white",
               linkClassName,
             )}
           >

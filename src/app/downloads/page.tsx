@@ -6,6 +6,7 @@ import {
   UserRoundPlusIcon,
 } from "lucide-react";
 
+import { PublicActionTile } from "@/components/cms/public-action-tile";
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { DownloadChecksumCopyButton } from "@/components/downloads/checksum-copy-button";
@@ -152,19 +153,19 @@ export default async function DownloadsPage() {
           ) : null}
         </div>
 
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipWindows}</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipWine}</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipBaseClient}</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.downloads.chipResume}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipWindows}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipWine}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipBaseClient}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.downloads.chipResume}</div>
         {hasStarterPackDownload && starterPackChecksum ? (
           <DownloadChecksumCopyButton checksum={starterPackChecksum} />
         ) : null}
       </CmsPageHeader>
 
       {releaseMetadata ? (
-        <Card className="border-white/10 bg-black/20 shadow-none">
+        <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
           <CardHeader className="space-y-3">
-            <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+            <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-violet-200">
               <DownloadIcon className="size-4" />
             </div>
             <div className="space-y-2">
@@ -173,7 +174,7 @@ export default async function DownloadsPage() {
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {releaseSnapshotItems.map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+              <div key={item.label} className="site-inset rounded-2xl px-4 py-3">
                 <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{item.label}</p>
                 <p className="mt-2 text-sm font-medium text-zinc-100">{item.value}</p>
               </div>
@@ -182,31 +183,25 @@ export default async function DownloadsPage() {
         </Card>
       ) : null}
 
-      <Card className="border-white/10 bg-black/20 shadow-none">
-        <CardContent className="space-y-3 px-4 py-4">
+      <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
+        <CardContent className="space-y-4 px-4 py-4">
           <p className="text-sm leading-6 text-zinc-400">
             {messages.downloads.nextIntro}
           </p>
 
-          {nextRoutes.map((route) => (
-            <Link
-              key={route.href}
-              href={route.href}
-              data-slot="next-route"
-              className="group flex items-center gap-4 rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-left transition duration-200 hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
-            >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200 transition-colors group-hover:border-violet-300/30 group-hover:bg-violet-500/20 group-hover:text-violet-100">
-                {route.icon}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-medium text-white">{route.title}</span>
-                <span className="block text-sm leading-6 text-zinc-400 group-hover:text-zinc-300">
-                  {route.description}
-                </span>
-              </span>
-              <ArrowRightIcon className="size-4 shrink-0 text-zinc-500 transition-transform group-hover:translate-x-1 group-hover:text-white" />
-            </Link>
-          ))}
+          <div className="grid gap-4 md:grid-cols-3">
+            {nextRoutes.map((route) => (
+              <PublicActionTile
+                key={route.href}
+                href={route.href}
+                title={route.title}
+                description={route.description}
+                label={route.label}
+                icon={route.icon}
+                dataSlot="next-route"
+              />
+            ))}
+          </div>
         </CardContent>
       </Card>
     </SitePageShell>

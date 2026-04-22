@@ -45,6 +45,7 @@ describe("downloads page", () => {
     const html = renderToStaticMarkup(await DownloadsPage());
     const launchStepCards = html.match(/data-slot=\"launch-step\"/g) ?? [];
     const nextRouteRows = html.match(/data-slot=\"next-route\"/g) ?? [];
+    const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
     const primaryActionGroups = html.match(/data-slot=\"downloads-primary-actions\"/g) ?? [];
     const largeButtons = html.match(/data-size=\"lg\"/g) ?? [];
 
@@ -65,6 +66,7 @@ describe("downloads page", () => {
     expect(html).toContain("h-12 justify-between rounded-2xl");
     expect(html).toContain("After download: account, sign in, rankings.");
     expect(nextRouteRows).toHaveLength(3);
+    expect(publicActionTiles).toHaveLength(3);
     expect(launchStepCards).toHaveLength(0);
     expect(html).toContain("Create account");
     expect(html).toContain("Set up your login first.");

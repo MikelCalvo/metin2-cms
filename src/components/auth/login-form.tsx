@@ -19,7 +19,7 @@ export function LoginForm({ notice }: { notice?: string }) {
   const { messages } = useI18n();
 
   return (
-    <Card className="w-full border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
+    <Card className="w-full site-surface rounded-[28px] bg-transparent py-0 shadow-none ring-0">
       <CardHeader className="space-y-2">
         <CardTitle className="text-2xl text-white">{messages.login.title}</CardTitle>
       </CardHeader>
@@ -52,7 +52,7 @@ export function LoginForm({ notice }: { notice?: string }) {
               required
               maxLength={16}
               defaultValue={state.values?.login ?? ""}
-              className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+              className="site-inset border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
             />
             {state.fieldErrors?.login?.[0] ? (
               <p className="text-xs text-red-300">{state.fieldErrors.login[0]}</p>
@@ -70,7 +70,7 @@ export function LoginForm({ notice }: { notice?: string }) {
                 type={showPassword ? "text" : "password"}
                 required
                 maxLength={16}
-                className="border-white/10 bg-black/20 pr-10 text-zinc-100 placeholder:text-zinc-500"
+                className="site-inset border-white/10 bg-black/20 pr-10 text-zinc-100 placeholder:text-zinc-500"
               />
               <button
                 type="button"

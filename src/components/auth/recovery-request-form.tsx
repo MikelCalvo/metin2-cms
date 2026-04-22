@@ -27,7 +27,7 @@ export function RecoveryRequestForm({
   const { messages } = useI18n();
 
   return (
-    <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
+    <Card className="site-surface rounded-[28px] bg-transparent py-0 shadow-none ring-0">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl text-white">{messages.recoverForm.title}</CardTitle>
       </CardHeader>
@@ -87,7 +87,7 @@ export function RecoveryRequestForm({
                 required
                 maxLength={16}
                 defaultValue={state.values?.login ?? ""}
-                className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+                className="site-inset border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
               />
               {state.fieldErrors?.login?.[0] ? (
                 <p className="text-xs text-red-300">{state.fieldErrors.login[0]}</p>
@@ -105,7 +105,7 @@ export function RecoveryRequestForm({
                 required
                 maxLength={64}
                 defaultValue={state.values?.email ?? ""}
-                className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+                className="site-inset border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
               />
               {state.fieldErrors?.email?.[0] ? (
                 <p className="text-xs text-red-300">{state.fieldErrors.email[0]}</p>

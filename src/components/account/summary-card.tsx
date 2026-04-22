@@ -25,14 +25,14 @@ export function SummaryCard({
   icon?: ReactNode;
 }) {
   return (
-    <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+    <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
       <CardContent className="space-y-4 px-5 py-5">
         <div className="flex items-start justify-between gap-3">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
             {label}
           </p>
           {icon ? (
-            <div className="rounded-full border border-white/10 bg-white/5 p-2 text-zinc-300">
+            <div className="site-inset rounded-full p-2 text-zinc-300">
               {icon}
             </div>
           ) : null}

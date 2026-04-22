@@ -53,7 +53,7 @@ export function CmsPageHeader({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(168,85,247,0.16),_transparent_35%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.03))] shadow-2xl shadow-black/30 backdrop-blur-xl",
+        "site-surface overflow-hidden rounded-[30px] shadow-2xl shadow-black/30 backdrop-blur-xl",
         className,
       )}
     >

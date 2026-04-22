@@ -165,7 +165,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   return (
     <main className="min-h-screen bg-[#09090b] text-zinc-100">
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-6 sm:gap-10 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <section className="overflow-hidden rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_35%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.03))] shadow-2xl shadow-black/30">
+        <section className="site-surface overflow-hidden rounded-[30px] shadow-2xl shadow-black/30">
           <div className="px-5 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
             <div className="max-w-3xl space-y-4">
               <div className="flex flex-wrap items-center gap-3">
@@ -182,18 +182,18 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                 </h1>
               </div>
               <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
-                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <div className="site-pill rounded-full px-3 py-1.5">
                   {messages.account.emailLabel}: {account.email || messages.common.notConfigured}
                 </div>
-                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <div className="site-pill rounded-full px-3 py-1.5">
                   {messages.account.activeSessions(activeSessions.length)}
                 </div>
                 {accountCharactersOverview.status === "available" ? (
-                  <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                  <div className="site-pill rounded-full px-3 py-1.5">
                     {messages.account.charactersReady(accountCharactersOverview.characters.length)}
                   </div>
                 ) : null}
-                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <div className="site-pill rounded-full px-3 py-1.5">
                   {messages.common.lastPlay}: {formattedLastPlay}
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           title={messages.account.playerHubTitle}
           contentClassName="grid gap-3 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
         >
-          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-1">
               <CardTitle className="text-xl text-white">{messages.account.featuredCharacterTitle}</CardTitle>
             </CardHeader>
@@ -265,13 +265,13 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                     </Button>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-3">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.level}
                       </p>
                       <p className="mt-1 text-sm font-medium text-zinc-100">{featuredCharacter.level}</p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-3">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.playtime}
                       </p>
@@ -279,7 +279,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                         {formatPlaytimeDuration(featuredCharacter.playtime, locale)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-3">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.guild}
                       </p>
@@ -287,7 +287,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                         {featuredCharacter.guildName || messages.common.noValue}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-3">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.lastSeen}
                       </p>
@@ -309,7 +309,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-1">
               <CardTitle className="text-xl text-white">{messages.account.readyTitle}</CardTitle>
             </CardHeader>
@@ -390,7 +390,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             socialId={account.socialId}
           />
 
-          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-1">
               <CardTitle className="text-xl text-white">{messages.common.gameAccount}</CardTitle>
               <CardDescription className="text-sm leading-6 text-zinc-400">
@@ -398,28 +398,28 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+              <div className="site-inset rounded-3xl border-white/10 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <WalletIcon className="size-4" />
                   <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.cash}</p>
                 </div>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.cash}</p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+              <div className="site-inset rounded-3xl border-white/10 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <CoinsIcon className="size-4" />
                   <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.mileage}</p>
                 </div>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.mileage}</p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+              <div className="site-inset rounded-3xl border-white/10 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <ShieldCheckIcon className="size-4" />
                   <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.status}</p>
                 </div>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.status}</p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-black/20 px-4 py-4">
+              <div className="site-inset rounded-3xl border-white/10 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <SparklesIcon className="size-4" />
                   <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.lastPlay}</p>
@@ -465,7 +465,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         >
           <ChangePasswordForm />
 
-          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>

@@ -24,7 +24,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const { messages } = useI18n();
 
   return (
-    <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30 backdrop-blur-xl">
+    <Card className="site-surface rounded-[28px] bg-transparent py-0 shadow-none ring-0">
       <CardHeader className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">
           {messages.resetForm.eyebrow}
@@ -56,7 +56,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
               type="password"
               required
               maxLength={16}
-              className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+              className="site-inset border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
             />
             {state.fieldErrors?.password?.[0] ? (
               <p className="text-xs text-red-300">{state.fieldErrors.password[0]}</p>
@@ -73,7 +73,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
               type="password"
               required
               maxLength={16}
-              className="border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
+              className="site-inset border-white/10 bg-black/20 text-zinc-100 placeholder:text-zinc-500"
             />
             {state.fieldErrors?.passwordConfirmation?.[0] ? (
               <p className="text-xs text-red-300">{state.fieldErrors.passwordConfirmation[0]}</p>

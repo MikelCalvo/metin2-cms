@@ -78,6 +78,7 @@ describe("home page", () => {
     });
 
     const html = renderToStaticMarkup(await Home());
+    const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
 
     expect(html).toContain("Enter the server.");
     expect(html).toContain("Start climbing.");
@@ -106,6 +107,7 @@ describe("home page", () => {
     expect(html).not.toContain("Download starter pack");
     expect(html).toContain('href="/register"');
     expect(html).toContain('href="/rankings"');
+    expect(publicActionTiles).toHaveLength(3);
     expect(html).not.toContain('href="/getting-started"');
     expect(html).not.toContain("First launch");
     expect(html).not.toContain("Enter the shard");

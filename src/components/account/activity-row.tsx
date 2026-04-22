@@ -40,7 +40,7 @@ export function ActivityRow({ entry }: { entry: AccountAuthActivityEntry }) {
   const deviceLabel = summarizeUserAgent(entry.userAgent, locale);
 
   return (
-    <Card className="border-white/10 bg-white/[0.04] shadow-xl shadow-black/20 backdrop-blur-xl">
+    <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
       <CardContent className="space-y-4 px-5 py-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-3">
@@ -70,15 +70,15 @@ export function ActivityRow({ entry }: { entry: AccountAuthActivityEntry }) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+          <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.device}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{deviceLabel}</p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+          <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.ipAddress}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{entry.ip || messages.common.noValue}</p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+          <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.outcome}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{entry.outcomeLabel || entry.outcome}</p>
           </div>

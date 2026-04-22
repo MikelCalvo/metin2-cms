@@ -74,6 +74,7 @@ describe("character detail page", () => {
         params: Promise.resolve({ id: "3" }),
       }),
     );
+    const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
 
     expect(html).toContain("Character profile");
     expect(html).toContain("mk");
@@ -92,6 +93,7 @@ describe("character detail page", () => {
     expect(html).toContain("Horse");
     expect(html).toContain('href="/rankings"');
     expect(html).toContain('href="/downloads"');
+    expect(publicActionTiles).toHaveLength(2);
     expect(html).not.toContain("Live profile pulled directly from the current player schema.");
     expect(html).not.toContain("Level, EXP, time played and core economy state.");
     expect(html).not.toContain("Core combat values and base attributes.");

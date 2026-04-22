@@ -30,7 +30,7 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
   return (
     <Card
       className={cn(
-        "border-white/10 bg-white/[0.04] shadow-xl shadow-black/20 backdrop-blur-xl",
+        "site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0",
         isCurrent && "bg-white/[0.07]",
       )}
     >
@@ -61,19 +61,19 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+          <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.lastSeen}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">
               {formatAccountEventTimestamp(session.lastSeenAt, new Date(), locale)}
             </p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+          <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.created}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">
               {formatAccountEventTimestamp(session.createdAt, new Date(), locale)}
             </p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-3">
+          <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.ipAddress}</p>
             <p className="mt-1 text-sm font-medium text-zinc-100">{session.ip || messages.common.noValue}</p>
           </div>

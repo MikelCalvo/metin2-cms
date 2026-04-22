@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ActivityIcon, ArrowRightIcon, DownloadIcon, ShieldIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
 
+import { PublicActionTile } from "@/components/cms/public-action-tile";
 import { CmsPageHeader } from "@/components/cms/page-shell";
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getIntlLocale, type Locale } from "@/lib/i18n/config";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
@@ -65,7 +65,7 @@ export default async function Home() {
         <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row">
           <Link
             href="/downloads"
-            className="group inline-flex items-center justify-between gap-4 rounded-2xl border border-white/12 bg-white/[0.08] px-4 py-3 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.12]"
+            className="site-inset group inline-flex items-center justify-between gap-4 rounded-2xl px-4 py-3 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.12]"
           >
             <span className="flex items-center gap-3">
               <DownloadIcon className="size-4 text-zinc-200" />
@@ -76,7 +76,7 @@ export default async function Home() {
 
           <Link
             href="/register"
-            className="group inline-flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium text-zinc-100 transition hover:border-white/20 hover:bg-white/[0.06]"
+            className="site-inset group inline-flex items-center justify-between gap-4 rounded-2xl px-4 py-3 text-sm font-medium text-zinc-100 transition hover:border-white/20 hover:bg-white/[0.08]"
           >
             <span className="flex items-center gap-3">
               <UserRoundPlusIcon className="size-4 text-zinc-300" />
@@ -86,10 +86,10 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipWindows}</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipWine}</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipLauncher}</div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{messages.home.chipRankings}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipWindows}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipWine}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipLauncher}</div>
+        <div className="site-pill rounded-full px-3 py-1.5">{messages.home.chipRankings}</div>
       </CmsPageHeader>
 
       <PublicSection
@@ -99,9 +99,9 @@ export default async function Home() {
       >
         {rankingOverview.status === "available" ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <Card className="border-white/10 bg-black/20 shadow-none">
+            <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
               <CardHeader className="space-y-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-200">
+                <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-emerald-200">
                   <ActivityIcon className="size-4" />
                 </div>
                 <div className="space-y-2">
@@ -112,18 +112,18 @@ export default async function Home() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-zinc-300">
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                <div className="site-inset rounded-2xl px-4 py-3">
                   {messages.home.visiblePlayersCount(topPlayers.length)}
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                <div className="site-inset rounded-2xl px-4 py-3">
                   {messages.home.visibleGuildsCount(rankingOverview.guilds.length)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-white/10 bg-black/20 shadow-none">
+            <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
               <CardHeader className="space-y-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-violet-200">
                   <TrophyIcon className="size-4" />
                 </div>
                 <div className="space-y-2">
@@ -152,9 +152,9 @@ export default async function Home() {
               </CardContent>
             </Card>
 
-            <Card className="border-white/10 bg-black/20 shadow-none">
+            <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
               <CardHeader className="space-y-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-500/10 text-amber-200">
+                <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-amber-200">
                   <ShieldIcon className="size-4" />
                 </div>
                 <div className="space-y-2">
@@ -192,9 +192,9 @@ export default async function Home() {
         description={messages.home.identityDescription}
       >
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border-white/10 bg-black/20 shadow-none">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-100">
+              <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-zinc-100">
                 <ShieldIcon className="size-4" />
               </div>
               <div className="space-y-2">
@@ -206,19 +206,16 @@ export default async function Home() {
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               {classChips.map((className) => (
-                <span
-                  key={className}
-                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-100"
-                >
+                <span key={className} className="site-pill rounded-full px-3 py-1.5 text-sm text-zinc-100">
                   {className}
                 </span>
               ))}
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-black/20 shadow-none">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
+              <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-violet-200">
                 <TrophyIcon className="size-4" />
               </div>
               <div className="space-y-2">
@@ -228,11 +225,24 @@ export default async function Home() {
                 </CardDescription>
               </div>
             </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="site-inset rounded-2xl px-4 py-3">
+                <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                  {messages.home.championGuildTitle}
+                </p>
+                <p className="mt-1 text-sm font-medium text-zinc-100">
+                  {championGuild ? championGuild.name : messages.home.championGuildEmpty}
+                </p>
+              </div>
+              <div className="site-inset rounded-2xl px-4 py-3 text-sm text-zinc-300">
+                {messages.home.visibleGuildsCount(rankingOverview.status === "available" ? rankingOverview.guilds.length : 0)}
+              </div>
+            </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-black/20 shadow-none">
+          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
             <CardHeader className="space-y-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-500/10 text-amber-200">
+              <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-amber-200">
                 <ActivityIcon className="size-4" />
               </div>
               <div className="space-y-2">
@@ -242,6 +252,19 @@ export default async function Home() {
                 </CardDescription>
               </div>
             </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="site-inset rounded-2xl px-4 py-3">
+                <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
+                  {messages.home.topPlayersTitle}
+                </p>
+                <p className="mt-1 text-sm font-medium text-zinc-100">
+                  {topPlayers[0]?.name ?? messages.home.liveBoardTitle}
+                </p>
+              </div>
+              <div className="site-inset rounded-2xl px-4 py-3 text-sm text-zinc-300">
+                {messages.home.chipLauncher}
+              </div>
+            </CardContent>
           </Card>
         </div>
       </PublicSection>
@@ -253,29 +276,14 @@ export default async function Home() {
       >
         <div className="grid gap-4 md:grid-cols-3">
           {quickRoutes.map((route) => (
-            <Card key={route.href} className="border-white/10 bg-black/20 shadow-none">
-              <CardHeader className="space-y-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-200">
-                  {route.icon}
-                </div>
-                <div className="space-y-2">
-                  <CardTitle className="text-lg text-white">{route.title}</CardTitle>
-                  <CardDescription className="text-sm leading-6 text-zinc-400">{route.description}</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="px-0 text-zinc-300 hover:bg-transparent hover:text-white"
-                >
-                  <Link href={route.href}>
-                    {route.label}
-                    <ArrowRightIcon className="size-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <PublicActionTile
+              key={route.href}
+              href={route.href}
+              title={route.title}
+              description={route.description}
+              label={route.label}
+              icon={route.icon}
+            />
           ))}
         </div>
       </PublicSection>
