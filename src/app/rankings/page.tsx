@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangleIcon, ArrowRightIcon, DownloadIcon, ShieldCheckIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
+import { AlertTriangleIcon, ArrowRightIcon, DownloadIcon, ShieldCheckIcon, UserRoundPlusIcon } from "lucide-react";
 
 import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";

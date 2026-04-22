@@ -1,15 +1,17 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getCharacterDetailMock, notFoundMock } = vi.hoisted(() => ({
+const { getCharacterDetailMock, notFoundMock, usePathnameMock } = vi.hoisted(() => ({
   getCharacterDetailMock: vi.fn(),
   notFoundMock: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  usePathnameMock: vi.fn(() => "/characters/3"),
 }));
 
 vi.mock("next/navigation", () => ({
   notFound: notFoundMock,
+  usePathname: usePathnameMock,
 }));
 
 vi.mock("@/server/characters/character-detail-service", () => ({
@@ -74,7 +76,7 @@ describe("character detail page", () => {
     expect(html).toContain("Progression");
     expect(html).toContain("Combat stats");
     expect(html).toContain("World");
-    expect(html).toContain("Mount & skill state");
+    expect(html).toContain("Mount &amp; skill state");
     expect(html).toContain("Level");
     expect(html).toContain("EXP");
     expect(html).toContain("Playtime");
