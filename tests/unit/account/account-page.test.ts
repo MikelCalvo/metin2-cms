@@ -274,6 +274,12 @@ describe("account page", () => {
     expect(html).not.toContain("Launcher-ready access");
     expect(html).not.toContain("Security posture");
     expect(html).not.toContain("What gets logged");
+    expect(html).not.toContain("Characters, launcher path and account access in one place.");
+    expect(html).not.toContain("Your main route back into the server starts here.");
+    expect(html).not.toContain("Highest-level character tied to this account.");
+    expect(html).not.toContain("Launcher, ladder and character profile are one click away.");
+    expect(html).not.toContain("Live characters tied to this account.");
+    expect(html).not.toContain("Current first. Close the rest if needed.");
     expect(formatAccountLastPlayTimestampMock).toHaveBeenCalledWith("2026-04-19 01:30:43");
     expect(getAccountCharactersOverviewMock).toHaveBeenCalledWith(7, expect.any(String));
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(1, 7);

@@ -164,10 +164,10 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
 
   return (
     <main className="min-h-screen bg-[#09090b] text-zinc-100">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 sm:py-12 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-6 sm:gap-10 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <section className="overflow-hidden rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_35%),linear-gradient(180deg,_rgba(255,255,255,0.08),_rgba(255,255,255,0.03))] shadow-2xl shadow-black/30">
-          <div className="px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
-            <div className="max-w-3xl space-y-5">
+          <div className="px-5 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
+            <div className="max-w-3xl space-y-4">
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
                   {messages.account.eyebrow}
@@ -176,15 +176,12 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   {account.status}
                 </StatusChip>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                   {account.login}
                 </h1>
-                <p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
-                  {messages.account.heroDescription}
-                </p>
               </div>
-              <div className="flex flex-wrap gap-3 text-sm text-zinc-400">
+              <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
                   {messages.account.emailLabel}: {account.email || messages.common.notConfigured}
                 </div>
@@ -200,11 +197,11 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   {messages.common.lastPlay}: {formattedLastPlay}
                 </div>
               </div>
-              <div data-slot="account-primary-actions" className="flex flex-wrap gap-3">
+              <div data-slot="account-primary-actions" className="grid gap-3 sm:flex sm:flex-wrap">
                 <Button
                   asChild
                   size="lg"
-                  className="h-11 justify-between bg-violet-500 px-5 text-white hover:bg-violet-400"
+                  className="h-11 w-full justify-between bg-violet-500 px-5 text-white hover:bg-violet-400 sm:w-auto"
                 >
                   <Link href="/downloads">
                     {messages.account.downloadsAction}
@@ -215,19 +212,19 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-11 justify-between border-white/10 bg-white/5 px-5 text-zinc-100 hover:bg-white/10"
+                  className="h-11 w-full justify-between border-white/10 bg-white/5 px-5 text-zinc-100 hover:bg-white/10 sm:w-auto"
                 >
                   <Link href="/rankings">
                     {messages.account.rankingsAction}
                     <TrophyIcon className="size-4" />
                   </Link>
                 </Button>
-                <form action={logoutAction}>
+                <form action={logoutAction} className="w-full sm:w-auto">
                   <Button
                     type="submit"
                     size="lg"
                     variant="outline"
-                    className="h-11 justify-between border-white/10 bg-white/5 px-5 text-zinc-100 hover:bg-white/10"
+                    className="h-11 w-full justify-between border-white/10 bg-white/5 px-5 text-zinc-100 hover:bg-white/10 sm:w-auto"
                   >
                     {messages.account.signOutAction}
                     <LogOutIcon className="size-4" />
@@ -239,22 +236,17 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </section>
 
         <DashboardSection
-          badge={messages.account.playerHubBadge}
           title={messages.account.playerHubTitle}
-          description={messages.account.playerHubDescription}
-          contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
+          contentClassName="grid gap-3 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
         >
           <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
             <CardHeader className="space-y-1">
               <CardTitle className="text-xl text-white">{messages.account.featuredCharacterTitle}</CardTitle>
-              <CardDescription className="text-sm leading-6 text-zinc-400">
-                {messages.account.featuredCharacterDescription}
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {featuredCharacter ? (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <Link
                         href={`/characters/${featuredCharacter.id}`}
@@ -264,7 +256,11 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                       </Link>
                       <p className="mt-1 text-sm text-zinc-400">{featuredCharacter.classLabel}</p>
                     </div>
-                    <Button asChild variant="outline" className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
+                    >
                       <Link href={`/characters/${featuredCharacter.id}`}>{messages.account.openCharacterProfile}</Link>
                     </Button>
                   </div>
@@ -316,9 +312,6 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
             <CardHeader className="space-y-1">
               <CardTitle className="text-xl text-white">{messages.account.readyTitle}</CardTitle>
-              <CardDescription className="text-sm leading-6 text-zinc-400">
-                {messages.account.readyDescription}
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-3">
@@ -345,15 +338,23 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   <p className="mt-1 text-sm font-medium text-zinc-100">{activeSessions.length}</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild className="bg-violet-500 text-white hover:bg-violet-400">
+              <div className="grid gap-3 sm:flex sm:flex-wrap">
+                <Button asChild className="w-full bg-violet-500 text-white hover:bg-violet-400 sm:w-auto">
                   <Link href="/downloads">{messages.account.downloadsAction}</Link>
                 </Button>
-                <Button asChild variant="outline" className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
+                >
                   <Link href="/rankings">{messages.account.rankingsAction}</Link>
                 </Button>
                 {featuredCharacter ? (
-                  <Button asChild variant="outline" className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
+                  >
                     <Link href={`/characters/${featuredCharacter.id}`}>{messages.account.openCharacterProfile}</Link>
                   </Button>
                 ) : null}
@@ -363,9 +364,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge={messages.account.overviewBadge}
           title={messages.account.securitySummaryTitle}
-          contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+          contentClassName="grid gap-3 md:grid-cols-2 xl:grid-cols-4"
         >
           {securitySummary.map((item) => (
             <SummaryCard
@@ -380,9 +380,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge={messages.account.accountBadge}
           title={messages.account.accountDetailsTitle}
-          contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]"
+          contentClassName="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]"
         >
           <ProfileSettingsForm
             login={account.login}
@@ -434,10 +433,8 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge={messages.account.charactersBadge}
           title={messages.account.charactersTitle}
-          description={messages.account.charactersDescription}
-          contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+          contentClassName="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
         >
           {accountCharactersOverview.status === "unavailable" ? (
             <Alert className="border-white/10 bg-black/20 text-zinc-100 md:col-span-2 xl:col-span-3">
@@ -463,20 +460,16 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge={messages.account.securityBadge}
           title={messages.account.securityTitle}
-          contentClassName="grid gap-4 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]"
+          contentClassName="grid gap-3 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]"
         >
           <ChangePasswordForm />
 
           <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl">
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
+                <div>
                   <CardTitle className="text-xl text-white">{messages.account.sessionsTitle}</CardTitle>
-                  <CardDescription className="text-sm leading-6 text-zinc-400">
-                    {messages.account.sessionsDescription}
-                  </CardDescription>
                 </div>
                 {otherActiveSessions.length > 0 ? (
                   <form action={closeOtherSessionsAction}>
@@ -514,7 +507,6 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         </DashboardSection>
 
         <DashboardSection
-          badge={messages.account.activityBadge}
           title={messages.account.activityTitle}
           contentClassName="space-y-3"
         >

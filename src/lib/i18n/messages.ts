@@ -503,7 +503,7 @@ const en = {
     rankingsAction: "Rankings",
     signOutAction: "Sign out",
     playerHubBadge: "Player hub",
-    playerHubTitle: "Character spotlight",
+    playerHubTitle: "Player hub",
     playerHubDescription: "Your main route back into the server starts here.",
     featuredCharacterTitle: "Character spotlight",
     featuredCharacterDescription: "Highest-level character tied to this account.",

@@ -15,7 +15,7 @@ export function SiteHeader() {
       data-slot="header-card"
       className="relative z-20 overflow-visible rounded-[28px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 backdrop-blur-xl"
     >
-      <div className="flex flex-col gap-5 px-5 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      <div className="flex flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/" className="text-sm font-semibold tracking-[0.18em] text-white uppercase">
@@ -32,7 +32,10 @@ export function SiteHeader() {
           <SiteNav />
         </div>
 
-        <div data-slot="header-right-actions" className="flex flex-wrap items-center gap-3 lg:justify-end">
+        <div
+          data-slot="header-right-actions"
+          className="flex w-full flex-wrap items-center gap-2.5 lg:w-auto lg:justify-end"
+        >
           <LocaleSwitcher />
 
           <Link

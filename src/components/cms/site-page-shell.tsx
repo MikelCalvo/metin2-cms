@@ -16,7 +16,7 @@ export function SitePageShell({
   containerClassName,
 }: SitePageShellProps) {
   return (
-    <CmsPageShell className={className} containerClassName={cn("gap-8", containerClassName)}>
+    <CmsPageShell className={className} containerClassName={cn("gap-6 sm:gap-8", containerClassName)}>
       <SiteHeader />
       {children}
     </CmsPageShell>
