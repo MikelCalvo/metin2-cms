@@ -28,10 +28,35 @@ describe("ip geo service", () => {
     expect(doxIPMock).not.toHaveBeenCalled();
   });
 
-  it("returns a normalized country code for public addresses", async () => {
-    doxIPMock.mockResolvedValue({ country: "us" });
+  it("returns normalized geo details for public addresses", async () => {
+    doxIPMock.mockResolvedValue({
+      country: "us",
+      city: "Mountain View",
+      zip: "94043",
+      isp: "Google",
+      timeZone: "America/Los_Angeles",
+      source: "ipapi.co",
+      proxy: true,
+      isHosting: true,
+      proxyInfo: {
+        isVPN: false,
+        isTOR: true,
+        isProxy: true,
+      },
+    });
 
-    await expect(lookupIpGeo("8.8.8.8")).resolves.toEqual({ countryCode: "US" });
+    await expect(lookupIpGeo("8.8.8.8")).resolves.toEqual({
+      countryCode: "US",
+      city: "Mountain View",
+      postalCode: "94043",
+      isp: "Google",
+      timeZone: "America/Los_Angeles",
+      source: "ipapi.co",
+      proxy: true,
+      hosting: true,
+      vpn: false,
+      tor: true,
+    });
     expect(doxIPMock).toHaveBeenCalledWith({ ip: "8.8.8.8" });
   });
 

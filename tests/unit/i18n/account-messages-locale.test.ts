@@ -10,5 +10,6 @@ describe("account messages locale", () => {
     expect(messages.account.featuredCharacterTitle).toBe("Información del personaje");
     expect(messages.account.readyTitle).toBe("Información de sesión");
     expect(messages.account.previousLoginIpTitle).toBe("Última IP");
+    expect(messages.common.ipInformation).toBe("Información IP");
   });
 });

@@ -4,10 +4,17 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatAccountEventTimestamp, formatSessionIdentifier, summarizeUserAgent } from "@/lib/account-ui-formatters";
+import {
+  formatAccountEventTimestamp,
+  formatSessionIdentifier,
+  summarizeUserAgent,
+} from "@/lib/account-ui-formatters";
+import { formatFlaggedIp } from "@/lib/ip-geo/presentation";
+import type { IpGeoLookup } from "@/lib/ip-geo/types";
 import { cn } from "@/lib/utils";
 
 import { revokeSessionAction } from "@/app/account/actions";
+import { IpInformationPanel } from "@/components/account/ip-information-panel";
 import { StatusChip } from "@/components/account/status-chip";
 import { useI18n } from "@/components/i18n/i18n-provider";
 
@@ -20,12 +27,14 @@ type SessionCardProps = {
     userAgent: string | null;
   };
   isCurrent: boolean;
+  ipGeo?: IpGeoLookup | null;
 };
 
-export function SessionCard({ session, isCurrent }: SessionCardProps) {
+export function SessionCard({ session, isCurrent, ipGeo = null }: SessionCardProps) {
   const { locale, messages } = useI18n();
   const deviceLabel = summarizeUserAgent(session.userAgent, locale);
   const shortId = formatSessionIdentifier(session.id);
+  const ipLabel = formatFlaggedIp(session.ip, ipGeo?.countryCode);
 
   return (
     <Card
@@ -34,7 +43,7 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
         isCurrent && "bg-white/[0.07]",
       )}
     >
-      <CardContent className="space-y-4 px-5 py-5">
+      <CardContent className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -75,7 +84,7 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
           </div>
           <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.ipAddress}</p>
-            <p className="mt-1 text-sm font-medium text-zinc-100">{session.ip || messages.common.noValue}</p>
+            <p className="mt-1 break-all text-sm font-medium text-zinc-100">{ipLabel || messages.common.noValue}</p>
           </div>
         </div>
 
@@ -87,16 +96,19 @@ export function SessionCard({ session, isCurrent }: SessionCardProps) {
               {messages.common.technicalDetails}
             </AccordionTrigger>
             <AccordionContent className="pt-3">
-              <dl className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
-                <div className="space-y-1">
-                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.sessionId}</dt>
-                  <dd className="break-all text-zinc-100">{session.id}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.userAgent}</dt>
-                  <dd className="break-all text-zinc-100">{session.userAgent || messages.common.noValue}</dd>
-                </div>
-              </dl>
+              <div className="space-y-4">
+                <dl className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
+                  <div className="space-y-1">
+                    <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.sessionId}</dt>
+                    <dd className="break-all text-zinc-100">{session.id}</dd>
+                  </div>
+                  <div className="space-y-1">
+                    <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.userAgent}</dt>
+                    <dd className="break-all text-zinc-100">{session.userAgent || messages.common.noValue}</dd>
+                  </div>
+                </dl>
+                <IpInformationPanel ip={session.ip} ipGeo={ipGeo} />
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

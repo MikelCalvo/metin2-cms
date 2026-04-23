@@ -76,8 +76,13 @@ vi.mock("@/components/account/account-character-card", () => ({
 }));
 
 vi.mock("@/components/account/session-card", () => ({
-  SessionCard: ({ isCurrent }: { isCurrent: boolean }) =>
-    createElement("div", null, isCurrent ? "current-session-card" : "session-card"),
+  SessionCard: ({
+    session,
+    isCurrent,
+  }: {
+    session: { id: string };
+    isCurrent: boolean;
+  }) => createElement("div", null, isCurrent ? `current-session-card:${session.id}` : `session-card:${session.id}`),
 }));
 
 vi.mock("@/components/account/activity-row", () => ({
@@ -156,7 +161,20 @@ describe("account page", () => {
       ],
     });
 
-    lookupIpGeoMock.mockResolvedValueOnce({ countryCode: "ES" });
+    lookupIpGeoMock.mockImplementation(async (ip: string | null | undefined) => {
+      if (ip === "79.117.198.137") {
+        return {
+          countryCode: "ES",
+          city: "Madrid",
+          postalCode: "28001",
+          timeZone: "Europe/Madrid",
+          isp: "Telefonica",
+          source: "ipapi.co",
+        };
+      }
+
+      return null;
+    });
 
     listRecentAuthActivityForAccountMock
       .mockResolvedValueOnce([
@@ -304,6 +322,8 @@ describe("account page", () => {
     expect(html).toContain("Last play: 2 hours ago");
     expect(html).toContain("character-card:mk");
     expect(html).toContain("character-card:WarBoss");
+    expect(html).toContain("current-session-card:current-session");
+    expect(html).toContain("session-card:other-session");
     expect(html).toContain("activity-row:Successful sign-in");
     expect(html).toContain("activity-row:Profile updated");
     expect(html).toContain("activity-row:Password changed");
@@ -329,6 +349,105 @@ describe("account page", () => {
     expect(lookupIpGeoMock).toHaveBeenCalledWith("79.117.198.137");
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(1, 7);
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(2, 7, 4, 0);
+  });
+
+  it("paginates other active sessions three at a time without growing the section downward", async () => {
+    getCurrentAuthenticatedAccountMock.mockResolvedValue({
+      account: {
+        id: 7,
+        login: "mk",
+        status: "OK",
+        email: "mk@example.test",
+        socialId: "1234567",
+        cash: 1200,
+        mileage: 340,
+        lastPlay: "2026-04-19 01:30:43",
+      },
+      session: {
+        id: "current-session",
+      },
+    });
+
+    listAuthenticatedSessionsForAccountMock.mockResolvedValue([
+      {
+        id: "current-session",
+        createdAt: "2026-04-18 12:00:00",
+        lastSeenAt: "2026-04-18 12:10:00",
+        ip: "127.0.0.1",
+        userAgent: "Chrome",
+      },
+      {
+        id: "session-1",
+        createdAt: "2026-04-18 11:00:00",
+        lastSeenAt: "2026-04-18 11:10:00",
+        ip: "79.117.198.101",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-2",
+        createdAt: "2026-04-18 10:00:00",
+        lastSeenAt: "2026-04-18 10:10:00",
+        ip: "79.117.198.102",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-3",
+        createdAt: "2026-04-18 09:00:00",
+        lastSeenAt: "2026-04-18 09:10:00",
+        ip: "79.117.198.103",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-4",
+        createdAt: "2026-04-18 08:00:00",
+        lastSeenAt: "2026-04-18 08:10:00",
+        ip: "79.117.198.104",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-5",
+        createdAt: "2026-04-18 07:00:00",
+        lastSeenAt: "2026-04-18 07:10:00",
+        ip: "79.117.198.105",
+        userAgent: "Firefox",
+      },
+    ]);
+
+    getAccountCharactersOverviewMock.mockResolvedValue({
+      status: "available",
+      characters: [],
+    });
+
+    listRecentAuthActivityForAccountMock.mockResolvedValue([]);
+    buildAccountSecuritySummaryMock.mockReturnValue([
+      { id: "active-sessions", label: "Active sessions", value: "6", helper: "Multiple sessions", tone: "neutral" },
+      { id: "last-successful-sign-in", label: "Last successful sign-in", value: "None", helper: "No activity", tone: "neutral" },
+      { id: "latest-sign-in-issue", label: "Latest sign-in issue", value: "None", helper: "No activity", tone: "neutral" },
+      { id: "latest-account-change", label: "Latest account change", value: "None", helper: "No activity", tone: "neutral" },
+    ]);
+
+    const firstPageHtml = renderToStaticMarkup(await AccountPage({}));
+
+    expect(firstPageHtml).toContain("current-session-card:current-session");
+    expect(firstPageHtml).toContain("session-card:session-1");
+    expect(firstPageHtml).toContain("session-card:session-2");
+    expect(firstPageHtml).toContain("session-card:session-3");
+    expect(firstPageHtml).not.toContain("session-card:session-4");
+    expect(firstPageHtml).not.toContain("session-card:session-5");
+    expect(firstPageHtml).toContain('href="/account?sessionsPage=2"');
+
+    const secondPageHtml = renderToStaticMarkup(
+      await AccountPage({
+        searchParams: Promise.resolve({ sessionsPage: "2" }),
+      }),
+    );
+
+    expect(secondPageHtml).toContain("current-session-card:current-session");
+    expect(secondPageHtml).toContain("session-card:session-4");
+    expect(secondPageHtml).toContain("session-card:session-5");
+    expect(secondPageHtml).not.toContain("session-card:session-1");
+    expect(secondPageHtml).not.toContain('href="/account?sessionsPage=3"');
+    expect(secondPageHtml).toContain('href="/account"');
   });
 
   it("renders previous activity navigation when the user is on a later page", async () => {

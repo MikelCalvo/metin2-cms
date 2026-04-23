@@ -2,11 +2,9 @@ import "server-only";
 
 import { isIP } from "node:net";
 
-import { IPDox } from "node-ipdox";
+import { IPDox, type IPDOXResponse } from "node-ipdox";
 
-export type IpGeoLookup = {
-  countryCode: string;
-};
+import type { IpGeoLookup } from "@/lib/ip-geo/types";
 
 let ipDoxClient: InstanceType<typeof IPDox> | null = null;
 
@@ -53,6 +51,36 @@ function normalizeIp(ip: string | null | undefined) {
   return value ? value : null;
 }
 
+function normalizeOptionalString(value: string | null | undefined) {
+  const trimmedValue = value?.trim();
+  return trimmedValue ? trimmedValue : null;
+}
+
+function mapIpGeoResponse(response: IPDOXResponse | undefined): IpGeoLookup | null {
+  if (!response) {
+    return null;
+  }
+
+  const countryCode = response.country?.toUpperCase();
+
+  if (!countryCode || !/^[A-Z]{2}$/.test(countryCode)) {
+    return null;
+  }
+
+  return {
+    countryCode,
+    city: normalizeOptionalString(response.city),
+    postalCode: normalizeOptionalString(response.zip),
+    isp: normalizeOptionalString(response.isp),
+    timeZone: normalizeOptionalString(response.timeZone),
+    source: normalizeOptionalString(response.source),
+    proxy: response.proxy ?? null,
+    hosting: response.isHosting ?? null,
+    vpn: response.proxyInfo?.isVPN ?? null,
+    tor: response.proxyInfo?.isTOR ?? null,
+  };
+}
+
 export async function lookupIpGeo(ip: string | null | undefined): Promise<IpGeoLookup | null> {
   const normalizedIp = normalizeIp(ip);
 
@@ -70,13 +98,7 @@ export async function lookupIpGeo(ip: string | null | undefined): Promise<IpGeoL
 
   try {
     const response = await getIpDoxClient().doxIP({ ip: normalizedIp });
-    const countryCode = response?.country?.toUpperCase();
-
-    if (!countryCode || !/^[A-Z]{2}$/.test(countryCode)) {
-      return null;
-    }
-
-    return { countryCode };
+    return mapIpGeoResponse(response);
   } catch {
     return null;
   }

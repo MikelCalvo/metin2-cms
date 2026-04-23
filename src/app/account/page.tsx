@@ -28,6 +28,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { formatAccountLastPlayTimestamp } from "@/lib/account-ui-formatters";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
+import { formatFlaggedIp } from "@/lib/ip-geo/presentation";
 import { getAccountCharactersOverview } from "@/server/account/account-characters-service";
 import { findPreviousSuccessfulSignIn } from "@/server/account/account-session-insights";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
@@ -38,6 +39,7 @@ import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/ranking
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
 
 const ACTIVITY_PAGE_SIZE = 3;
+const SESSION_PAGE_SIZE = 3;
 
 const summaryIcons = {
   "active-sessions": <ShieldIcon className="size-4" />,
@@ -60,7 +62,7 @@ function getSingleSearchParam(value: string | string[] | undefined) {
   return value;
 }
 
-function normalizeActivityPage(value: string | undefined) {
+function normalizePage(value: string | undefined) {
   const parsed = Number.parseInt(value ?? "", 10);
 
   if (!Number.isFinite(parsed) || parsed < 1) {
@@ -70,14 +72,15 @@ function normalizeActivityPage(value: string | undefined) {
   return parsed;
 }
 
-function buildActivityPageHref(
+function buildAccountPageHref(
   searchParams: AccountPageSearchParams,
-  activityPage: number,
+  pageKey: string,
+  page: number,
 ) {
   const nextSearchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(searchParams)) {
-    if (key === "activityPage" || typeof value === "undefined") {
+    if (key === pageKey || typeof value === "undefined") {
       continue;
     }
 
@@ -92,8 +95,8 @@ function buildActivityPageHref(
     nextSearchParams.set(key, value);
   }
 
-  if (activityPage > 1) {
-    nextSearchParams.set("activityPage", String(activityPage));
+  if (page > 1) {
+    nextSearchParams.set(pageKey, String(page));
   }
 
   const query = nextSearchParams.toString();
@@ -101,12 +104,9 @@ function buildActivityPageHref(
   return query ? `/account?${query}` : "/account";
 }
 
-function countryCodeToFlagEmoji(countryCode: string | null | undefined) {
-  if (!countryCode || !/^[A-Z]{2}$/.test(countryCode)) {
-    return null;
-  }
-
-  return String.fromCodePoint(...countryCode.split("").map((character) => 127397 + character.charCodeAt(0)));
+function normalizeIpLookupKey(ip: string | null | undefined) {
+  const trimmedIp = ip?.trim();
+  return trimmedIp ? trimmedIp : null;
 }
 
 export default async function AccountPage({ searchParams }: AccountPageProps) {
@@ -119,8 +119,11 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   const locale = await getCurrentLocale();
   const messages = await getMessagesForRequest();
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const activityPage = normalizeActivityPage(
+  const activityPage = normalizePage(
     getSingleSearchParam(resolvedSearchParams.activityPage),
+  );
+  const sessionsPage = normalizePage(
+    getSingleSearchParam(resolvedSearchParams.sessionsPage),
   );
   const activityOffset = (activityPage - 1) * ACTIVITY_PAGE_SIZE;
   const { account, session } = authenticated;
@@ -153,14 +156,41 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   const currentActiveSession =
     activeSessions.find((activeSession) => activeSession.id === session.id) ?? activeSessions[0] ?? null;
   const otherActiveSessions = activeSessions.filter(
-    (activeSession) => activeSession.id !== session.id,
+    (activeSession) => activeSession.id !== currentActiveSession?.id,
   );
+  const sessionsOffset = (sessionsPage - 1) * SESSION_PAGE_SIZE;
+  const visibleOtherActiveSessions = otherActiveSessions.slice(
+    sessionsOffset,
+    sessionsOffset + SESSION_PAGE_SIZE,
+  );
+  const hasPreviousSessionsPage = sessionsPage > 1;
+  const hasNextSessionsPage = otherActiveSessions.length > sessionsOffset + SESSION_PAGE_SIZE;
   const previousSuccessfulSignIn = findPreviousSuccessfulSignIn(
     recentAuthActivity,
     currentActiveSession?.createdAt,
   );
-  const previousSuccessfulSignInGeo = await lookupIpGeo(previousSuccessfulSignIn?.ip);
-  const previousSuccessfulSignInFlag = countryCodeToFlagEmoji(previousSuccessfulSignInGeo?.countryCode);
+  const ipLookupCandidates = Array.from(
+    new Set(
+      [
+        currentActiveSession?.ip,
+        ...visibleOtherActiveSessions.map((activeSession) => activeSession.ip),
+        previousSuccessfulSignIn?.ip,
+        ...visibleAuthActivity.map((entry) => entry.ip),
+      ]
+        .map((ip) => normalizeIpLookupKey(ip))
+        .filter((ip): ip is string => ip !== null),
+    ),
+  );
+  const ipGeoEntries = await Promise.all(
+    ipLookupCandidates.map(async (ip) => [ip, await lookupIpGeo(ip)] as const),
+  );
+  const ipGeoByIp = new Map(ipGeoEntries);
+  const previousSuccessfulSignInGeo =
+    ipGeoByIp.get(normalizeIpLookupKey(previousSuccessfulSignIn?.ip) ?? "") ?? null;
+  const previousSuccessfulSignInLabel = formatFlaggedIp(
+    previousSuccessfulSignIn?.ip,
+    previousSuccessfulSignInGeo?.countryCode,
+  );
   const securitySummary = buildAccountSecuritySummary({
     currentSessionId: session.id,
     activeSessions,
@@ -351,14 +381,9 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                     {messages.account.previousLoginIpTitle}
                   </p>
-                  {previousSuccessfulSignIn?.ip ? (
-                    <p className="mt-1 break-all text-sm font-medium text-zinc-100">
-                      {previousSuccessfulSignInFlag ? `${previousSuccessfulSignInFlag} ` : ""}
-                      {previousSuccessfulSignIn.ip}
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-sm font-medium text-zinc-100">{messages.common.noValue}</p>
-                  )}
+                  <p className="mt-1 break-all text-sm font-medium text-zinc-100">
+                    {previousSuccessfulSignInLabel || messages.common.noValue}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -468,7 +493,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           <ChangePasswordForm />
 
           <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
-            <CardHeader className="space-y-2">
+            <CardHeader className="space-y-2 px-5 pt-5 sm:px-6 sm:pt-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <CardTitle className="text-xl text-white">{messages.account.sessionsTitle}</CardTitle>
@@ -486,15 +511,56 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                 ) : null}
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {currentActiveSession ? <SessionCard session={currentActiveSession} isCurrent /> : null}
+            <CardContent className="space-y-5 px-5 pb-5 sm:px-6 sm:pb-6">
+              {currentActiveSession ? (
+                <SessionCard
+                  session={currentActiveSession}
+                  isCurrent
+                  ipGeo={ipGeoByIp.get(normalizeIpLookupKey(currentActiveSession.ip) ?? "") ?? null}
+                />
+              ) : null}
 
               {otherActiveSessions.length > 0 ? (
-                <div className="space-y-3">
-                  {otherActiveSessions.map((activeSession) => (
-                    <SessionCard key={activeSession.id} session={activeSession} isCurrent={false} />
-                  ))}
-                </div>
+                <>
+                  <div className="space-y-3">
+                    {visibleOtherActiveSessions.map((activeSession) => (
+                      <SessionCard
+                        key={activeSession.id}
+                        session={activeSession}
+                        isCurrent={false}
+                        ipGeo={ipGeoByIp.get(normalizeIpLookupKey(activeSession.ip) ?? "") ?? null}
+                      />
+                    ))}
+                  </div>
+
+                  {hasPreviousSessionsPage || hasNextSessionsPage ? (
+                    <div className="flex flex-wrap gap-3 pt-1">
+                      {hasPreviousSessionsPage ? (
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                        >
+                          <Link href={buildAccountPageHref(resolvedSearchParams, "sessionsPage", sessionsPage - 1)}>
+                            {messages.common.previousPage}
+                          </Link>
+                        </Button>
+                      ) : null}
+
+                      {hasNextSessionsPage ? (
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+                        >
+                          <Link href={buildAccountPageHref(resolvedSearchParams, "sessionsPage", sessionsPage + 1)}>
+                            {messages.common.nextPage}
+                          </Link>
+                        </Button>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </>
               ) : (
                 <Alert className="border-white/10 bg-black/20 text-zinc-100">
                   <ShieldCheckIcon className="size-4" />
@@ -513,7 +579,13 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           contentClassName="space-y-3"
         >
           {visibleAuthActivity.length > 0 ? (
-            visibleAuthActivity.map((entry) => <ActivityRow key={entry.id} entry={entry} />)
+            visibleAuthActivity.map((entry) => (
+              <ActivityRow
+                key={entry.id}
+                entry={entry}
+                ipGeo={ipGeoByIp.get(normalizeIpLookupKey(entry.ip) ?? "") ?? null}
+              />
+            ))
           ) : (
             <Alert className="border-white/10 bg-white/[0.04] text-zinc-100">
               <SparklesIcon className="size-4" />
@@ -532,7 +604,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   variant="outline"
                   className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                 >
-                  <Link href={buildActivityPageHref(resolvedSearchParams, activityPage - 1)}>
+                  <Link href={buildAccountPageHref(resolvedSearchParams, "activityPage", activityPage - 1)}>
                     {messages.common.newerActivity}
                   </Link>
                 </Button>
@@ -544,7 +616,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   variant="outline"
                   className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                 >
-                  <Link href={buildActivityPageHref(resolvedSearchParams, activityPage + 1)}>
+                  <Link href={buildAccountPageHref(resolvedSearchParams, "activityPage", activityPage + 1)}>
                     {messages.common.olderActivity}
                   </Link>
                 </Button>
