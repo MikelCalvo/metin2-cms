@@ -26,12 +26,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAccountLastPlayTimestamp } from "@/lib/account-ui-formatters";
-import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { defaultLocale } from "@/lib/i18n/config";
+import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { getAccountCharactersOverview } from "@/server/account/account-characters-service";
+import { findPreviousSuccessfulSignIn } from "@/server/account/account-session-insights";
 import { buildAccountSecuritySummary } from "@/server/account/account-security-summary";
 import { listRecentAuthActivityForAccount } from "@/server/auth/auth-audit-service";
 import { getCurrentAuthenticatedAccount } from "@/server/auth/current-account";
+import { lookupIpGeo } from "@/server/ip-geo/ip-geo-service";
 import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 import { listAuthenticatedSessionsForAccount } from "@/server/session/session-service";
 
@@ -99,6 +101,14 @@ function buildActivityPageHref(
   return query ? `/account?${query}` : "/account";
 }
 
+function countryCodeToFlagEmoji(countryCode: string | null | undefined) {
+  if (!countryCode || !/^[A-Z]{2}$/.test(countryCode)) {
+    return null;
+  }
+
+  return String.fromCodePoint(...countryCode.split("").map((character) => 127397 + character.charCodeAt(0)));
+}
+
 export default async function AccountPage({ searchParams }: AccountPageProps) {
   const authenticated = await getCurrentAuthenticatedAccount();
 
@@ -140,6 +150,17 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     locale === defaultLocale
       ? formatAccountLastPlayTimestamp(account.lastPlay)
       : formatAccountLastPlayTimestamp(account.lastPlay, new Date(), locale);
+  const currentActiveSession =
+    activeSessions.find((activeSession) => activeSession.id === session.id) ?? activeSessions[0] ?? null;
+  const otherActiveSessions = activeSessions.filter(
+    (activeSession) => activeSession.id !== session.id,
+  );
+  const previousSuccessfulSignIn = findPreviousSuccessfulSignIn(
+    recentAuthActivity,
+    currentActiveSession?.createdAt,
+  );
+  const previousSuccessfulSignInGeo = await lookupIpGeo(previousSuccessfulSignIn?.ip);
+  const previousSuccessfulSignInFlag = countryCodeToFlagEmoji(previousSuccessfulSignInGeo?.countryCode);
   const securitySummary = buildAccountSecuritySummary({
     currentSessionId: session.id,
     activeSessions,
@@ -156,11 +177,6 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           return right.playtime - left.playtime;
         })[0] ?? null
       : null;
-  const currentActiveSession =
-    activeSessions.find((activeSession) => activeSession.id === session.id) ?? activeSessions[0] ?? null;
-  const otherActiveSessions = activeSessions.filter(
-    (activeSession) => activeSession.id !== session.id,
-  );
 
   return (
     <main className="min-h-screen bg-[#09090b] text-zinc-100">
@@ -237,15 +253,15 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
 
         <DashboardSection
           title={messages.account.playerHubTitle}
-          contentClassName="grid gap-3 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
+          contentClassName="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]"
         >
-          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
-            <CardHeader className="space-y-1">
+          <Card className="site-surface h-full rounded-[24px] bg-transparent py-0 shadow-none ring-0">
+            <CardHeader className="space-y-3 px-5 pt-5 sm:px-6 sm:pt-6">
               <CardTitle className="text-xl text-white">{messages.account.featuredCharacterTitle}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6">
               {featuredCharacter ? (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <Link
@@ -259,19 +275,19 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                     <Button
                       asChild
                       variant="outline"
-                      className="w-full border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
+                      className="h-10 w-full rounded-2xl border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 sm:w-auto"
                     >
                       <Link href={`/characters/${featuredCharacter.id}`}>{messages.account.openCharacterProfile}</Link>
                     </Button>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="site-inset rounded-2xl px-4 py-3">
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="site-inset rounded-2xl px-4 py-4">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.level}
                       </p>
                       <p className="mt-1 text-sm font-medium text-zinc-100">{featuredCharacter.level}</p>
                     </div>
-                    <div className="site-inset rounded-2xl px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-4">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.playtime}
                       </p>
@@ -279,7 +295,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                         {formatPlaytimeDuration(featuredCharacter.playtime, locale)}
                       </p>
                     </div>
-                    <div className="site-inset rounded-2xl px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-4">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.guild}
                       </p>
@@ -287,7 +303,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                         {featuredCharacter.guildName || messages.common.noValue}
                       </p>
                     </div>
-                    <div className="site-inset rounded-2xl px-4 py-3">
+                    <div className="site-inset rounded-2xl px-4 py-4">
                       <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                         {messages.rankings.columns.lastSeen}
                       </p>
@@ -309,13 +325,13 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             </CardContent>
           </Card>
 
-          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
-            <CardHeader className="space-y-1">
+          <Card className="site-surface h-full rounded-[24px] bg-transparent py-0 shadow-none ring-0">
+            <CardHeader className="space-y-3 px-5 pt-5 sm:px-6 sm:pt-6">
               <CardTitle className="text-xl text-white">{messages.account.readyTitle}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+            <CardContent className="space-y-5 px-5 pb-5 sm:px-6 sm:pb-6">
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="site-inset rounded-2xl px-4 py-4">
                   <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                     {messages.account.charactersTitle}
                   </p>
@@ -325,17 +341,24 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                       : messages.common.noValue}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                <div className="site-inset rounded-2xl px-4 py-4">
                   <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
                     {messages.common.lastPlay}
                   </p>
                   <p className="mt-1 text-sm font-medium text-zinc-100">{formattedLastPlay}</p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                <div className="site-inset rounded-2xl px-4 py-4">
                   <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
-                    {messages.account.sessionsTitle}
+                    {messages.account.previousLoginIpTitle}
                   </p>
-                  <p className="mt-1 text-sm font-medium text-zinc-100">{activeSessions.length}</p>
+                  {previousSuccessfulSignIn?.ip ? (
+                    <p className="mt-1 break-all text-sm font-medium text-zinc-100">
+                      {previousSuccessfulSignInFlag ? `${previousSuccessfulSignInFlag} ` : ""}
+                      {previousSuccessfulSignIn.ip}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-sm font-medium text-zinc-100">{messages.common.noValue}</p>
+                  )}
                 </div>
               </div>
             </CardContent>

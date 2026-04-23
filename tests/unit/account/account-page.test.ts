@@ -9,6 +9,7 @@ const {
   getAccountCharactersOverviewMock,
   buildAccountSecuritySummaryMock,
   formatAccountLastPlayTimestampMock,
+  lookupIpGeoMock,
   redirectMock,
 } = vi.hoisted(() => ({
   getCurrentAuthenticatedAccountMock: vi.fn(),
@@ -17,6 +18,7 @@ const {
   getAccountCharactersOverviewMock: vi.fn(),
   buildAccountSecuritySummaryMock: vi.fn(),
   formatAccountLastPlayTimestampMock: vi.fn(),
+  lookupIpGeoMock: vi.fn(),
   redirectMock: vi.fn(),
 }));
 
@@ -46,6 +48,10 @@ vi.mock("@/server/account/account-security-summary", () => ({
 
 vi.mock("@/lib/account-ui-formatters", () => ({
   formatAccountLastPlayTimestamp: formatAccountLastPlayTimestampMock,
+}));
+
+vi.mock("@/server/ip-geo/ip-geo-service", () => ({
+  lookupIpGeo: lookupIpGeoMock,
 }));
 
 vi.mock("@/app/account/actions", () => ({
@@ -85,9 +91,10 @@ describe("account page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     formatAccountLastPlayTimestampMock.mockReturnValue("2 hours ago");
+    lookupIpGeoMock.mockResolvedValue(null);
   });
 
-  it("renders the simplified account layout with characters, human-friendly last play, and activity pagination", async () => {
+  it("renders the simplified account layout with character info, session info, last non-current IP, and activity pagination", async () => {
     getCurrentAuthenticatedAccountMock.mockResolvedValue({
       account: {
         id: 7,
@@ -149,6 +156,8 @@ describe("account page", () => {
       ],
     });
 
+    lookupIpGeoMock.mockResolvedValueOnce({ countryCode: "ES" });
+
     listRecentAuthActivityForAccountMock
       .mockResolvedValueOnce([
         {
@@ -160,6 +169,30 @@ describe("account page", () => {
           occurredAt: "2026-04-18 12:00:00",
           ip: "127.0.0.1",
           userAgent: "Chrome",
+          outcome: "Accepted",
+          deliveryMode: null,
+        },
+        {
+          id: 2,
+          eventType: "login",
+          success: true,
+          title: "Successful sign-in",
+          description: "Signed in from home LAN.",
+          occurredAt: "2026-04-18 11:00:00",
+          ip: "192.168.1.20",
+          userAgent: "Firefox",
+          outcome: "Accepted",
+          deliveryMode: null,
+        },
+        {
+          id: 3,
+          eventType: "login",
+          success: true,
+          title: "Successful sign-in",
+          description: "Signed in from another device.",
+          occurredAt: "2026-04-17 22:00:00",
+          ip: "79.117.198.137",
+          userAgent: "Firefox",
           outcome: "Accepted",
           deliveryMode: null,
         },
@@ -251,8 +284,11 @@ describe("account page", () => {
     const rankingsActions = html.match(/>Rankings</g) ?? [];
     const openCharacterProfileActions = html.match(/Open character profile/g) ?? [];
 
-    expect(html).toContain("Character spotlight");
-    expect(html).toContain("Ready for the next login");
+    expect(html).toContain("Character info");
+    expect(html).toContain("Session info");
+    expect(html).toContain("Last IP");
+    expect(html).toContain("🇪🇸 79.117.198.137");
+    expect(html).not.toContain("Spain");
     expect(html).toContain("Account details");
     expect(html).toContain("Game account");
     expect(html).toContain("My characters");
@@ -275,6 +311,8 @@ describe("account page", () => {
     expect(html).not.toContain("activity-row:Recovery requested");
     expect(html).not.toContain("activity-row:Authentication event");
     expect(html).toContain('href="/account?activityPage=2"');
+    expect(html).not.toContain("Character spotlight");
+    expect(html).not.toContain("Ready for the next login");
     expect(html).not.toContain("Quick access");
     expect(html).not.toContain("Open recovery");
     expect(html).not.toContain("Launcher-ready access");
@@ -288,6 +326,7 @@ describe("account page", () => {
     expect(html).not.toContain("Current first. Close the rest if needed.");
     expect(formatAccountLastPlayTimestampMock).toHaveBeenCalledWith("2026-04-19 01:30:43");
     expect(getAccountCharactersOverviewMock).toHaveBeenCalledWith(7, expect.any(String));
+    expect(lookupIpGeoMock).toHaveBeenCalledWith("79.117.198.137");
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(1, 7);
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(2, 7, 4, 0);
   });
