@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { defaultLocale, type Locale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { formatCharacterClassLabel } from "@/server/rankings/rankings-formatters";
@@ -31,6 +32,8 @@ export async function getAccountCharactersOverview(
       status: "available",
       characters: rows.map((row) => ({
         ...row,
+        name: sanitizeDisplayText(row.name),
+        guildName: sanitizeOptionalDisplayText(row.guildName),
         classLabel: formatCharacterClassLabel(row.job, locale),
       })),
     };

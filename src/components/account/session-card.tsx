@@ -9,6 +9,7 @@ import {
   formatSessionIdentifier,
   summarizeUserAgent,
 } from "@/lib/account-ui-formatters";
+import { sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { formatFlaggedIp } from "@/lib/ip-geo/presentation";
 import type { IpGeoLookup } from "@/lib/ip-geo/types";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ export function SessionCard({ session, isCurrent, ipGeo = null }: SessionCardPro
   const deviceLabel = summarizeUserAgent(session.userAgent, locale);
   const shortId = formatSessionIdentifier(session.id);
   const ipLabel = formatFlaggedIp(session.ip, ipGeo?.countryCode);
+  const safeUserAgent = sanitizeOptionalDisplayText(session.userAgent);
 
   return (
     <Card
@@ -104,7 +106,7 @@ export function SessionCard({ session, isCurrent, ipGeo = null }: SessionCardPro
                   </div>
                   <div className="space-y-1">
                     <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.userAgent}</dt>
-                    <dd className="break-all text-zinc-100">{session.userAgent || messages.common.noValue}</dd>
+                    <dd className="break-all text-zinc-100">{safeUserAgent || messages.common.noValue}</dd>
                   </div>
                 </dl>
                 <IpInformationPanel ip={session.ip} ipGeo={ipGeo} />

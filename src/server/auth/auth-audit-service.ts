@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { defaultLocale, type Locale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import type { AuthAuditLogEntry } from "@/lib/db/schema/cms";
@@ -143,33 +144,34 @@ export async function listRecentAuthActivityForAccount(
   return entries.map((entry) => {
     const detail = parseAuditDetail(entry.detail);
     const descriptor = describeActivity(entry, detail.outcome, locale);
-    const localizedExtras =
+    const outcomeLabel =
       locale === defaultLocale
-        ? {}
-        : {
-            outcomeLabel:
-              messages.activity.outcomeLabels[
-                detail.outcome as keyof typeof messages.activity.outcomeLabels
-              ] ?? messages.activity.outcomeLabels.unknown,
-            deliveryModeLabel: detail.deliveryMode
-              ? messages.activity.deliveryLabels[
-                  detail.deliveryMode as keyof typeof messages.activity.deliveryLabels
-                ] ?? detail.deliveryMode
-              : null,
-          };
+        ? undefined
+        : messages.activity.outcomeLabels[
+            detail.outcome as keyof typeof messages.activity.outcomeLabels
+          ] ?? messages.activity.outcomeLabels.unknown;
+    const deliveryModeLabel =
+      locale === defaultLocale
+        ? null
+        : detail.deliveryMode
+          ? messages.activity.deliveryLabels[
+              detail.deliveryMode as keyof typeof messages.activity.deliveryLabels
+            ] ?? detail.deliveryMode
+          : null;
 
     return {
       id: entry.id,
-      eventType: entry.eventType,
-      outcome: detail.outcome,
+      eventType: sanitizeDisplayText(entry.eventType),
+      outcome: sanitizeDisplayText(detail.outcome),
+      ...(outcomeLabel ? { outcomeLabel: sanitizeDisplayText(outcomeLabel) } : {}),
       occurredAt: entry.createdAt,
       success: entry.success === 1,
-      ip: entry.ip ?? null,
-      userAgent: entry.userAgent ?? null,
-      deliveryMode: detail.deliveryMode,
-      title: descriptor.title,
-      description: descriptor.description,
-      ...localizedExtras,
+      ip: sanitizeOptionalDisplayText(entry.ip),
+      userAgent: sanitizeOptionalDisplayText(entry.userAgent),
+      deliveryMode: sanitizeOptionalDisplayText(detail.deliveryMode),
+      ...(deliveryModeLabel ? { deliveryModeLabel: sanitizeDisplayText(deliveryModeLabel) } : {}),
+      title: sanitizeDisplayText(descriptor.title),
+      description: sanitizeDisplayText(descriptor.description),
     };
   });
 }

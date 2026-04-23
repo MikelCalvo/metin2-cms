@@ -7,6 +7,7 @@ import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { formatPlaytimeDuration, formatRankingTimestamp } from "@/server/rankings/rankings-formatters";
 import { getRankingOverview } from "@/server/rankings/rankings-service";
@@ -25,8 +26,23 @@ export default async function RankingsPage() {
   const locale = await getCurrentLocale();
   const messages = await getMessagesForRequest();
   const rankingOverview = await getRankingOverview(locale);
-  const topPlayers = rankingOverview.status === "available" ? rankingOverview.players.slice(0, 3) : [];
-  const championGuild = rankingOverview.status === "available" ? rankingOverview.guilds[0] ?? null : null;
+  const safePlayers =
+    rankingOverview.status === "available"
+      ? rankingOverview.players.map((player) => ({
+          ...player,
+          name: sanitizeDisplayText(player.name),
+          guildName: sanitizeOptionalDisplayText(player.guildName),
+        }))
+      : [];
+  const safeGuilds =
+    rankingOverview.status === "available"
+      ? rankingOverview.guilds.map((guild) => ({
+          ...guild,
+          name: sanitizeDisplayText(guild.name),
+        }))
+      : [];
+  const topPlayers = safePlayers.slice(0, 3);
+  const championGuild = safeGuilds[0] ?? null;
   const nextRoutes = [
     {
       title: messages.rankings.routes.createAccountTitle,
@@ -177,7 +193,7 @@ export default async function RankingsPage() {
                       align: "right",
                     },
                   ]}
-                  rows={rankingOverview.players}
+                  rows={safePlayers}
                   rowKey={(player) => player.id}
                 />
               </div>
@@ -269,7 +285,7 @@ export default async function RankingsPage() {
                       numeric: true,
                     },
                   ]}
-                  rows={rankingOverview.guilds}
+                  rows={safeGuilds}
                   rowKey={(guild) => guild.id}
                 />
               </div>

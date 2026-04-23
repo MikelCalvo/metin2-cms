@@ -76,4 +76,26 @@ describe("current authenticated account guard", () => {
       account: { id: 7, login: "tester01" },
     });
   });
+
+  it("sanitizes account display fields before returning them to the UI", async () => {
+    getCurrentAuthenticatedSessionMock.mockResolvedValueOnce({
+      id: "session-test-id",
+      accountId: 7,
+    });
+    findAccountByIdMock.mockResolvedValueOnce({
+      id: 7,
+      login: "<img src=x onerror=alert(1)>",
+      email: "mk\n@example.test",
+      socialId: "1234567\u202E<script>",
+      status: "OK",
+    });
+
+    await expect(getCurrentAuthenticatedAccount()).resolves.toMatchObject({
+      account: {
+        login: "‹img src=x onerror=alert(1)›",
+        email: "mk @example.test",
+        socialId: "1234567‹script›",
+      },
+    });
+  });
 });

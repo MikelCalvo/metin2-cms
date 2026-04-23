@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n/config";
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import type { IpGeoLookup } from "@/lib/ip-geo/types";
 
 export function countryCodeToFlagEmoji(countryCode: string | null | undefined) {
@@ -13,15 +14,15 @@ export function formatFlaggedIp(
   ip: string | null | undefined,
   countryCode: string | null | undefined,
 ) {
-  const trimmedIp = ip?.trim();
+  const safeIp = sanitizeOptionalDisplayText(ip);
 
-  if (!trimmedIp) {
+  if (!safeIp) {
     return null;
   }
 
   const flagEmoji = countryCodeToFlagEmoji(countryCode);
 
-  return flagEmoji ? `${flagEmoji} ${trimmedIp}` : trimmedIp;
+  return flagEmoji ? `${flagEmoji} ${safeIp}` : safeIp;
 }
 
 export function formatIpGeoLocation(ipGeo: IpGeoLookup | null | undefined, locale: Locale) {
@@ -29,14 +30,16 @@ export function formatIpGeoLocation(ipGeo: IpGeoLookup | null | undefined, local
     return null;
   }
 
-  const city = ipGeo.city?.trim() || null;
+  const city = sanitizeOptionalDisplayText(ipGeo.city);
 
   if (!ipGeo.countryCode || !/^[A-Z]{2}$/.test(ipGeo.countryCode)) {
     return city;
   }
 
   try {
-    const countryName = new Intl.DisplayNames([locale], { type: "region" }).of(ipGeo.countryCode) ?? ipGeo.countryCode;
+    const countryName = sanitizeDisplayText(
+      new Intl.DisplayNames([locale], { type: "region" }).of(ipGeo.countryCode) ?? ipGeo.countryCode,
+    );
 
     if (city) {
       return `${city}, ${countryName}`;

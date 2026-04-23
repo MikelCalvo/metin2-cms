@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sanitizeDisplayText } from "@/lib/display-text";
 import { findAccountById } from "@/server/account/account-repository";
 import { getCurrentAuthenticatedSession, revokeSessionById } from "@/server/session/session-service";
 
@@ -19,6 +20,11 @@ export async function getCurrentAuthenticatedAccount() {
 
   return {
     session,
-    account,
+    account: {
+      ...account,
+      login: sanitizeDisplayText(account.login ?? ""),
+      email: sanitizeDisplayText(account.email ?? ""),
+      socialId: sanitizeDisplayText(account.socialId ?? ""),
+    },
   };
 }

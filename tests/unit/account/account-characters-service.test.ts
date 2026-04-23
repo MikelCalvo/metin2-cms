@@ -78,6 +78,34 @@ describe("account characters service", () => {
     expect(listAccountCharacterRowsMock).toHaveBeenCalledWith(7);
   });
 
+  it("sanitizes character and guild names before exposing them to the UI", async () => {
+    hasAccountCharactersDbConfiguredMock.mockReturnValueOnce(true);
+    listAccountCharacterRowsMock.mockResolvedValueOnce([
+      {
+        id: 12,
+        name: "<img src=x onerror=alert(1)>",
+        job: 0,
+        level: 75,
+        exp: 12345,
+        playtime: 77,
+        lastPlay: "2026-04-17 05:45:44",
+        guildName: "\u202E<GM>\nLegends\u0000",
+      },
+    ]);
+
+    await expect(getAccountCharactersOverview(7)).resolves.toEqual({
+      status: "available",
+      characters: [
+        expect.objectContaining({
+          id: 12,
+          name: "‹img src=x onerror=alert(1)›",
+          guildName: "‹GM› Legends",
+          classLabel: "Warrior",
+        }),
+      ],
+    });
+  });
+
   it("returns an unavailable result and logs when the player query fails", async () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 

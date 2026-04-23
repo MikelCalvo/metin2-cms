@@ -195,4 +195,35 @@ describe("auth audit service", () => {
 
     expect(listRecentAuthAuditEntriesForAccountMock).toHaveBeenCalledWith(7, 20, 5);
   });
+
+  it("sanitizes raw audit strings before exposing fallback activity details", async () => {
+    listRecentAuthAuditEntriesForAccountMock.mockResolvedValueOnce([
+      {
+        id: 101,
+        eventType: "<script>alert(1)</script>",
+        login: "tester01",
+        accountId: 7,
+        ip: "127.0.0.1",
+        userAgent: "Launcher\n<svg onload=alert(1)>",
+        success: 0,
+        detail: "outcome=<b>bad</b>;delivery=<img src=x onerror=1>",
+        createdAt: "2026-04-17 14:20:00",
+      },
+    ]);
+
+    await expect(listRecentAuthActivityForAccount(7)).resolves.toEqual([
+      {
+        id: 101,
+        eventType: "‹script›alert(1)‹/script›",
+        outcome: "‹b›bad‹/b›",
+        occurredAt: "2026-04-17 14:20:00",
+        success: false,
+        ip: "127.0.0.1",
+        userAgent: "Launcher ‹svg onload=alert(1)›",
+        deliveryMode: "‹img src=x onerror=1›",
+        title: "Authentication event",
+        description: "‹script›alert(1)‹/script› (‹b›bad‹/b›)",
+      },
+    ]);
+  });
 });

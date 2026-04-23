@@ -86,6 +86,46 @@ describe("rankings page", () => {
     expect(html).not.toContain("What this board shows");
   });
 
+  it("sanitizes player and guild labels at render time", async () => {
+    getRankingOverviewMock.mockResolvedValueOnce({
+      status: "available",
+      players: [
+        {
+          rank: 1,
+          id: 1,
+          name: "<script>alert(1)</script>",
+          level: 99,
+          exp: 0,
+          playtime: 2,
+          job: 5,
+          classLabel: "Sura",
+          lastPlay: new Date(2026, 3, 18, 5, 45, 44),
+          guildName: "\u202E<Guild>\nOne",
+        },
+      ],
+      guilds: [
+        {
+          rank: 1,
+          id: 1,
+          name: "<img src=x onerror=alert(1)>",
+          level: 20,
+          exp: 0,
+          ladderPoint: 19000,
+          win: 0,
+          draw: 0,
+          loss: 0,
+        },
+      ],
+    });
+
+    const html = renderToStaticMarkup(await RankingsPage());
+
+    expect(html).toContain("‹script›alert(1)‹/script›");
+    expect(html).toContain("‹Guild› One");
+    expect(html).toContain("‹img src=x onerror=alert(1)›");
+    expect(html).not.toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
   it("renders a compact unavailable state when rankings cannot be loaded", async () => {
     getRankingOverviewMock.mockResolvedValueOnce({
       status: "unavailable",

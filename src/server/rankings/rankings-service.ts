@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { defaultLocale, type Locale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import {
@@ -36,11 +37,14 @@ export async function getRankingOverview(
       status: "available",
       players: playerRows.map((row, index) => ({
         ...row,
+        name: sanitizeDisplayText(row.name),
+        guildName: sanitizeOptionalDisplayText(row.guildName),
         rank: index + 1,
         classLabel: formatCharacterClassLabel(row.job, locale),
       })),
       guilds: guildRows.map((row, index) => ({
         ...row,
+        name: sanitizeDisplayText(row.name),
         rank: index + 1,
       })),
     };

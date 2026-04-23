@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatAccountEventTimestamp, summarizeUserAgent } from "@/lib/account-ui-formatters";
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { formatFlaggedIp } from "@/lib/ip-geo/presentation";
 import type { IpGeoLookup } from "@/lib/ip-geo/types";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,11 @@ export function ActivityRow({
   const { locale, messages } = useI18n();
   const deviceLabel = summarizeUserAgent(entry.userAgent, locale);
   const ipLabel = formatFlaggedIp(entry.ip, ipGeo?.countryCode);
+  const safeTitle = sanitizeDisplayText(entry.title);
+  const safeDescription = sanitizeDisplayText(entry.description);
+  const safeOutcome = sanitizeOptionalDisplayText(entry.outcomeLabel ?? entry.outcome);
+  const safeUserAgent = sanitizeOptionalDisplayText(entry.userAgent);
+  const safeDeliveryMode = sanitizeOptionalDisplayText(entry.deliveryModeLabel ?? entry.deliveryMode);
 
   return (
     <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
@@ -66,12 +72,12 @@ export function ActivityRow({
             </div>
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-base font-medium text-white">{entry.title}</p>
+                <p className="text-base font-medium text-white">{safeTitle}</p>
                 <StatusChip tone={entry.success ? "success" : "attention"}>
                   {entry.success ? messages.common.success : messages.common.attention}
                 </StatusChip>
               </div>
-              <p className="max-w-2xl text-sm leading-6 text-zinc-400">{entry.description}</p>
+              <p className="max-w-2xl text-sm leading-6 text-zinc-400">{safeDescription}</p>
             </div>
           </div>
           <p className="text-sm font-medium text-zinc-300">
@@ -90,7 +96,7 @@ export function ActivityRow({
           </div>
           <div className="site-inset rounded-2xl px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">{messages.common.outcome}</p>
-            <p className="mt-1 text-sm font-medium text-zinc-100">{entry.outcomeLabel || entry.outcome}</p>
+            <p className="mt-1 text-sm font-medium text-zinc-100">{safeOutcome || messages.common.noValue}</p>
           </div>
         </div>
 
@@ -106,13 +112,11 @@ export function ActivityRow({
                 <dl className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
                   <div className="space-y-1">
                     <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.userAgent}</dt>
-                    <dd className="break-all text-zinc-100">{entry.userAgent || messages.common.noValue}</dd>
+                    <dd className="break-all text-zinc-100">{safeUserAgent || messages.common.noValue}</dd>
                   </div>
                   <div className="space-y-1">
                     <dt className="text-xs uppercase tracking-[0.14em] text-zinc-500">{messages.common.delivery}</dt>
-                    <dd className="text-zinc-100">
-                      {entry.deliveryModeLabel ?? entry.deliveryMode ?? messages.common.noValue}
-                    </dd>
+                    <dd className="text-zinc-100">{safeDeliveryMode || messages.common.noValue}</dd>
                   </div>
                 </dl>
                 <IpInformationPanel ip={entry.ip} ipGeo={ipGeo} />

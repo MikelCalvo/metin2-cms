@@ -450,6 +450,94 @@ describe("account page", () => {
     expect(secondPageHtml).toContain('href="/account"');
   });
 
+  it("clamps out-of-range session pages to the last populated page", async () => {
+    getCurrentAuthenticatedAccountMock.mockResolvedValue({
+      account: {
+        id: 7,
+        login: "mk",
+        status: "OK",
+        email: "mk@example.test",
+        socialId: "1234567",
+        cash: 1200,
+        mileage: 340,
+        lastPlay: "2026-04-19 01:30:43",
+      },
+      session: {
+        id: "current-session",
+      },
+    });
+
+    listAuthenticatedSessionsForAccountMock.mockResolvedValue([
+      {
+        id: "current-session",
+        createdAt: "2026-04-18 12:00:00",
+        lastSeenAt: "2026-04-18 12:10:00",
+        ip: "127.0.0.1",
+        userAgent: "Chrome",
+      },
+      {
+        id: "session-1",
+        createdAt: "2026-04-18 11:00:00",
+        lastSeenAt: "2026-04-18 11:10:00",
+        ip: "79.117.198.101",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-2",
+        createdAt: "2026-04-18 10:00:00",
+        lastSeenAt: "2026-04-18 10:10:00",
+        ip: "79.117.198.102",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-3",
+        createdAt: "2026-04-18 09:00:00",
+        lastSeenAt: "2026-04-18 09:10:00",
+        ip: "79.117.198.103",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-4",
+        createdAt: "2026-04-18 08:00:00",
+        lastSeenAt: "2026-04-18 08:10:00",
+        ip: "79.117.198.104",
+        userAgent: "Firefox",
+      },
+      {
+        id: "session-5",
+        createdAt: "2026-04-18 07:00:00",
+        lastSeenAt: "2026-04-18 07:10:00",
+        ip: "79.117.198.105",
+        userAgent: "Firefox",
+      },
+    ]);
+
+    getAccountCharactersOverviewMock.mockResolvedValue({
+      status: "available",
+      characters: [],
+    });
+
+    listRecentAuthActivityForAccountMock.mockResolvedValue([]);
+    buildAccountSecuritySummaryMock.mockReturnValue([
+      { id: "active-sessions", label: "Active sessions", value: "6", helper: "Multiple sessions", tone: "neutral" },
+      { id: "last-successful-sign-in", label: "Last successful sign-in", value: "None", helper: "No activity", tone: "neutral" },
+      { id: "latest-sign-in-issue", label: "Latest sign-in issue", value: "None", helper: "No activity", tone: "neutral" },
+      { id: "latest-account-change", label: "Latest account change", value: "None", helper: "No activity", tone: "neutral" },
+    ]);
+
+    const html = renderToStaticMarkup(
+      await AccountPage({
+        searchParams: Promise.resolve({ sessionsPage: "9" }),
+      }),
+    );
+
+    expect(html).toContain("session-card:session-4");
+    expect(html).toContain("session-card:session-5");
+    expect(html).not.toContain("session-card:session-1");
+    expect(html).not.toContain('href="/account?sessionsPage=10"');
+    expect(html).toContain('href="/account"');
+  });
+
   it("renders previous activity navigation when the user is on a later page", async () => {
     getCurrentAuthenticatedAccountMock.mockResolvedValue({
       account: {
@@ -529,6 +617,76 @@ describe("account page", () => {
     expect(html).not.toContain('href="/account?activityPage=3"');
     expect(html).toContain("activity-row:Password changed");
     expect(listRecentAuthActivityForAccountMock).toHaveBeenNthCalledWith(2, 7, 4, 3);
+  });
+
+  it("sanitizes account, featured character, and summary text at render time", async () => {
+    getCurrentAuthenticatedAccountMock.mockResolvedValue({
+      account: {
+        id: 7,
+        login: "<script>alert(1)</script>",
+        status: "OK",
+        email: "mk\n@example.test",
+        socialId: "1234567",
+        cash: 1200,
+        mileage: 340,
+        lastPlay: "2026-04-19 01:30:43",
+      },
+      session: {
+        id: "current-session",
+      },
+    });
+
+    listAuthenticatedSessionsForAccountMock.mockResolvedValue([
+      {
+        id: "current-session",
+        createdAt: "2026-04-18 12:00:00",
+        lastSeenAt: "2026-04-18 12:10:00",
+        ip: "127.0.0.1",
+        userAgent: "Chrome",
+      },
+    ]);
+
+    getAccountCharactersOverviewMock.mockResolvedValue({
+      status: "available",
+      characters: [
+        {
+          id: 3,
+          name: "<img src=x onerror=alert(1)>",
+          job: 7,
+          classLabel: "Shaman",
+          level: 99,
+          exp: 0,
+          playtime: 2,
+          lastPlay: "2026-04-18 05:45:44",
+          guildName: "\u202E<Guild>\nOne",
+        },
+      ],
+    });
+
+    listRecentAuthActivityForAccountMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+    buildAccountSecuritySummaryMock.mockReturnValue([
+      {
+        id: "active-sessions",
+        label: "<Summary>",
+        value: "<b>1</b>",
+        helper: "\u202ETwitter\n<helper>",
+        tone: "neutral",
+      },
+      { id: "last-successful-sign-in", label: "Safe", value: "Now", helper: "Safe", tone: "success" },
+      { id: "latest-sign-in-issue", label: "Safe", value: "None", helper: "Safe", tone: "neutral" },
+      { id: "latest-account-change", label: "Safe", value: "None", helper: "Safe", tone: "neutral" },
+    ]);
+
+    const html = renderToStaticMarkup(await AccountPage({}));
+
+    expect(html).toContain("‹script›alert(1)‹/script›");
+    expect(html).toContain("mk @example.test");
+    expect(html).toContain("‹img src=x onerror=alert(1)›");
+    expect(html).toContain("‹Guild› One");
+    expect(html).toContain("‹Summary›");
+    expect(html).toContain("‹b›1‹/b›");
+    expect(html).toContain("Twitter ‹helper›");
+    expect(html).not.toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
   });
 
   it("shows a graceful unavailable state when the player character feed cannot be loaded", async () => {

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { defaultLocale, type Locale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { formatCharacterClassLabel } from "@/server/rankings/rankings-formatters";
@@ -67,6 +68,8 @@ export async function getCharacterDetail(
       status: "available",
       character: {
         ...row,
+        name: sanitizeDisplayText(row.name),
+        guildName: sanitizeOptionalDisplayText(row.guildName),
         classLabel: formatCharacterClassLabel(row.job, locale),
         guildRoleLabel: formatGuildRoleLabel(row, locale),
         skillGroupLabel: formatSkillGroupLabel(row.skillGroup, locale),

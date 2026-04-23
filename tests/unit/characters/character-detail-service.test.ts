@@ -89,6 +89,51 @@ describe("character detail service", () => {
     expect(findCharacterDetailRowByIdMock).toHaveBeenCalledWith(1);
   });
 
+  it("sanitizes character and guild labels before returning public character details", async () => {
+    hasCharacterDetailDbConfiguredMock.mockReturnValueOnce(true);
+    findCharacterDetailRowByIdMock.mockResolvedValueOnce({
+      id: 1,
+      name: "<img src=x onerror=alert(1)>",
+      job: 0,
+      level: 105,
+      exp: 6077,
+      playtime: 2720,
+      gold: 1352348647,
+      alignment: 193053,
+      lastPlay: new Date(2026, 3, 19, 4, 48, 20),
+      mapIndex: 1,
+      x: 475076,
+      y: 953024,
+      hp: 14678,
+      mp: 760,
+      st: 90,
+      ht: 90,
+      dx: 90,
+      iq: 15,
+      statPoint: 0,
+      skillPoint: 10,
+      skillGroup: 2,
+      subSkillPoint: 46,
+      horseLevel: 30,
+      horseHp: 49,
+      horseStamina: 200,
+      statResetCount: 0,
+      guildId: 1,
+      guildName: "\u202E<script>Guild</script>",
+      guildGrade: 1,
+      guildIsGeneral: 0,
+      guildMasterId: 1,
+    });
+
+    await expect(getCharacterDetail(1)).resolves.toEqual({
+      status: "available",
+      character: expect.objectContaining({
+        name: "‹img src=x onerror=alert(1)›",
+        guildName: "‹script›Guild‹/script›",
+      }),
+    });
+  });
+
   it("returns an unavailable result and logs when the query fails", async () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 

@@ -51,4 +51,27 @@ describe("session card", () => {
     expect(html).toContain("Telefonica");
     expect(html).toContain("ipapi.co");
   });
+
+  it("sanitizes raw user agent strings before rendering technical details", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nProvider,
+        { locale: "en" },
+        createElement(SessionCard, {
+          isCurrent: false,
+          session: {
+            id: "session-80",
+            createdAt: "2026-04-18 10:00:00",
+            lastSeenAt: "2026-04-18 10:30:00",
+            ip: "79.117.198.137",
+            userAgent: "Launcher\n<svg onload=alert(1)>",
+          },
+          ipGeo: null,
+        }),
+      ),
+    );
+
+    expect(html).toContain("Launcher ‹svg onload=alert(1)›");
+    expect(html).not.toContain("&lt;svg onload=alert(1)&gt;");
+  });
 });

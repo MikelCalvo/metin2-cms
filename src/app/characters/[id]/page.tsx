@@ -8,6 +8,7 @@ import { PublicSection } from "@/components/cms/public-section";
 import { SitePageShell } from "@/components/cms/site-page-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { getCharacterDetail } from "@/server/characters/character-detail-service";
@@ -85,6 +86,11 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
   }
 
   const { character } = characterDetail;
+  const safeCharacterName = sanitizeDisplayText(character.name);
+  const safeCharacterClassLabel = sanitizeDisplayText(character.classLabel);
+  const safeCharacterGuildName = sanitizeOptionalDisplayText(character.guildName);
+  const safeCharacterGuildRoleLabel = sanitizeOptionalDisplayText(character.guildRoleLabel);
+  const safeCharacterSkillGroupLabel = sanitizeDisplayText(character.skillGroupLabel);
   const progressionMetrics = [
     { label: messages.rankings.columns.level, value: formatInteger(character.level, intlLocale) },
     { label: messages.rankings.columns.exp, value: formatInteger(character.exp, intlLocale) },
@@ -109,16 +115,16 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
     },
   ] as const;
   const guildMetrics = [
-    { label: messages.rankings.columns.guild, value: character.guildName || messages.common.noValue },
+    { label: messages.rankings.columns.guild, value: safeCharacterGuildName || messages.common.noValue },
     {
       label: messages.characterDetail.fields.guildRole,
-      value: character.guildRoleLabel || messages.common.noValue,
+      value: safeCharacterGuildRoleLabel || messages.common.noValue,
     },
   ] as const;
   const mountMetrics = [
     {
       label: messages.characterDetail.fields.skillGroup,
-      value: character.skillGroupLabel,
+      value: safeCharacterSkillGroupLabel,
     },
     {
       label: messages.characterDetail.fields.skillPoints,
@@ -154,7 +160,7 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
     <SitePageShell>
       <CmsPageHeader
         eyebrow={messages.characterDetail.eyebrow}
-        title={character.name}
+        title={safeCharacterName}
         actions={
           <>
             <Button
@@ -182,13 +188,13 @@ export default async function CharacterDetailPage({ params }: CharacterPageProps
         }
       >
         <div className="site-pill rounded-full px-3 py-1.5">
-          {character.classLabel}
+          {safeCharacterClassLabel}
         </div>
         <div className="site-pill rounded-full px-3 py-1.5">
           {messages.rankings.columns.level}: {formatInteger(character.level, intlLocale)}
         </div>
         <div className="site-pill rounded-full px-3 py-1.5">
-          {messages.rankings.columns.guild}: {character.guildName || messages.common.noValue}
+          {messages.rankings.columns.guild}: {safeCharacterGuildName || messages.common.noValue}
         </div>
         <div className="site-pill rounded-full px-3 py-1.5">
           {messages.rankings.columns.lastSeen}: {formatRankingTimestamp(character.lastPlay, new Date(), locale)}

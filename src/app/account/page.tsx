@@ -26,6 +26,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAccountLastPlayTimestamp } from "@/lib/account-ui-formatters";
+import { sanitizeDisplayText, sanitizeOptionalDisplayText } from "@/lib/display-text";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { formatFlaggedIp } from "@/lib/ip-geo/presentation";
@@ -70,6 +71,11 @@ function normalizePage(value: string | undefined) {
   }
 
   return parsed;
+}
+
+function clampPage(page: number, totalItems: number, pageSize: number) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  return Math.min(page, totalPages);
 }
 
 function buildAccountPageHref(
@@ -127,6 +133,10 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   );
   const activityOffset = (activityPage - 1) * ACTIVITY_PAGE_SIZE;
   const { account, session } = authenticated;
+  const safeAccountLogin = sanitizeDisplayText(account.login ?? "");
+  const safeAccountEmail = sanitizeOptionalDisplayText(account.email);
+  const safeAccountStatus = sanitizeDisplayText(account.status ?? "");
+  const safeAccountSocialId = sanitizeDisplayText(account.socialId ?? "");
   const activeSessions = await listAuthenticatedSessionsForAccount(account.id);
   const accountCharactersOverview = await getAccountCharactersOverview(account.id, locale);
   const recentAuthActivity =
@@ -158,12 +168,13 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   const otherActiveSessions = activeSessions.filter(
     (activeSession) => activeSession.id !== currentActiveSession?.id,
   );
-  const sessionsOffset = (sessionsPage - 1) * SESSION_PAGE_SIZE;
+  const visibleSessionsPage = clampPage(sessionsPage, otherActiveSessions.length, SESSION_PAGE_SIZE);
+  const sessionsOffset = (visibleSessionsPage - 1) * SESSION_PAGE_SIZE;
   const visibleOtherActiveSessions = otherActiveSessions.slice(
     sessionsOffset,
     sessionsOffset + SESSION_PAGE_SIZE,
   );
-  const hasPreviousSessionsPage = sessionsPage > 1;
+  const hasPreviousSessionsPage = visibleSessionsPage > 1;
   const hasNextSessionsPage = otherActiveSessions.length > sessionsOffset + SESSION_PAGE_SIZE;
   const previousSuccessfulSignIn = findPreviousSuccessfulSignIn(
     recentAuthActivity,
@@ -196,7 +207,12 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     activeSessions,
     recentAuthActivity,
     locale,
-  });
+  }).map((item) => ({
+    ...item,
+    label: sanitizeDisplayText(item.label),
+    value: sanitizeDisplayText(item.value),
+    helper: sanitizeDisplayText(item.helper),
+  }));
   const featuredCharacter =
     accountCharactersOverview.status === "available"
       ? [...accountCharactersOverview.characters].sort((left, right) => {
@@ -207,6 +223,10 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           return right.playtime - left.playtime;
         })[0] ?? null
       : null;
+  const safeFeaturedCharacterName = featuredCharacter ? sanitizeDisplayText(featuredCharacter.name) : null;
+  const safeFeaturedCharacterGuildName = featuredCharacter
+    ? sanitizeOptionalDisplayText(featuredCharacter.guildName)
+    : null;
 
   return (
     <main className="min-h-screen bg-[#09090b] text-zinc-100">
@@ -219,17 +239,17 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   {messages.account.eyebrow}
                 </p>
                 <StatusChip tone={account.status === "OK" ? "success" : "attention"}>
-                  {account.status}
+                  {safeAccountStatus}
                 </StatusChip>
               </div>
               <div className="space-y-2">
                 <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  {account.login}
+                  {safeAccountLogin}
                 </h1>
               </div>
               <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
                 <div className="site-pill rounded-full px-3 py-1.5">
-                  {messages.account.emailLabel}: {account.email || messages.common.notConfigured}
+                  {messages.account.emailLabel}: {safeAccountEmail || messages.common.notConfigured}
                 </div>
                 <div className="site-pill rounded-full px-3 py-1.5">
                   {messages.account.activeSessions(activeSessions.length)}
@@ -298,7 +318,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                         href={`/characters/${featuredCharacter.id}`}
                         className="text-2xl font-semibold tracking-tight text-white transition-colors hover:text-violet-200"
                       >
-                        {featuredCharacter.name}
+                        {safeFeaturedCharacterName}
                       </Link>
                       <p className="mt-1 text-sm text-zinc-400">{featuredCharacter.classLabel}</p>
                     </div>
@@ -330,7 +350,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                         {messages.rankings.columns.guild}
                       </p>
                       <p className="mt-1 text-sm font-medium text-zinc-100">
-                        {featuredCharacter.guildName || messages.common.noValue}
+                        {safeFeaturedCharacterGuildName || messages.common.noValue}
                       </p>
                     </div>
                     <div className="site-inset rounded-2xl px-4 py-4">
@@ -411,10 +431,10 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           contentClassName="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]"
         >
           <ProfileSettingsForm
-            login={account.login}
-            status={account.status}
-            email={account.email}
-            socialId={account.socialId}
+            login={safeAccountLogin}
+            status={safeAccountStatus}
+            email={safeAccountEmail ?? ""}
+            socialId={safeAccountSocialId}
           />
 
           <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
@@ -444,7 +464,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   <ShieldCheckIcon className="size-4" />
                   <p className="text-[0.72rem] uppercase tracking-[0.14em]">{messages.common.status}</p>
                 </div>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{account.status}</p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{safeAccountStatus}</p>
               </div>
               <div className="site-inset rounded-3xl border-white/10 px-4 py-4">
                 <div className="flex items-center gap-2 text-zinc-400">
@@ -541,7 +561,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                           variant="outline"
                           className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                         >
-                          <Link href={buildAccountPageHref(resolvedSearchParams, "sessionsPage", sessionsPage - 1)}>
+                          <Link href={buildAccountPageHref(resolvedSearchParams, "sessionsPage", visibleSessionsPage - 1)}>
                             {messages.common.previousPage}
                           </Link>
                         </Button>
@@ -553,7 +573,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                           variant="outline"
                           className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
                         >
-                          <Link href={buildAccountPageHref(resolvedSearchParams, "sessionsPage", sessionsPage + 1)}>
+                          <Link href={buildAccountPageHref(resolvedSearchParams, "sessionsPage", visibleSessionsPage + 1)}>
                             {messages.common.nextPage}
                           </Link>
                         </Button>

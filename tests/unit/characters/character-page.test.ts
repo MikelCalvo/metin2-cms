@@ -104,6 +104,56 @@ describe("character detail page", () => {
     expect(getCharacterDetailMock).toHaveBeenCalledWith(3, expect.any(String));
   });
 
+  it("sanitizes character labels at render time", async () => {
+    getCharacterDetailMock.mockResolvedValueOnce({
+      status: "available",
+      character: {
+        id: 3,
+        name: "<script>alert(1)</script>",
+        job: 5,
+        classLabel: "Sura",
+        level: 99,
+        exp: 0,
+        playtime: 2720,
+        gold: 0,
+        alignment: 15,
+        lastPlay: new Date(2026, 3, 19, 0, 27, 14),
+        mapIndex: 1,
+        x: 469300,
+        y: 964200,
+        hp: 14024,
+        mp: 2558,
+        st: 4,
+        ht: 3,
+        dx: 6,
+        iq: 3,
+        statPoint: 270,
+        skillPoint: 98,
+        skillGroup: 0,
+        skillGroupLabel: "No group yet",
+        subSkillPoint: 40,
+        horseLevel: 30,
+        horseHp: 50,
+        horseStamina: 200,
+        statResetCount: 0,
+        guildId: 8,
+        guildName: "\u202E<Guild>\nOne",
+        guildRoleLabel: "<Leader>",
+      },
+    });
+
+    const html = renderToStaticMarkup(
+      await CharacterDetailPage({
+        params: Promise.resolve({ id: "3" }),
+      }),
+    );
+
+    expect(html).toContain("‹script›alert(1)‹/script›");
+    expect(html).toContain("‹Guild› One");
+    expect(html).toContain("‹Leader›");
+    expect(html).not.toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
   it("renders a compact unavailable state when the player feed is unavailable", async () => {
     getCharacterDetailMock.mockResolvedValueOnce({
       status: "unavailable",

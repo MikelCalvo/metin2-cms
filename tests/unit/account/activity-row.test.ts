@@ -53,4 +53,36 @@ describe("activity row", () => {
     expect(html).toContain("Telefonica");
     expect(html).toContain("ipapi.co");
   });
+
+  it("sanitizes raw activity text before rendering event details", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nProvider,
+        { locale: "en" },
+        createElement(ActivityRow, {
+          entry: {
+            id: 92,
+            eventType: "login",
+            outcome: "<b>bad</b>",
+            outcomeLabel: "<b>bad</b>",
+            occurredAt: "2026-04-18 10:30:00",
+            success: false,
+            ip: "79.117.198.137",
+            userAgent: "Launcher\n<svg onload=alert(1)>",
+            deliveryMode: "<img src=x onerror=1>",
+            deliveryModeLabel: "<img src=x onerror=1>",
+            title: "<script>alert(1)</script>",
+            description: "Guild\n<iframe>",
+          },
+          ipGeo: null,
+        }),
+      ),
+    );
+
+    expect(html).toContain("‹script›alert(1)‹/script›");
+    expect(html).toContain("Guild ‹iframe›");
+    expect(html).toContain("Launcher ‹svg onload=alert(1)›");
+    expect(html).toContain("‹img src=x onerror=1›");
+    expect(html).toContain("‹b›bad‹/b›");
+  });
 });
