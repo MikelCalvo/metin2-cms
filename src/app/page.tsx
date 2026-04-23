@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import Link from "next/link";
 import { ActivityIcon, ArrowRightIcon, DownloadIcon, ShieldIcon, TrophyIcon, UserRoundPlusIcon } from "lucide-react";
 
@@ -11,6 +13,98 @@ import { getIntlLocale, type Locale } from "@/lib/i18n/config";
 import { getCurrentLocale, getMessagesForRequest } from "@/lib/i18n/server";
 import { getRankingOverview } from "@/server/rankings/rankings-service";
 
+function WarriorClassIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4" stroke="currentColor" strokeWidth="1.8">
+      <path d="M7 6 4.5 8.5 9 13l2-2-4-5Z" />
+      <path d="m17 6 2.5 2.5L15 13l-2-2 4-5Z" />
+      <path d="m10.5 12.5-4 4" strokeLinecap="round" />
+      <path d="m13.5 12.5 4 4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function NinjaClassIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4" stroke="currentColor" strokeWidth="1.8">
+      <path d="M12 4 13.9 10.1 20 12l-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9L12 4Z" />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function SuraClassIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4" stroke="currentColor" strokeWidth="1.7">
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 4v2.5M12 17.5V20M4 12h2.5M17.5 12H20" strokeLinecap="round" />
+      <path d="m12 8 1.4 2.6 2.6 1.4-2.6 1.4L12 16l-1.4-2.6L8 12l2.6-1.4L12 8Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function ShamanClassIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4" stroke="currentColor" strokeWidth="1.6">
+      <path d="M12 4 13.3 7.2 16.5 8.5 13.3 9.8 12 13 10.7 9.8 7.5 8.5 10.7 7.2 12 4Z" fill="currentColor" stroke="none" />
+      <path d="M18 13.5 18.8 15.5 20.8 16.3 18.8 17.1 18 19.1 17.2 17.1 15.2 16.3 17.2 15.5 18 13.5Z" fill="currentColor" stroke="none" opacity="0.85" />
+      <path d="M6 14.5 6.7 16.1 8.3 16.8 6.7 17.5 6 19.1 5.3 17.5 3.7 16.8 5.3 16.1 6 14.5Z" fill="currentColor" stroke="none" opacity="0.75" />
+    </svg>
+  );
+}
+
+function ClassFlavorChip({
+  accentClassName,
+  icon,
+  label,
+}: {
+  accentClassName: string;
+  icon: ReactNode;
+  label: string;
+}) {
+  return (
+    <div data-slot="identity-class-chip" className="site-inset flex items-center gap-3 rounded-2xl px-3.5 py-3.5">
+      <div
+        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl border shadow-sm shadow-black/10 ${accentClassName}`}
+      >
+        {icon}
+      </div>
+      <div className="min-w-0 text-sm font-medium text-zinc-100">{label}</div>
+    </div>
+  );
+}
+
+function IdentityHighlightRow({
+  detail,
+  metric,
+  name,
+  rank,
+  slot,
+}: {
+  detail: string;
+  metric: string;
+  name: string;
+  rank: number;
+  slot: string;
+}) {
+  return (
+    <div data-slot={slot} className="site-inset flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 text-sm font-medium text-zinc-100">
+          <span className="text-zinc-500">#{rank}</span>
+          <span className="truncate">{name}</span>
+        </div>
+        <p className="mt-1 text-xs text-zinc-400">{detail}</p>
+      </div>
+      <div className="shrink-0 text-right text-sm text-zinc-300">{metric}</div>
+    </div>
+  );
+}
+
+function IdentityEmptyState({ message }: { message: string }) {
+  return <div className="site-inset rounded-2xl px-4 py-4 text-sm text-zinc-400">{message}</div>;
+}
+
 function formatInteger(value: number, locale: Locale) {
   return new Intl.NumberFormat(getIntlLocale(locale)).format(value);
 }
@@ -20,14 +114,34 @@ export default async function Home() {
   const messages = await getMessagesForRequest();
   const rankingOverview = await getRankingOverview(locale);
   const topPlayers = rankingOverview.status === "available" ? rankingOverview.players.slice(0, 3) : [];
-  const championGuild = rankingOverview.status === "available" ? rankingOverview.guilds[0] ?? null : null;
+  const topGuilds = rankingOverview.status === "available" ? rankingOverview.guilds.slice(0, 3) : [];
+  const championGuild = topGuilds[0] ?? null;
   const classChips = [
-    messages.rankingsMeta.classes.warrior,
-    messages.rankingsMeta.classes.ninja,
-    messages.rankingsMeta.classes.sura,
-    messages.rankingsMeta.classes.shaman,
-    messages.rankingsMeta.classes.lycan,
-  ];
+    {
+      key: "warrior",
+      label: messages.rankingsMeta.classes.warrior,
+      icon: <WarriorClassIcon />,
+      accentClassName: "border-amber-300/25 bg-amber-500/14 text-amber-100",
+    },
+    {
+      key: "ninja",
+      label: messages.rankingsMeta.classes.ninja,
+      icon: <NinjaClassIcon />,
+      accentClassName: "border-sky-300/25 bg-sky-500/12 text-sky-100",
+    },
+    {
+      key: "sura",
+      label: messages.rankingsMeta.classes.sura,
+      icon: <SuraClassIcon />,
+      accentClassName: "border-violet-300/25 bg-violet-500/14 text-violet-100",
+    },
+    {
+      key: "shaman",
+      label: messages.rankingsMeta.classes.shaman,
+      icon: <ShamanClassIcon />,
+      accentClassName: "border-emerald-300/25 bg-emerald-500/12 text-emerald-100",
+    },
+  ] as const;
   const quickRoutes = [
     {
       title: messages.home.routes.playNowTitle,
@@ -190,10 +304,10 @@ export default async function Home() {
         title={messages.home.identityTitle}
         description={messages.home.identityDescription}
       >
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
-            <CardHeader className="space-y-3">
-              <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-zinc-100">
+        <div className="grid gap-5 md:grid-cols-3">
+          <Card className="site-surface h-full rounded-[24px] bg-transparent py-0 shadow-none ring-0">
+            <CardHeader className="space-y-4 px-5 pt-5 sm:px-6 sm:pt-6">
+              <div className="site-inset flex size-11 items-center justify-center rounded-2xl text-zinc-100">
                 <ShieldIcon className="size-4" />
               </div>
               <div className="space-y-2">
@@ -203,18 +317,21 @@ export default async function Home() {
                 </CardDescription>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {classChips.map((className) => (
-                <span key={className} className="site-pill rounded-full px-3 py-1.5 text-sm text-zinc-100">
-                  {className}
-                </span>
+            <CardContent className="grid gap-3 px-5 pb-5 sm:px-6 sm:pb-6">
+              {classChips.map((classChip) => (
+                <ClassFlavorChip
+                  key={classChip.key}
+                  accentClassName={classChip.accentClassName}
+                  icon={classChip.icon}
+                  label={classChip.label}
+                />
               ))}
             </CardContent>
           </Card>
 
-          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
-            <CardHeader className="space-y-3">
-              <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-violet-200">
+          <Card className="site-surface h-full rounded-[24px] bg-transparent py-0 shadow-none ring-0">
+            <CardHeader className="space-y-4 px-5 pt-5 sm:px-6 sm:pt-6">
+              <div className="site-inset flex size-11 items-center justify-center rounded-2xl text-violet-200">
                 <TrophyIcon className="size-4" />
               </div>
               <div className="space-y-2">
@@ -224,24 +341,28 @@ export default async function Home() {
                 </CardDescription>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="site-inset rounded-2xl px-4 py-3">
-                <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
-                  {messages.home.championGuildTitle}
-                </p>
-                <p className="mt-1 text-sm font-medium text-zinc-100">
-                  {championGuild ? championGuild.name : messages.home.championGuildEmpty}
-                </p>
-              </div>
-              <div className="site-inset rounded-2xl px-4 py-3 text-sm text-zinc-300">
-                {messages.home.visibleGuildsCount(rankingOverview.status === "available" ? rankingOverview.guilds.length : 0)}
-              </div>
+            <CardContent className="space-y-3 px-5 pb-5 sm:px-6 sm:pb-6">
+              <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">{messages.home.topGuildsTitle}</p>
+              {topGuilds.length > 0 ? (
+                topGuilds.map((guild) => (
+                  <IdentityHighlightRow
+                    key={guild.id}
+                    detail={`${guild.win}-${guild.draw}-${guild.loss}`}
+                    metric={`${formatInteger(guild.ladderPoint, locale)} LP`}
+                    name={guild.name}
+                    rank={guild.rank}
+                    slot="identity-guild-row"
+                  />
+                ))
+              ) : (
+                <IdentityEmptyState message={messages.home.identityGuildWarsEmpty} />
+              )}
             </CardContent>
           </Card>
 
-          <Card className="site-surface rounded-[24px] bg-transparent py-0 shadow-none ring-0">
-            <CardHeader className="space-y-3">
-              <div className="site-inset flex size-10 items-center justify-center rounded-2xl text-amber-200">
+          <Card className="site-surface h-full rounded-[24px] bg-transparent py-0 shadow-none ring-0">
+            <CardHeader className="space-y-4 px-5 pt-5 sm:px-6 sm:pt-6">
+              <div className="site-inset flex size-11 items-center justify-center rounded-2xl text-amber-200">
                 <ActivityIcon className="size-4" />
               </div>
               <div className="space-y-2">
@@ -251,18 +372,22 @@ export default async function Home() {
                 </CardDescription>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="site-inset rounded-2xl px-4 py-3">
-                <p className="text-[0.72rem] uppercase tracking-[0.14em] text-zinc-500">
-                  {messages.home.topPlayersTitle}
-                </p>
-                <p className="mt-1 text-sm font-medium text-zinc-100">
-                  {topPlayers[0]?.name ?? messages.home.liveBoardTitle}
-                </p>
-              </div>
-              <div className="site-inset rounded-2xl px-4 py-3 text-sm text-zinc-300">
-                {messages.home.identityBossRunsStatus}
-              </div>
+            <CardContent className="space-y-3 px-5 pb-5 sm:px-6 sm:pb-6">
+              <p className="text-[0.72rem] uppercase tracking-[0.16em] text-zinc-500">{messages.home.topPlayersTitle}</p>
+              {topPlayers.length > 0 ? (
+                topPlayers.map((player) => (
+                  <IdentityHighlightRow
+                    key={player.id}
+                    detail={player.classLabel}
+                    metric={`Lv ${formatInteger(player.level, locale)}`}
+                    name={player.name}
+                    rank={player.rank}
+                    slot="identity-player-row"
+                  />
+                ))
+              ) : (
+                <IdentityEmptyState message={messages.home.identityBossRunsEmpty} />
+              )}
             </CardContent>
           </Card>
         </div>

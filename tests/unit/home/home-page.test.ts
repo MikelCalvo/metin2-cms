@@ -74,12 +74,37 @@ describe("home page", () => {
           draw: 2,
           loss: 1,
         },
+        {
+          rank: 2,
+          id: 8,
+          name: "RedDragons",
+          level: 19,
+          exp: 0,
+          ladderPoint: 14500,
+          win: 8,
+          draw: 1,
+          loss: 3,
+        },
+        {
+          rank: 3,
+          id: 9,
+          name: "BluePhoenix",
+          level: 18,
+          exp: 0,
+          ladderPoint: 12200,
+          win: 7,
+          draw: 0,
+          loss: 4,
+        },
       ],
     });
 
     const html = renderToStaticMarkup(await Home());
     const publicActionTiles = html.match(/data-action-tile=\"true\"/g) ?? [];
     const platformChips = html.match(/data-slot=\"platform-chip\"/g) ?? [];
+    const identityClassChips = html.match(/data-slot=\"identity-class-chip\"/g) ?? [];
+    const identityGuildRows = html.match(/data-slot=\"identity-guild-row\"/g) ?? [];
+    const identityPlayerRows = html.match(/data-slot=\"identity-player-row\"/g) ?? [];
 
     expect(html).toContain("Enter the server.");
     expect(html).toContain("Start climbing.");
@@ -90,15 +115,21 @@ describe("home page", () => {
     expect(html).toContain("Built for guild wars, boss runs and class mains.");
     expect(html).toContain("Guild wars");
     expect(html).toContain("Boss runs");
+    expect(html).toContain("Top 3 guilds");
     expect(html).toContain("Warrior");
     expect(html).toContain("Ninja");
     expect(html).toContain("Sura");
     expect(html).toContain("Shaman");
-    expect(html).toContain("Lycan");
+    expect(html).not.toContain("Lycan");
+    expect(identityClassChips).toHaveLength(4);
     expect(html).toContain("mk");
     expect(html).toContain("WarBoss");
     expect(html).toContain("ShinsooQueen");
+    expect(identityPlayerRows).toHaveLength(3);
     expect(html).toContain("[GM-TEAM]");
+    expect(html).toContain("RedDragons");
+    expect(html).toContain("BluePhoenix");
+    expect(identityGuildRows).toHaveLength(3);
     expect(html).toContain("19,000 ladder");
     expect(html).toContain("The routes that matter");
     expect(html).toContain("Three routes. No filler.");

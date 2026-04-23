@@ -22,10 +22,6 @@ export function formatCharacterClassLabel(job: number, locale: Locale = defaultL
     return classes.shaman;
   }
 
-  if (job === 8) {
-    return classes.lycan;
-  }
-
   return classes.unknown;
 }
 

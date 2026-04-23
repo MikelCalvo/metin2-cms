@@ -7,7 +7,7 @@ import {
 } from "@/server/rankings/rankings-formatters";
 
 describe("rankings formatters", () => {
-  it("maps known Metin2 character jobs to class labels", () => {
+  it("maps only the four supported legacy Metin2 character jobs to class labels", () => {
     expect(formatCharacterClassLabel(0)).toBe("Warrior");
     expect(formatCharacterClassLabel(1)).toBe("Warrior");
     expect(formatCharacterClassLabel(2)).toBe("Ninja");
@@ -16,10 +16,11 @@ describe("rankings formatters", () => {
     expect(formatCharacterClassLabel(5)).toBe("Sura");
     expect(formatCharacterClassLabel(6)).toBe("Shaman");
     expect(formatCharacterClassLabel(7)).toBe("Shaman");
-    expect(formatCharacterClassLabel(8)).toBe("Lycan");
+    expect(formatCharacterClassLabel(8)).toBe("Unknown");
   });
 
-  it("falls back to an unknown label for unsupported jobs", () => {
+  it("falls back to a localized unknown label for unsupported jobs", () => {
+    expect(formatCharacterClassLabel(8, "es")).toBe("Desconocido");
     expect(formatCharacterClassLabel(99)).toBe("Unknown");
   });
 
