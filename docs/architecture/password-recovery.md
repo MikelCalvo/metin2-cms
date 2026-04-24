@@ -29,6 +29,7 @@ CMS DB writes:
 - request flow returns a generic success message even when login/email do not match, reducing account enumeration
 - recovery requests are rate-limited per login through CMS-side audit data
 - request/reset outcomes are recorded in `metin2_cms.auth_audit_log`
+- inbound request metadata is normalized before persistence: the CMS keeps only the first forwarded IP, strips control/bidi characters, collapses whitespace, and clamps values to the `web_sessions` / `auth_audit_log` / `password_recovery_tokens` column sizes
 - integration tooling refuses to point at non-`*_test` schemas
 
 ## Current limitation

@@ -3,6 +3,7 @@ import "server-only";
 import { cookies } from "next/headers";
 
 import type { IssueSessionInput, SessionContext } from "@/server/auth/types";
+import { normalizeRequestMetadata } from "@/server/auth/request-metadata-normalization";
 import {
   createWebSession,
   findActiveSessionById,
@@ -27,12 +28,13 @@ export async function issueAuthenticatedSession(
 ): Promise<SessionContext> {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + SESSION_MAX_AGE_SECONDS * 1000);
+  const metadata = normalizeRequestMetadata(input);
   const session: SessionContext = {
     id: globalThis.crypto.randomUUID(),
     accountId: input.accountId,
     login: input.login,
-    ip: input.ip ?? null,
-    userAgent: input.userAgent ?? null,
+    ip: metadata.ip,
+    userAgent: metadata.userAgent,
     createdAt: toMysqlDateTime(now),
     lastSeenAt: toMysqlDateTime(now),
     expiresAt: toMysqlDateTime(expiresAt),

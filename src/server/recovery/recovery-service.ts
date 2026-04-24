@@ -13,6 +13,7 @@ import {
   countAuthAuditEntriesSince,
   createAuthAuditLogEntry,
 } from "@/server/auth/auth-audit-repository";
+import { normalizeRequestMetadata } from "@/server/auth/request-metadata-normalization";
 import { hashPasswordWithLegacyAlgorithm } from "@/server/auth/password-compat";
 import {
   deliverPasswordRecoveryLink,
@@ -86,6 +87,7 @@ export async function requestPasswordRecovery(
   const genericMessage = getGenericRecoveryMessage(deliveryConfig.mode, locale);
   const now = new Date();
   const createdAt = toMysqlDateTime(now);
+  const metadata = normalizeRequestMetadata(input);
   const windowStartedAt = toMysqlDateTime(
     new Date(now.getTime() - PASSWORD_RECOVERY_REQUEST_WINDOW_MS),
   );
@@ -100,8 +102,8 @@ export async function requestPasswordRecovery(
       eventType: PASSWORD_RECOVERY_REQUEST_EVENT_TYPE,
       login: input.login,
       accountId: null,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildRecoveryAuditDetail({
         outcome: "rate_limited",
@@ -123,8 +125,8 @@ export async function requestPasswordRecovery(
       eventType: PASSWORD_RECOVERY_REQUEST_EVENT_TYPE,
       login: input.login,
       accountId: account?.id ?? null,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildRecoveryAuditDetail({
         outcome: "login_email_mismatch_or_unavailable",
@@ -147,8 +149,8 @@ export async function requestPasswordRecovery(
     login: account.login,
     email: account.email,
     tokenHash: hashPasswordRecoveryToken(rawToken),
-    requestedIp: input.ip ?? null,
-    requestedUserAgent: input.userAgent ?? null,
+    requestedIp: metadata.ip,
+    requestedUserAgent: metadata.userAgent,
     createdAt,
     expiresAt: toMysqlDateTime(expiresAt),
     consumedAt: null,
@@ -161,8 +163,8 @@ export async function requestPasswordRecovery(
       email: account.email,
       resetUrl,
       requestedAt: createdAt,
-      requestedIp: input.ip ?? null,
-      requestedUserAgent: input.userAgent ?? null,
+      requestedIp: metadata.ip,
+      requestedUserAgent: metadata.userAgent,
     },
     deliveryConfig,
   );
@@ -171,8 +173,8 @@ export async function requestPasswordRecovery(
     eventType: PASSWORD_RECOVERY_REQUEST_EVENT_TYPE,
     login: account.login,
     accountId: account.id,
-    ip: input.ip ?? null,
-    userAgent: input.userAgent ?? null,
+    ip: metadata.ip,
+    userAgent: metadata.userAgent,
     success: 1,
     detail: buildRecoveryAuditDetail({
       outcome: "token_created",

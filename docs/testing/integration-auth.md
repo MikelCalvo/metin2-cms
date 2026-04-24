@@ -26,6 +26,12 @@ Current integration coverage proves:
 - repeated recovery requests are rate-limited per login
 - a recovery token can rotate the legacy password in `account_test.account`
 
+Current unit coverage also hardens the auth write-path boundary by proving that request metadata is normalized before persistence:
+- only the first forwarded IP is kept
+- control/bidi characters are stripped
+- whitespace is collapsed
+- IP / user-agent values are clamped to the CMS column sizes before writes into `web_sessions`, `auth_audit_log`, and `password_recovery_tokens`
+
 Current test file:
 - `tests/integration/auth/auth-flow.integration.test.ts`
 

@@ -173,6 +173,44 @@ describe("recovery service", () => {
     );
   });
 
+  it("normalizes recovery request metadata before writing tokens and audit rows", async () => {
+    findAccountByLoginMock.mockResolvedValueOnce({
+      id: 7,
+      login: "tester01",
+      email: "tester@example.com",
+      status: "OK",
+    });
+    deliverPasswordRecoveryLinkMock.mockResolvedValueOnce({
+      previewResetUrl: "http://localhost:3000/reset-password?token=preview-token",
+    });
+
+    await requestPasswordRecovery({
+      login: "tester01",
+      email: "tester@example.com",
+      ip: " \u0000203.0.113.9 , 10.0.0.1\r\n",
+      userAgent: `\u0000Vitest\r\nBrowser\t${"x".repeat(600)}`,
+    });
+
+    const recoveryToken = createPasswordRecoveryTokenMock.mock.calls[0]?.[0];
+    const deliveryPayload = deliverPasswordRecoveryLinkMock.mock.calls[0]?.[0];
+    const auditEntry = createAuthAuditLogEntryMock.mock.calls.at(-1)?.[0];
+
+    expect(recoveryToken).toBeDefined();
+    expect(recoveryToken.requestedIp).toBe("203.0.113.9");
+    expect(recoveryToken.requestedUserAgent).toHaveLength(512);
+    expect(recoveryToken.requestedUserAgent).toMatch(/^Vitest Browser x+$/);
+
+    expect(deliveryPayload).toBeDefined();
+    expect(deliveryPayload.requestedIp).toBe("203.0.113.9");
+    expect(deliveryPayload.requestedUserAgent).toHaveLength(512);
+    expect(deliveryPayload.requestedUserAgent).toMatch(/^Vitest Browser x+$/);
+
+    expect(auditEntry).toBeDefined();
+    expect(auditEntry.ip).toBe("203.0.113.9");
+    expect(auditEntry.userAgent).toHaveLength(512);
+    expect(auditEntry.userAgent).toMatch(/^Vitest Browser x+$/);
+  });
+
   it("uses a manual-delivery message in file mode", async () => {
     getRecoveryDeliveryConfigMock.mockReturnValueOnce({
       mode: "file",

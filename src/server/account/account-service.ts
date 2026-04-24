@@ -11,6 +11,7 @@ import {
   countAuthAuditEntriesSince,
   createAuthAuditLogEntry,
 } from "@/server/auth/auth-audit-repository";
+import { normalizeRequestMetadata } from "@/server/auth/request-metadata-normalization";
 import {
   hashPasswordWithLegacyAlgorithm,
   verifyLegacyPassword,
@@ -40,6 +41,7 @@ export async function authenticateLegacyAccount(
 ): Promise<AuthenticateLegacyAccountResult> {
   const attemptedAt = new Date();
   const createdAt = toMysqlDateTime(attemptedAt);
+  const metadata = normalizeRequestMetadata(input);
   const recentFailureWindowStartedAt = toMysqlDateTime(
     new Date(attemptedAt.getTime() - LOGIN_RATE_LIMIT_WINDOW_MS),
   );
@@ -56,8 +58,8 @@ export async function authenticateLegacyAccount(
       eventType: LOGIN_AUDIT_EVENT_TYPE,
       login: input.login,
       accountId: null,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildLoginAuditDetail("rate_limited"),
       createdAt,
@@ -77,8 +79,8 @@ export async function authenticateLegacyAccount(
       eventType: LOGIN_AUDIT_EVENT_TYPE,
       login: input.login,
       accountId: null,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildLoginAuditDetail("invalid_credentials"),
       createdAt,
@@ -98,8 +100,8 @@ export async function authenticateLegacyAccount(
       eventType: LOGIN_AUDIT_EVENT_TYPE,
       login: input.login,
       accountId: account.id,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildLoginAuditDetail("invalid_credentials"),
       createdAt,
@@ -117,8 +119,8 @@ export async function authenticateLegacyAccount(
       eventType: LOGIN_AUDIT_EVENT_TYPE,
       login: input.login,
       accountId: account.id,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildLoginAuditDetail("account_unavailable"),
       createdAt,
@@ -135,8 +137,8 @@ export async function authenticateLegacyAccount(
     eventType: LOGIN_AUDIT_EVENT_TYPE,
     login: input.login,
     accountId: account.id,
-    ip: input.ip ?? null,
-    userAgent: input.userAgent ?? null,
+    ip: metadata.ip,
+    userAgent: metadata.userAgent,
     success: 1,
     detail: buildLoginAuditDetail("authenticated"),
     createdAt,

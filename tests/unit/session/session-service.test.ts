@@ -85,6 +85,25 @@ describe("session service", () => {
     expect(cookieStore.set).toHaveBeenCalled();
   });
 
+  it("normalizes request metadata before persisting a session", async () => {
+    const cookieStore = { set: vi.fn(), get: vi.fn(), delete: vi.fn() };
+    cookiesMock.mockResolvedValueOnce(cookieStore);
+
+    await issueAuthenticatedSession({
+      accountId: 7,
+      login: "tester01",
+      ip: " \u0000203.0.113.9 , 10.0.0.1\r\n",
+      userAgent: `\u0000Vitest\r\nBrowser\t${"x".repeat(600)}`,
+    });
+
+    const createdSession = createWebSessionMock.mock.calls[0]?.[0];
+
+    expect(createdSession).toBeDefined();
+    expect(createdSession.ip).toBe("203.0.113.9");
+    expect(createdSession.userAgent).toHaveLength(512);
+    expect(createdSession.userAgent).toMatch(/^Vitest Browser x+$/);
+  });
+
   it("returns null when there is no session cookie", async () => {
     const cookieStore = { set: vi.fn(), get: vi.fn(() => undefined), delete: vi.fn() };
     cookiesMock.mockResolvedValueOnce(cookieStore);

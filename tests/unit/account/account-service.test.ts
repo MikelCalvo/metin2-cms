@@ -164,6 +164,24 @@ describe("account service", () => {
     );
   });
 
+  it("normalizes login request metadata before writing audit rows", async () => {
+    findAccountByLoginMock.mockResolvedValueOnce(null);
+
+    await authenticateLegacyAccount({
+      login: "tester01",
+      password: "abc12345",
+      ip: " \u0000203.0.113.9 , 10.0.0.1\r\n",
+      userAgent: `\u0000Vitest\r\nBrowser\t${"x".repeat(600)}`,
+    });
+
+    const auditEntry = createAuthAuditLogEntryMock.mock.calls[0]?.[0];
+
+    expect(auditEntry).toBeDefined();
+    expect(auditEntry.ip).toBe("203.0.113.9");
+    expect(auditEntry.userAgent).toHaveLength(512);
+    expect(auditEntry.userAgent).toMatch(/^Vitest Browser x+$/);
+  });
+
   it("rejects register when the login already exists", async () => {
     findAccountByLoginMock.mockResolvedValueOnce({ id: 1, login: "tester01" });
 

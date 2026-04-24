@@ -14,6 +14,7 @@ import type {
   UpdateAuthenticatedAccountProfileResult,
 } from "@/server/account/account-settings-types";
 import { createAuthAuditLogEntry } from "@/server/auth/auth-audit-repository";
+import { normalizeRequestMetadata } from "@/server/auth/request-metadata-normalization";
 import {
   hashPasswordWithLegacyAlgorithm,
   verifyLegacyPassword,
@@ -38,6 +39,7 @@ export async function changeAuthenticatedAccountPassword(
 ): Promise<ChangeAuthenticatedAccountPasswordResult> {
   const account = await findAccountById(input.accountId);
   const serverMessages = getMessages(locale).serverMessages;
+  const metadata = normalizeRequestMetadata(input);
 
   if (!account || account.status !== "OK") {
     return {
@@ -58,8 +60,8 @@ export async function changeAuthenticatedAccountPassword(
       eventType: "account.password_change",
       login: input.login,
       accountId: input.accountId,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+      ip: metadata.ip,
+      userAgent: metadata.userAgent,
       success: 0,
       detail: buildAccountPasswordChangeAuditDetail("invalid_current_password"),
       createdAt: changedAt,
@@ -83,8 +85,8 @@ export async function changeAuthenticatedAccountPassword(
     eventType: "account.password_change",
     login: input.login,
     accountId: input.accountId,
-    ip: input.ip ?? null,
-    userAgent: input.userAgent ?? null,
+    ip: metadata.ip,
+    userAgent: metadata.userAgent,
     success: 1,
     detail: buildAccountPasswordChangeAuditDetail("password_updated"),
     createdAt: changedAt,
@@ -102,6 +104,7 @@ export async function updateAuthenticatedAccountProfile(
 ): Promise<UpdateAuthenticatedAccountProfileResult> {
   const account = await findAccountById(input.accountId);
   const serverMessages = getMessages(locale).serverMessages;
+  const metadata = normalizeRequestMetadata(input);
 
   if (!account || account.status !== "OK") {
     return {
@@ -121,8 +124,8 @@ export async function updateAuthenticatedAccountProfile(
     eventType: "account.profile_update",
     login: input.login,
     accountId: input.accountId,
-    ip: input.ip ?? null,
-    userAgent: input.userAgent ?? null,
+    ip: metadata.ip,
+    userAgent: metadata.userAgent,
     success: 1,
     detail: buildAccountProfileUpdateAuditDetail("profile_updated"),
     createdAt: updatedAt,
